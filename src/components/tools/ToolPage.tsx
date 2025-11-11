@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Button } from '../ui/Button';
+import Button from '../ui/Button';
 import FileUploader from './FileUploader';
 import ProcessingStatus, { ProcessingStep } from './ProcessingStatus';
 import ResultDownload, { DownloadFile } from './ResultDownload';
