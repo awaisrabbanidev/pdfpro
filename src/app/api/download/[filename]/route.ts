@@ -104,10 +104,10 @@ export async function GET(
 
 export async function HEAD(
   request: NextRequest,
-  { params }: { params: { filename: string } }
+  { params }: { params: Promise<{ filename: string }> }
 ) {
   try {
-    const filename = params.filename;
+    const { filename } = await params;
 
     // Validate filename
     if (!filename || filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
