@@ -108,7 +108,7 @@ async function convertWordToPDF(
             x: margins.left,
             y: currentY,
             size: fontSize,
-            color: { type: 'RGB', r: 0, g: 0, b: 0 }
+            color: { type: 'RGB', r: 0, g: 0, b: 0 } as any
           });
 
           currentY -= lineHeight;
@@ -130,7 +130,7 @@ async function convertWordToPDF(
           x: margins.left,
           y: currentY,
           size: fontSize,
-          color: { type: 'RGB', r: 0, g: 0, b: 0 }
+          color: { type: 'RGB', r: 0, g: 0, b: 0 } as any
         });
 
         currentY -= lineHeight * 1.5; // Extra space between paragraphs
