@@ -2,11 +2,15 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import cn from 'classnames';
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
   glow?: boolean;
+  disabled?: boolean;
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  type?: 'button' | 'submit' | 'reset';
+  className?: string;
   children: React.ReactNode;
 }
 
@@ -15,10 +19,11 @@ const Button: React.FC<ButtonProps> = ({
   size = 'md',
   loading = false,
   glow = false,
-  children,
-  className,
   disabled,
-  ...props
+  onClick,
+  type = 'button',
+  className,
+  children
 }) => {
   const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed';
 
@@ -47,9 +52,10 @@ const Button: React.FC<ButtonProps> = ({
     <motion.button
       className={classes}
       disabled={disabled || loading}
+      onClick={onClick}
+      type={type}
       whileHover={{ scale: loading || disabled ? 1 : 1.02 }}
       whileTap={{ scale: loading || disabled ? 1 : 0.98 }}
-      {...props}
     >
       {loading && (
         <div className="loading-spinner mr-2" />
