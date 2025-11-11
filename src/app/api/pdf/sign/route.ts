@@ -154,7 +154,7 @@ async function addImageSignature(
     });
 
   } catch (error) {
-    throw new Error('Failed to embed signature image: ' + error.message);
+    throw new Error('Failed to embed signature image: ' + (error instanceof Error ? error.message : String(error)));
   }
 }
 
