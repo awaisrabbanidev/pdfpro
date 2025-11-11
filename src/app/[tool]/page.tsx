@@ -243,13 +243,23 @@ const getDefaultProcessFunction = (toolId: string) => {
           type: 'application/pdf',
           data: file.data
         }));
-      } else if (toolId === 'compress-pdf' || toolId === 'pdf-to-word' || toolId === 'word-to-pdf') {
+      } else if (toolId === 'compress-pdf' || toolId === 'pdf-to-word' || toolId === 'word-to-pdf' || toolId === 'ocr-pdf' || toolId === 'crop-pdf') {
         return [{
           id: result.data.filename,
           name: result.data.filename,
           url: result.data.downloadUrl,
           size: result.data.convertedSize || result.data.size,
-          type: toolId.includes('word') ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/pdf',
+          type: toolId.includes('word') ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' :
+                toolId === 'compare-pdf' ? 'text/html' : 'application/pdf',
+          data: result.data.data
+        }];
+      } else if (toolId === 'compare-pdf') {
+        return [{
+          id: result.data.filename,
+          name: result.data.filename,
+          url: result.data.downloadUrl,
+          size: result.data.size,
+          type: result.data.filename.endsWith('.html') ? 'text/html' : 'application/pdf',
           data: result.data.data
         }];
       }
