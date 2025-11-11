@@ -95,12 +95,11 @@ async function createWordDocument(
   }
 
   // Add main content with page breaks
-  if (options.preserveFormatting && pages && pages.length > 1) {
+  if (options.preserveFormatting && pages && pages > 1) {
     const lines = text.split('\n');
-    let currentPageText = '';
-    let linesPerPage = Math.ceil(lines.length / pages.length);
+    let linesPerPage = Math.ceil(lines.length / pages);
 
-    for (let i = 0; i < pages.length; i++) {
+    for (let i = 0; i < pages; i++) {
       const startIndex = i * linesPerPage;
       const endIndex = Math.min(startIndex + linesPerPage, lines.length);
       const pageLines = lines.slice(startIndex, endIndex);
