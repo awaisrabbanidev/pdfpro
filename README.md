@@ -1,36 +1,130 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PDFPro.pro - Professional PDF Tools
 
-## Getting Started
+A comprehensive PDF processing website with 27 professional PDF tools, built with Next.js and featuring a modern black/green GitHub-inspired design.
 
-First, run the development server:
+## 🚀 Live Demo
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Visit **[https://awaisrabbanidev.github.io/pdfpro/](https://awaisrabbanidev.github.io/pdfpro/)** to see the static demo.
+
+## 📋 Features
+
+### Core PDF Operations
+- **Merge PDF** - Combine multiple PDFs into one document
+- **Split PDF** - Extract pages or split into multiple files
+- **Compress PDF** - Reduce file size with multiple quality levels
+- **Convert PDF** - To/From Word, Excel, PowerPoint, Images
+- **Edit PDF** - Text editing, annotations, and modifications
+- **Sign PDF** - Add digital signatures
+- **OCR PDF** - Extract text from scanned documents
+- **Crop PDF** - Remove margins and unwanted content
+- **Compare PDF** - Compare two documents with detailed reports
+
+### Advanced Tools
+- **Organize PDF** - Reorder pages and manage structure
+- **Rotate PDF** - Adjust page orientations
+- **Watermark** - Add text or image watermarks
+- **Page Numbers** - Add automatic page numbering
+- **Redact PDF** - Black out sensitive information
+- **Repair PDF** - Fix corrupted files
+- **Protect/Unlock PDF** - Password protection and removal
+- **Scan to PDF** - Convert scanned documents
+- **HTML to PDF** - Convert web pages to PDF
+
+## 🎨 Design Features
+
+- **GitHub-Inspired Theme** - Professional black/green color scheme
+- **Responsive Design** - Works perfectly on all devices
+- **Modern UI** - Smooth animations and interactions
+- **Category Filtering** - Easy tool organization
+- **Progress Indicators** - Real-time processing feedback
+- **Drag & Drop** - Intuitive file uploads
+
+## 🛠️ Technology Stack
+
+- **Frontend**: Next.js 16, React 19, TypeScript
+- **Styling**: Tailwind CSS with custom animations
+- **PDF Processing**: PDF-lib, Mammoth
+- **File Handling**: React-dropzone
+- **Animations**: Framer Motion
+- **State Management**: Zustand
+
+## 📁 Project Structure
+
+```
+pdfpro/
+├── src/
+│   ├── app/                 # Next.js App Router
+│   │   ├── api/pdf/        # PDF processing API routes
+│   │   ├── [tool]/         # Dynamic tool pages
+│   │   └── globals.css     # Black/green theme styles
+│   ├── components/         # React components
+│   │   ├── layout/         # Header, Footer, Navigation
+│   │   ├── tools/          # Tool-specific components
+│   │   └── ui/             # Reusable UI components
+│   └── lib/                # Utilities and constants
+├── index.html              # Static demo for GitHub Pages
+├── package.json            # Dependencies and scripts
+└── README.md              # This file
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Getting Started
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Static Demo (GitHub Pages)
+The static demo is already deployed and available at the GitHub Pages link above.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Full Development Version
+```bash
+# Clone the repository
+git clone https://github.com/awaisrabbanidev/pdfpro.git
+cd pdfpro
 
-## Learn More
+# Install dependencies
+npm install
 
-To learn more about Next.js, take a look at the following resources:
+# Run development server
+npm run dev
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Build for production
+npm run build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📝 API Endpoints
 
-## Deploy on Vercel
+The full application includes these API endpoints (server deployment required):
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `POST /api/pdf/merge` - Merge PDF files
+- `POST /api/pdf/split` - Split PDF documents
+- `POST /api/pdf/compress` - Compress PDFs
+- `POST /api/pdf/pdf-to-word` - Convert PDF to Word
+- `POST /api/pdf/word-to-pdf` - Convert Word to PDF
+- `POST /api/pdf/ocr` - Extract text using OCR
+- `POST /api/pdf/crop` - Crop PDF pages
+- `POST /api/pdf/compare` - Compare PDFs
+- `GET /api/download/[filename]` - File downloads
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🔒 Features
+
+- **Security**: File validation and sanitization
+- **Privacy**: Automatic file deletion after 2 hours
+- **Performance**: Optimized processing with progress tracking
+- **Error Handling**: Comprehensive error management
+- **SEO**: Optimized meta tags and structured data
+
+## 🌟 Demo Notes
+
+- The GitHub Pages version is a **static demo** showcasing the UI and design
+- Full PDF processing functionality requires server deployment
+- All 27 tools are represented with proper categorization
+- Interactive demo shows tool information and capabilities
+
+## 📄 License
+
+This project is open source and available under the MIT License.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+---
+
+**Built with ❤️ using Next.js, React, and modern web technologies**
