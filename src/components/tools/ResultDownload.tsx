@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { saveAs } from 'file-saver';
-import { Button } from '../ui/Button';
+import Button from '../ui/Button';
 
 export interface DownloadFile {
   id: string;
