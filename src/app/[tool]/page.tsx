@@ -165,6 +165,54 @@ const getDefaultProcessFunction = (toolId: string) => {
           });
           break;
 
+        case 'ocr-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/ocr`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                language: 'en',
+                outputFormat: 'pdf',
+                preserveLayout: true
+              }
+            })
+          });
+          break;
+
+        case 'crop-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/crop`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              cropOptions: {
+                pages: 'all',
+                margins: { top: 10, bottom: 10, left: 10, right: 10 },
+                units: 'mm'
+              }
+            })
+          });
+          break;
+
+        case 'compare-pdf':
+          if (files.length !== 2) {
+            throw new Error('Compare tool requires exactly 2 files');
+          }
+          response = await fetch(`${baseUrl}/api/pdf/compare`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              files: filesAsBase64,
+              options: {
+                compareMode: 'text',
+                outputFormat: 'html',
+                showDifferences: true
+              }
+            })
+          });
+          break;
+
         default:
           throw new Error(`Tool ${toolId} is not yet implemented`);
       }
