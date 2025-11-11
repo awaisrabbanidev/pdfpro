@@ -162,7 +162,7 @@ async function convertWordToPDF(
     return {
       filename: outputName,
       size: pdfBytes.length,
-      data: pdfBytes
+      data: Buffer.from(pdfBytes)
     };
 
   } catch (error) {
