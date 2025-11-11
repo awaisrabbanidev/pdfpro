@@ -358,7 +358,7 @@ export async function POST(request: NextRequest) {
         signatureType: body.signature.type,
         pageNumber: body.signature.position.page,
         downloadUrl: `/api/download/${outputName}`,
-        data: signedBytes.toString('base64')
+        data: Buffer.from(signedBytes).toString('base64')
       }
     });
 
