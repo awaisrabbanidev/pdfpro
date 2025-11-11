@@ -189,8 +189,8 @@ export async function POST(request: NextRequest) {
 
     const originalFilename = body.file.name;
 
-    // Extract text content
-    const extractedData = await extractTextFromPDF(pdfBuffer);
+    // Analyze PDF content
+    const extractedData = await analyzePDF(pdfBuffer);
 
     if (!extractedData.text || extractedData.text.trim().length === 0) {
       return NextResponse.json(
