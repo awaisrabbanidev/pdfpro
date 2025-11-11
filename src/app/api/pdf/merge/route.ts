@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
         x: 50,
         y: yPosition,
         size: 18,
-        color: { type: 'RGB', r: 0, g: 0, b: 0 }
+        color: { type: 'RGB', r: 0, g: 0, b: 0 } as any
       });
 
       yPosition -= 40;
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
           x: 50,
           y: yPosition,
           size: fontSize,
-          color: { type: 'RGB', r: 0, g: 0, b: 0 }
+          color: { type: 'RGB', r: 0, g: 0, b: 0 } as any
         });
 
         yPosition -= lineHeight;
