@@ -5,6 +5,13 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { SEO_CONFIG } from "@/lib/constants";
 
+// Initialize cleanup system (server-side only)
+if (typeof window === 'undefined') {
+  import('@/lib/cleanup').then(({ scheduleCleanup }) => {
+    scheduleCleanup();
+  }).catch(console.error);
+}
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
