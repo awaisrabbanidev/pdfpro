@@ -3,66 +3,17 @@ import ToolPage from '@/components/tools/ToolPage';
 import { PDF_TOOLS } from '@/lib/constants';
 
 interface ToolPageProps {
-  params: {
+  params: Promise<{
     tool: string;
-  };
+  }>;
 }
 
-export default async function ToolPageRoute({ params }: ToolPageProps) {
-  const { toolId } = params;
-  const tool = PDF_TOOLS.find(t => t.id === toolId);
-
-  if (!tool) {
-    notFound();
-  }
-
-  // Simple static config for now - in a real implementation you'd want dynamic config
-  const config = {
-    features: [
-      'Fast and secure processing',
-      'High-quality results',
-      'No registration required',
-      'Files deleted after 2 hours'
-    ],
-    instructions: [
-      'Upload your files',
-      'Configure options if available',
-      'Click "Process Files"',
-      'Download the result'
-    ],
-    acceptedFileTypes: ['application/pdf'],
-    maxFiles: 10,
-    processingSteps: [
-      { id: 'upload', label: 'Upload files', status: 'pending', error: undefined },
-      { id: 'process', label: 'Process files', status: 'pending', error: undefined },
-      { id: 'complete', label: 'Complete', status: 'pending', error: undefined }
-    ]
-  };
-
-  return (
-    <div className="min-h-screen bg-black py-12 px-4">
-      <ToolPage
-        tool={tool}
-        description={tool.description}
-        features={config.features}
-        instructions={config.instructions}
-        acceptedFileTypes={config.acceptedFileTypes}
-        maxFiles={config.maxFiles}
-        onProcessFiles={async (files: File[]) => {
-          // Placeholder processing function
-          await new Promise(resolve => setTimeout(resolve, 2000));
-          return files.map((file, index) => ({
-            id: `${file.name}-${index}`,
-            name: `processed_${file.name}`,
-            url: '#',
-            size: file.size,
-            type: file.type
-          }));
-        }}
-        processingSteps={config.processingSteps}
-      />
-    </div>
-  );
+// Processing step type (inline definition to avoid import issues)
+interface ProcessingStep {
+  id: string;
+  label: string;
+  status: 'pending' | 'processing' | 'completed' | 'error';
+  error?: string;
 }
 
 // Default processing steps for tools
@@ -148,7 +99,11 @@ const getDefaultProcessFunction = (toolId: string) => {
 // Tool-specific configurations
 const getToolConfig = (toolId: string) => {
   const baseConfig = {
-    processingSteps: getDefaultProcessingSteps(toolId),
+    processingSteps: getDefaultProcessingSteps(toolId).map(step => ({
+      ...step,
+      status: 'pending' as const,
+      error: undefined
+    })),
     onProcessFiles: getDefaultProcessFunction(toolId),
     maxFiles: 10,
     acceptedFileTypes: ['application/pdf']
