@@ -1,0 +1,97 @@
+[
+  {
+    "name": "Merge PDF",
+    "status": "❌ ERROR",
+    "error": "fetch failed"
+  },
+  {
+    "name": "Split PDF",
+    "status": "❌ ERROR",
+    "error": "fetch failed"
+  },
+  {
+    "name": "Compress PDF",
+    "status": "❌ ERROR",
+    "error": "fetch failed"
+  },
+  {
+    "name": "Rotate PDF",
+    "status": "❌ ERROR",
+    "error": "fetch failed"
+  },
+  {
+    "name": "PDF to Word",
+    "status": "❌ ERROR",
+    "error": "fetch failed"
+  },
+  {
+    "name": "PDF to PowerPoint",
+    "status": "❌ ERROR",
+    "error": "fetch failed"
+  },
+  {
+    "name": "PDF to Excel",
+    "status": "❌ ERROR",
+    "error": "fetch failed"
+  },
+  {
+    "name": "PDF to JPG",
+    "status": "❌ ERROR",
+    "error": "fetch failed"
+  },
+  {
+    "name": "Word to PDF",
+    "status": "❌ ERROR",
+    "error": "fetch failed"
+  },
+  {
+    "name": "PowerPoint to PDF",
+    "status": "❌ ERROR",
+    "error": "fetch failed"
+  },
+  {
+    "name": "Excel to PDF",
+    "status": "❌ ERROR",
+    "error": "fetch failed"
+  },
+  {
+    "name": "JPG to PDF",
+    "status": "❌ ERROR",
+    "error": "fetch failed"
+  },
+  {
+    "name": "HTML to PDF",
+    "status": "❌ ERROR",
+    "error": "fetch failed"
+  },
+  {
+    "name": "OCR PDF",
+    "status": "❌ ERROR",
+    "error": "fetch failed"
+  },
+  {
+    "name": "Crop PDF",
+    "status": "❌ ERROR",
+    "error": "fetch failed"
+  },
+  {
+    "name": "Compare PDF",
+    "status": "❌ ERROR",
+    "error": "fetch failed"
+  },
+  {
+    "name": "Sign PDF",
+    "status": "❌ ERROR",
+    "error": "fetch failed"
+  },
+  {
+    "name": "Protect PDF",
+    "status": "❌ ERROR",
+    "error": "fetch failed"
+  },
+  {
+    "name": "Watermark",
+    "status": "❌ ERROR",
+    "error": "fetch failed"
+  }
+]
