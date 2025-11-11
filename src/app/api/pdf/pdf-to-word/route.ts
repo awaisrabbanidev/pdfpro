@@ -55,7 +55,7 @@ async function analyzePDF(pdfBuffer: Buffer): Promise<{
 
 // Convert extracted text to DOCX format
 async function createWordDocument(
-  extractedData: { text: string; pages: any[]; info: any },
+  extractedData: { text: string; pages: number; info: any },
   options: { preserveFormatting: boolean; includeImages: boolean },
   originalFilename: string
 ): Promise<{ filename: string; size: number; data: Buffer }> {
