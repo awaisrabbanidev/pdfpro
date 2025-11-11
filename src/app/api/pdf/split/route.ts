@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
             filename: result.filename,
             size: result.size,
             pages: 1,
-            data: result.data.toString('base64'),
+            data: Buffer.from(result.data).toString('base64'),
             downloadUrl: `/api/download/${result.filename}`
           });
         }
@@ -205,7 +205,7 @@ export async function POST(request: NextRequest) {
           filename: result.filename,
           size: result.size,
           pages: validIndices.length,
-          data: result.data.toString('base64'),
+          data: Buffer.from(result.data).toString('base64'),
           downloadUrl: `/api/download/${result.filename}`
         });
         break;
@@ -245,7 +245,7 @@ export async function POST(request: NextRequest) {
             filename: result.filename,
             size: result.size,
             pages: pageIndices.length,
-            data: result.data.toString('base64'),
+            data: Buffer.from(result.data).toString('base64'),
             downloadUrl: `/api/download/${result.filename}`
           });
         }
