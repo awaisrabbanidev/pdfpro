@@ -235,7 +235,7 @@ export async function POST(request: NextRequest) {
         convertedSize: result.size,
         extractedCharacters: extractedData.text.length,
         extractedWords: extractedData.text.split(/\s+/).filter(word => word.length > 0).length,
-        pagesProcessed: extractedData.pages.length || 1,
+        pagesProcessed: extractedData.pages || 1,
         downloadUrl: `/api/download/${result.filename}`,
         data: result.data.toString('base64'),
         conversionReport
