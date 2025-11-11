@@ -224,13 +224,14 @@ const getToolConfig = (toolId: string) => {
 };
 
 export default async function ToolPageRoute({ params }: ToolPageProps) {
-  const tool = PDF_TOOLS.find(t => t.id === params.tool);
+  const { tool: toolId } = await params;
+  const tool = PDF_TOOLS.find(t => t.id === toolId);
 
   if (!tool) {
     notFound();
   }
 
-  const config = getToolConfig(params.tool);
+  const config = getToolConfig(toolId);
 
   return (
     <div className="min-h-screen bg-black py-12 px-4">
