@@ -83,7 +83,7 @@ async function addTextSignature(
     y,
     size: options.fontSize || 16,
     font: await pdfDoc.embedFont('Helvetica'),
-    color: parseColor(options.color || '#000000'),
+    color: parseColor(options.color || '#000000') as any,
     opacity: options.opacity || 1
   });
 
@@ -209,7 +209,7 @@ async function addDrawingSignature(
         y: height - (position.y + (end.y - minY) * scale)
       },
       thickness: 2,
-      color: parseColor(options.color || '#000000'),
+      color: parseColor(options.color || '#000000') as any,
       opacity: options.opacity || 1
     });
   }
