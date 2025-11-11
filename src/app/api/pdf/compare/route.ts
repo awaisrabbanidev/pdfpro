@@ -295,8 +295,8 @@ export async function POST(request: NextRequest) {
     const comparisonResult = compareTexts(text1, text2);
 
     // Add word counts to comparison result
-    comparisonResult.totalWords1 = text1.split(/\s+/).length;
-    comparisonResult.totalWords2 = text2.split(/\s+/).length;
+    const totalWords1 = text1.split(/\s+/).length;
+    const totalWords2 = text2.split(/\s+/).length;
 
     // Generate comparison report
     const reportResult = await generateComparisonReport(
