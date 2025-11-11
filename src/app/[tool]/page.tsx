@@ -55,6 +55,33 @@ const getDefaultProcessingSteps = (toolId: string): Omit<ProcessingStep, 'status
         { id: 'complete', label: 'Complete' }
       ];
 
+    case 'ocr-pdf':
+      return [
+        { id: 'upload', label: 'Upload scanned PDF' },
+        { id: 'analyze', label: 'Analyze document layout' },
+        { id: 'ocr', label: 'Extract text using OCR' },
+        { id: 'verify', label: 'Verify extracted text' },
+        { id: 'complete', label: 'Complete' }
+      ];
+
+    case 'crop-pdf':
+      return [
+        { id: 'upload', label: 'Upload PDF file' },
+        { id: 'configure', label: 'Set crop margins' },
+        { id: 'crop', label: 'Crop pages' },
+        { id: 'optimize', label: 'Optimize cropped file' },
+        { id: 'complete', label: 'Complete' }
+      ];
+
+    case 'compare-pdf':
+      return [
+        { id: 'upload', label: 'Upload 2 PDF files' },
+        { id: 'extract', label: 'Extract text content' },
+        { id: 'compare', label: 'Compare documents' },
+        { id: 'generate', label: 'Generate comparison report' },
+        { id: 'complete', label: 'Complete' }
+      ];
+
     case 'pdf-to-word':
     case 'pdf-to-excel':
     case 'pdf-to-powerpoint':
