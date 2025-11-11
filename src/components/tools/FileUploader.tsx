@@ -3,7 +3,7 @@
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { motion } from 'framer-motion';
-import { Button } from '../ui/Button';
+import Button from '../ui/Button';
 import { MAX_FILE_SIZE, SUPPORTED_FILE_TYPES } from '@/lib/constants';
 
 interface FileUploaderProps {
