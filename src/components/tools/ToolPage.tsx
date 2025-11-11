@@ -9,7 +9,7 @@ import ResultDownload, { DownloadFile } from './ResultDownload';
 import { PDFTool } from '@/lib/constants';
 
 interface ToolPageProps {
-  tool: PDF_TOOL;
+  tool: PDFTool;
   description: string;
   features: string[];
   instructions: string[];
