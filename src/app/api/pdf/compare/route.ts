@@ -300,7 +300,11 @@ export async function POST(request: NextRequest) {
 
     // Generate comparison report
     const reportResult = await generateComparisonReport(
-      comparisonResult,
+      {
+        ...comparisonResult,
+        totalWords1,
+        totalWords2
+      },
       body.options.outputFormat,
       originalFilename1,
       originalFilename2
@@ -312,12 +316,12 @@ export async function POST(request: NextRequest) {
         file1: {
           name: originalFilename1,
           size: originalSize1,
-          words: comparisonResult.totalWords1
+          words: totalWords1
         },
         file2: {
           name: originalFilename2,
           size: originalSize2,
-          words: comparisonResult.totalWords2
+          words: totalWords2
         }
       },
       comparison: {
