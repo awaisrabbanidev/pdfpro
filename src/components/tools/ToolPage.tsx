@@ -6,7 +6,7 @@ import { Button } from '../ui/Button';
 import FileUploader from './FileUploader';
 import ProcessingStatus, { ProcessingStep } from './ProcessingStatus';
 import ResultDownload, { DownloadFile } from './ResultDownload';
-import { PDF_TOOL } from '@/lib/constants';
+import { PDFTool } from '@/lib/constants';
 
 interface ToolPageProps {
   tool: PDF_TOOL;
