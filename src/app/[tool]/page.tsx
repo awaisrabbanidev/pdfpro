@@ -386,6 +386,61 @@ const getToolConfig = (toolId: string) => {
         ]
       };
 
+    case 'ocr-pdf':
+      return {
+        ...baseConfig,
+        maxFiles: 1,
+        features: [
+          'Extract text from scanned PDFs',
+          'Support for multiple languages',
+          'Preserve document layout',
+          'Export to PDF or text format'
+        ],
+        instructions: [
+          'Upload your scanned PDF file',
+          'Choose OCR options and language',
+          'Click "Process File" to extract text',
+          'Download the text or searchable PDF'
+        ]
+      };
+
+    case 'crop-pdf':
+      return {
+        ...baseConfig,
+        maxFiles: 1,
+        features: [
+          'Remove unwanted margins',
+          'Crop specific pages or all pages',
+          'Support for multiple units (px, mm, in)',
+          'Maintain original quality'
+        ],
+        instructions: [
+          'Upload the PDF file you want to crop',
+          'Set crop margins for each side',
+          'Choose which pages to crop',
+          'Download your cropped PDF'
+        ]
+      };
+
+    case 'compare-pdf':
+      return {
+        ...baseConfig,
+        maxFiles: 2,
+        acceptedFileTypes: ['application/pdf'],
+        features: [
+          'Compare two PDF documents',
+          'Text and visual comparison',
+          'Detailed difference report',
+          'Export comparison results'
+        ],
+        instructions: [
+          'Upload 2 PDF files to compare',
+          'Select comparison options',
+          'Click "Process Files" to compare',
+          'Download the comparison report'
+        ]
+      };
+
     default:
       return {
         ...baseConfig,
