@@ -257,7 +257,7 @@ export async function POST(request: NextRequest) {
         convertedSize: pdfResult.size,
         compressionRatio: ((originalSize - pdfResult.size) / originalSize * 100).toFixed(1),
         downloadUrl: `/api/download/${pdfResult.filename}`,
-        data: pdfResult.data.toString('base64'),
+        data: Buffer.from(pdfResult.data).toString('base64'),
         conversionReport
       }
     });
