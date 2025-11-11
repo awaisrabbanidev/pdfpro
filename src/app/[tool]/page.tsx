@@ -80,19 +80,138 @@ const getDefaultProcessingSteps = (toolId: string): Omit<ProcessingStep, 'status
   }
 };
 
-// Default processing functions
+// Real processing functions that connect to APIs
 const getDefaultProcessFunction = (toolId: string) => {
   return async (files: File[]) => {
-    // Simulate processing for now
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    try {
+      let response;
+      const baseUrl = process.env.NODE_ENV === 'production'
+        ? 'https://pdfpro.pro'
+        : 'http://localhost:3001';
 
-    return files.map((file, index) => ({
-      id: `${file.name}-${index}`,
-      name: `processed_${file.name}`,
-      url: '#', // Will be replaced with actual file URL
-      size: file.size,
-      type: file.type
-    }));
+      // Convert files to base64
+      const filesAsBase64 = await Promise.all(
+        files.map(async (file) => {
+          const arrayBuffer = await file.arrayBuffer();
+          const base64 = Buffer.from(arrayBuffer).toString('base64');
+          return {
+            name: file.name,
+            data: base64
+          };
+        })
+      );
+
+      switch (toolId) {
+        case 'merge-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/merge`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              files: filesAsBase64,
+              outputName: `merged_${Date.now()}.pdf`
+            })
+          });
+          break;
+
+        case 'split-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/split`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              splitType: 'single'
+            })
+          });
+          break;
+
+        case 'compress-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/compress`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              compressionLevel: 'medium'
+            })
+          });
+          break;
+
+        case 'pdf-to-word':
+          response = await fetch(`${baseUrl}/api/pdf/pdf-to-word`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                preserveFormatting: true,
+                includeImages: false,
+                ocrEnabled: false
+              }
+            })
+          });
+          break;
+
+        case 'word-to-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/word-to-pdf`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                preserveFormatting: true,
+                pageSize: 'A4',
+                margins: { top: 72, bottom: 72, left: 72, right: 72 }
+              }
+            })
+          });
+          break;
+
+        default:
+          throw new Error(`Tool ${toolId} is not yet implemented`);
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Processing failed with status ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      // Handle different response formats
+      if (toolId === 'merge-pdf') {
+        return [{
+          id: result.data.filename,
+          name: result.data.filename,
+          url: result.data.downloadUrl,
+          size: result.data.size,
+          type: 'application/pdf',
+          data: result.data.data
+        }];
+      } else if (toolId === 'split-pdf') {
+        return result.data.files.map((file: any) => ({
+          id: file.filename,
+          name: file.filename,
+          url: file.downloadUrl,
+          size: file.size,
+          type: 'application/pdf',
+          data: file.data
+        }));
+      } else if (toolId === 'compress-pdf' || toolId === 'pdf-to-word' || toolId === 'word-to-pdf') {
+        return [{
+          id: result.data.filename,
+          name: result.data.filename,
+          url: result.data.downloadUrl,
+          size: result.data.convertedSize || result.data.size,
+          type: toolId.includes('word') ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/pdf',
+          data: result.data.data
+        }];
+      }
+
+      throw new Error('Unknown response format');
+
+    } catch (error) {
+      console.error('Processing error:', error);
+      throw error;
+    }
   };
 };
 
