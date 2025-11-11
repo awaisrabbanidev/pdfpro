@@ -343,8 +343,8 @@ export async function POST(request: NextRequest) {
         similarity: comparisonResult.similarity,
         additions: comparisonResult.additions.length,
         deletions: comparisonResult.deletions.length,
-        totalWords1: comparisonResult.totalWords1,
-        totalWords2: comparisonResult.totalWords2,
+        totalWords1: totalWords1,
+        totalWords2: totalWords2,
         downloadUrl: `/api/download/${reportResult.filename}`,
         data: Buffer.from(reportResult.data).toString('base64'),
         comparisonReport
