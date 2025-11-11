@@ -1,0 +1,278 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { writeFile, mkdir } from 'fs/promises';
+import { join } from 'path';
+import { PDFDocument } from 'pdf-lib';
+
+interface HTMLToPDFRequest {
+  file: {
+    name: string;
+    data: string; // Base64 encoded HTML content or URL
+  };
+  options: {
+    pageSize: 'A4' | 'Letter';
+    orientation: 'portrait' | 'landscape';
+    margins: {
+      top: number;
+      bottom: number;
+      left: number;
+      right: number;
+    };
+    header: boolean;
+    footer: boolean;
+  };
+}
+
+const UPLOAD_DIR = join(process.cwd(), 'uploads');
+const OUTPUT_DIR = join(process.cwd(), 'outputs');
+
+async function ensureDirectories() {
+  try {
+    await mkdir(UPLOAD_DIR, { recursive: true });
+    await mkdir(OUTPUT_DIR, { recursive: true });
+  } catch (error) {
+    // Directory might already exist
+  }
+}
+
+async function convertHTMLToPDF(
+  htmlBuffer: Buffer,
+  options: HTMLToPDFRequest['options'],
+  originalFilename: string
+): Promise<{ filename: string; size: number; data: Buffer }> {
+  try {
+    // In a real implementation, you would:
+    // 1. Parse HTML content
+    // 2. Convert to PDF using libraries like Puppeteer or jsPDF
+    // 3. Preserve CSS styling and layout
+    // 4. Handle images and links
+
+    // For simulation, create a PDF with HTML content
+    const pdfDoc = await PDFDocument.create();
+
+    // Page dimensions
+    const pageSizes = {
+      'A4': { width: 595, height: 842 },
+      'Letter': { width: 612, height: 792 }
+    };
+
+    let { width, height } = pageSizes[options.pageSize];
+    if (options.orientation === 'landscape') {
+      [width, height] = [height, width];
+    }
+
+    // Parse HTML content (simplified)
+    const htmlContent = htmlBuffer.toString('utf-8');
+
+    // Add title page
+    const titlePage = pdfDoc.addPage([width, height]);
+
+    // Add header
+    if (options.header) {
+      titlePage.drawText('Converted from HTML', {
+        x: width / 2 - 100,
+        y: height - 50,
+        size: 14,
+        color: { type: 'RGB', r: 100, g: 100, b: 100 } as any
+      });
+
+      titlePage.drawText(`Source: ${originalFilename}`, {
+        x: width / 2 - 100,
+        y: height - 75,
+        size: 12,
+        color: { type: 'RGB', r: 150, g: 150, b: 150 } as any
+      });
+    }
+
+    // Extract and display HTML content
+    const contentArea = {
+      x: options.margins.left,
+      y: height - options.margins.top - (options.header ? 100 : 0),
+      width: width - options.margins.left - options.margins.right,
+      height: height - options.margins.top - options.margins.bottom - (options.header ? 100 : 0) - (options.footer ? 50 : 0)
+    };
+
+    // Simple HTML parsing - extract text content
+    let textContent = htmlContent
+      .replace(/<[^>]*>/g, '') // Remove HTML tags
+      .replace(/&nbsp;/g, ' ') // Replace &nbsp;
+      .replace(/&lt;/g, '<') // Replace HTML entities
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&')
+      .trim();
+
+    // Split content into lines
+    const lines = textContent.split('\n').filter(line => line.trim());
+    let currentPage = titlePage;
+    let currentY = contentArea.y;
+    const lineHeight = 14;
+    const fontSize = 11;
+
+    // Write content lines
+    for (const line of lines) {
+      if (currentY < contentArea.y - contentArea.height + lineHeight) {
+        // Create new page
+        currentPage = pdfDoc.addPage([width, height]);
+        currentY = contentArea.y;
+
+        if (options.header) {
+          currentPage.drawText('Converted from HTML (Continued)', {
+            x: width / 2 - 100,
+            y: height - 50,
+            size: 14,
+            color: { type: 'RGB', r: 100, g: 100, b: 100 } as any
+          });
+        }
+      }
+
+      // Wrap long lines
+      const maxCharsPerLine = Math.floor(contentArea.width / (fontSize * 0.6));
+      const words = line.split(' ');
+      let currentLine = '';
+
+      for (const word of words) {
+        if ((currentLine + word).length <= maxCharsPerLine) {
+          currentLine += (currentLine ? ' ' : '') + word;
+        } else {
+          if (currentLine) {
+            currentPage.drawText(currentLine, {
+              x: contentArea.x,
+              y: currentY,
+              size: fontSize,
+              color: { type: 'RGB', r: 0, g: 0, b: 0 } as any
+            });
+            currentY -= lineHeight;
+            currentLine = word;
+          }
+        }
+      }
+
+      if (currentLine) {
+        currentPage.drawText(currentLine, {
+          x: contentArea.x,
+          y: currentY,
+          size: fontSize,
+          color: { type: 'RGB', r: 0, g: 0, b: 0 } as any
+        });
+        currentY -= lineHeight;
+      }
+    }
+
+    // Add footer
+    if (options.footer) {
+      for (let i = 0; i < pdfDoc.getPageCount(); i++) {
+        const page = pdfDoc.getPage(i);
+        const { height } = page.getSize();
+
+        page.drawText(`Page ${i + 1} of ${pdfDoc.getPageCount()} - Generated by PDFPro.pro`, {
+          x: contentArea.x,
+          y: 30,
+          size: 9,
+          color: { type: 'RGB', r: 150, g: 150, b: 150 } as any
+        });
+      }
+    }
+
+    // Set metadata
+    const filename = `${originalFilename.replace(/\.(html?|htm)$/, '')}.pdf`;
+    pdfDoc.setTitle(filename.replace('.pdf', ''));
+    pdfDoc.setSubject('HTML converted to PDF by PDFPro.pro');
+    pdfDoc.setProducer('PDFPro.pro');
+    pdfDoc.setCreator('PDFPro.pro');
+    pdfDoc.setKeywords(['html', 'converted']);
+    pdfDoc.setCreationDate(new Date());
+    pdfDoc.setModificationDate(new Date());
+
+    const pdfBytes = await pdfDoc.save();
+    const outputPath = join(OUTPUT_DIR, filename);
+    await writeFile(outputPath, Buffer.from(pdfBytes));
+
+    return {
+      filename,
+      size: pdfBytes.length,
+      data: Buffer.from(pdfBytes)
+    };
+
+  } catch (error) {
+    console.error('HTML to PDF conversion error:', error);
+    throw new Error('Failed to convert HTML to PDF');
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    await ensureDirectories();
+
+    const body: HTMLToPDFRequest = await request.json();
+
+    if (!body.file || !body.file.data) {
+      return NextResponse.json(
+        { error: 'No HTML content provided' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.options) {
+      return NextResponse.json(
+        { error: 'Conversion options are required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate file type
+    const filename = body.file.name.toLowerCase();
+    if (!filename.endsWith('.html') && !filename.endsWith('.htm')) {
+      return NextResponse.json(
+        { error: 'Invalid file type. Only HTML files are supported' },
+        { status: 400 }
+      );
+    }
+
+    const buffer = Buffer.from(body.file.data, 'base64');
+
+    // Validate content size
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (buffer.length > maxSize) {
+      return NextResponse.json(
+        { error: 'File too large. Maximum size is 10MB' },
+        { status: 400 }
+      );
+    }
+
+    const originalSize = buffer.length;
+    const originalFilename = body.file.name;
+
+    // Convert HTML to PDF
+    const conversionResult = await convertHTMLToPDF(buffer, body.options, originalFilename);
+
+    return NextResponse.json({
+      success: true,
+      message: 'HTML converted to PDF successfully',
+      data: {
+        filename: conversionResult.filename,
+        originalSize,
+        convertedSize: conversionResult.size,
+        pagesCreated: Math.ceil(originalSize / 2000), // Estimate
+        downloadUrl: `/api/download/${conversionResult.filename}`,
+        data: Buffer.from(conversionResult.data).toString('base64')
+      }
+    });
+
+  } catch (error) {
+    console.error('HTML to PDF conversion error:', error);
+    return NextResponse.json(
+      { error: 'Failed to convert HTML to PDF' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  });
+}
