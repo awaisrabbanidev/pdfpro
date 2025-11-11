@@ -5,13 +5,14 @@ import { PDF_TOOLS, SUPPORTED_FILE_TYPES } from '@/lib/constants';
 import { ProcessingStep } from '@/components/tools/ProcessingStatus';
 
 interface ToolPageProps {
-  params: {
+  params: Promise<{
     tool: string;
-  };
+  }>;
 }
 
 export async function generateMetadata({ params }: ToolPageProps): Promise<Metadata> {
-  const tool = PDF_TOOLS.find(t => t.id === params.tool);
+  const { tool: toolId } = await params;
+  const tool = PDF_TOOLS.find(t => t.id === toolId);
 
   if (!tool) {
     return {
