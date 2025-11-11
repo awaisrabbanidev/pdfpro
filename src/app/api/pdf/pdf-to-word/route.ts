@@ -3,7 +3,6 @@ import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { PDFDocument } from 'pdf-lib';
 import mammoth from 'mammoth';
-import pdfParse from 'pdf-parse';
 
 // Simple UUID function
 const uuid = () => Math.random().toString(36).substring(2, 15);
