@@ -84,7 +84,7 @@ async function createPdfFromPages(
   return {
     filename,
     size: pdfBytes.length,
-    data: pdfBytes
+    data: Buffer.from(pdfBytes)
   };
 }
 
