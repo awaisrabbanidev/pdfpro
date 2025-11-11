@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDFPro.pro - Professional PDF Tools Online</title>
+    <meta name="description" content="Free online PDF tools: merge, split, compress, convert, edit, sign, and more. Professional PDF processing with 27 tools.">
+    <meta name="keywords" content="PDF tools, merge PDF, split PDF, compress PDF, convert PDF, edit PDF, sign PDF, PDF editor">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="PDFPro.pro - Professional PDF Tools Online">
+    <meta property="og:description" content="Free online PDF tools: merge, split, compress, convert, edit, sign, and more. Professional PDF processing with 27 tools.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pdfpro.pro">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📄</text></svg>">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --background: #000000;
+            --foreground: #e6e6e6;
+            --accent: #22c55e;
+            --accent-hover: #16a34a;
+            --card-bg: #111111;
+            --border-color: #333333;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--background);
+            color: var(--foreground);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent), #16a34a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #999;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+        }
+
+        .cta-button:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+        }
+
+        /* Tools Grid */
+        .tools-section {
+            padding: 4rem 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .tool-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            text-decoration: none;
+            color: var(--foreground);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .tool-card:hover::before {
+            left: 100%;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.2);
+        }
+
+        .tool-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .tool-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+
+        .tool-description {
+            font-size: 0.9rem;
+            color: #999;
+        }
+
+        /* Categories */
+        .categories {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--foreground);
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .category-btn:hover,
+        .category-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        /* Features */
+        .features {
+            background: var(--card-bg);
+            padding: 4rem 0;
+            margin-top: 4rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature {
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .feature h3 {
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border-color);
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        .demo-notice {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .demo-notice strong {
+            color: var(--accent);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+
+            nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="container">
+            <a href="/" class="logo">📄 PDFPro.pro</a>
+            <div>
+                <span style="color: #999;">Professional PDF Tools</span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Professional PDF Tools Online</h1>
+            <p>27 powerful PDF tools to merge, split, compress, convert, and edit your PDF files. Fast, secure, and completely free.</p>
+            <div class="demo-notice">
+                <strong>🚀 Demo Version:</strong> This is a static demo. Full functionality available when deployed to a server.
+            </div>
+            <a href="#tools" class="cta-button">Explore All Tools</a>
+        </div>
+    </section>
+
+    <!-- Tools Section -->
+    <section id="tools" class="tools-section">
+        <div class="container">
+            <h2 class="section-title">27 PDF Tools at Your Fingertips</h2>
+
+            <!-- Categories -->
+            <div class="categories">
+                <button class="category-btn active" onclick="filterTools('all')">All Tools</button>
+                <button class="category-btn" onclick="filterTools('organize')">Organize</button>
+                <button class="category-btn" onclick="filterTools('convert')">Convert</button>
+                <button class="category-btn" onclick="filterTools('edit')">Edit & Sign</button>
+                <button class="category-btn" onclick="filterTools('optimize')">Optimize</button>
+            </div>
+
+            <!-- Tools Grid -->
+            <div class="tools-grid" id="toolsGrid">
+                <!-- Tools will be populated by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">Why Choose PDFPro.pro?</h2>
+            <div class="features-grid">
+                <div class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Lightning Fast</h3>
+                    <p>Process your PDFs in seconds with our optimized algorithms</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Secure & Private</h3>
+                    <p>Your files are processed securely and deleted automatically</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🆓</div>
+                    <h3>Completely Free</h3>
+                    <p>No registration required, no hidden costs, no watermarks</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Professional Quality</h3>
+                    <p>Maintain document quality while reducing file size significantly</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 PDFPro.pro. Professional PDF tools for everyone.</p>
+            <p style="margin-top: 1rem; color: #666;">Built with Next.js, React, and PDF-lib</p>
+        </div>
+    </footer>
+
+    <script>
+        // PDF Tools Data
+        const pdfTools = [
+            // Organize Tools
+            { id: 'merge-pdf', title: 'Merge PDF', description: 'Combine multiple PDFs into one document', icon: '🔗', category: 'organize' },
+            { id: 'split-pdf', title: 'Split PDF', description: 'Extract pages or split PDF into multiple files', icon: '✂️', category: 'organize' },
+            { id: 'organize-pdf', title: 'Organize PDF', description: 'Reorder pages and manage PDF structure', icon: '📋', category: 'organize' },
+            { id: 'rotate-pdf', title: 'Rotate PDF', description: 'Rotate pages to correct orientation', icon: '🔄', category: 'organize' },
+            { id: 'crop-pdf', title: 'Crop PDF', description: 'Remove unwanted margins and content', icon: '✂️', category: 'organize' },
+
+            // Convert Tools
+            { id: 'pdf-to-word', title: 'PDF to Word', description: 'Convert PDF to editable Word document', icon: '📄', category: 'convert' },
+            { id: 'pdf-to-excel', title: 'PDF to Excel', description: 'Extract tables to Excel spreadsheet', icon: '📊', category: 'convert' },
+            { id: 'pdf-to-powerpoint', title: 'PDF to PowerPoint', description: 'Convert PDF to PowerPoint presentation', icon: '📊', category: 'convert' },
+            { id: 'word-to-pdf', title: 'Word to PDF', description: 'Convert Word document to PDF', icon: '📄', category: 'convert' },
+            { id: 'excel-to-pdf', title: 'Excel to PDF', description: 'Convert Excel spreadsheet to PDF', icon: '📊', category: 'convert' },
+            { id: 'powerpoint-to-pdf', title: 'PowerPoint to PDF', description: 'Convert PowerPoint to PDF', icon: '📊', category: 'convert' },
+            { id: 'pdf-to-jpg', title: 'PDF to JPG', description: 'Convert PDF pages to JPEG images', icon: '🖼️', category: 'convert' },
+            { id: 'jpg-to-pdf', title: 'JPG to PDF', description: 'Convert images to PDF document', icon: '🖼️', category: 'convert' },
+            { id: 'html-to-pdf', title: 'HTML to PDF', description: 'Convert web pages to PDF', icon: '🌐', category: 'convert' },
+
+            // Edit & Sign Tools
+            { id: 'edit-pdf', title: 'Edit PDF', description: 'Edit text and content in PDF documents', icon: '✏️', category: 'edit' },
+            { id: 'sign-pdf', title: 'Sign PDF', description: 'Add digital signatures to documents', icon: '✍️', category: 'edit' },
+            { id: 'watermark', title: 'Add Watermark', description: 'Add text or image watermarks', icon: '💧', category: 'edit' },
+            { id: 'page-numbers', title: 'Page Numbers', description: 'Add page numbers to PDF documents', icon: '🔢', category: 'edit' },
+            { id: 'redact-pdf', title: 'Redact PDF', description: 'Black out sensitive information', icon: '🔒', category: 'edit' },
+            { id: 'compare-pdf', title: 'Compare PDF', description: 'Compare two PDF documents', icon: '🔍', category: 'edit' },
+            { id: 'ocr-pdf', title: 'OCR PDF', description: 'Extract text from scanned PDFs', icon: '📸', category: 'edit' },
+            { id: 'scan-to-pdf', title: 'Scan to PDF', description: 'Convert scanned documents to PDF', icon: '📱', category: 'edit' },
+
+            // Optimize Tools
+            { id: 'compress-pdf', title: 'Compress PDF', description: 'Reduce file size while maintaining quality', icon: '🗜️', category: 'optimize' },
+            { id: 'repair-pdf', title: 'Repair PDF', description: 'Fix corrupted PDF files', icon: '🔧', category: 'optimize' },
+            { id: 'pdf-to-pdfa', title: 'PDF to PDF/A', description: 'Convert to archival PDF format', icon: '📚', category: 'optimize' },
+            { id: 'unlock-pdf', title: 'Unlock PDF', description: 'Remove password protection', icon: '🔓', category: 'optimize' },
+            { id: 'protect-pdf', title: 'Protect PDF', description: 'Add password protection', icon: '🔐', category: 'optimize' }
+        ];
+
+        // Initialize tools grid
+        function initializeTools() {
+            renderTools('all');
+        }
+
+        // Render tools based on category
+        function renderTools(category) {
+            const toolsGrid = document.getElementById('toolsGrid');
+            const filteredTools = category === 'all'
+                ? pdfTools
+                : pdfTools.filter(tool => tool.category === category);
+
+            toolsGrid.innerHTML = filteredTools.map(tool => `
+                <div class="tool-card" onclick="handleToolClick('${tool.id}')">
+                    <span class="tool-icon">${tool.icon}</span>
+                    <h3 class="tool-title">${tool.title}</h3>
+                    <p class="tool-description">${tool.description}</p>
+                </div>
+            `).join('');
+        }
+
+        // Filter tools by category
+        function filterTools(category) {
+            // Update active button
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Render filtered tools
+            renderTools(category);
+        }
+
+        // Handle tool click
+        function handleToolClick(toolId) {
+            alert(`This is a static demo. The ${toolId.replace('-', ' ')} tool will be available when deployed to a server.\n\nFull functionality includes:\n• File upload and processing\n• Real-time progress tracking\n• Download processed files\n• Advanced options and settings`);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initializeTools);
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
