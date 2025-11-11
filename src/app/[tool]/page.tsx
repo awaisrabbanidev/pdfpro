@@ -1,47 +1,68 @@
-'use client';
-
 import { notFound } from 'next/navigation';
-import { Metadata } from 'next';
 import ToolPage from '@/components/tools/ToolPage';
-import { PDF_TOOLS, SUPPORTED_FILE_TYPES } from '@/lib/constants';
-import { ProcessingStep } from '@/components/tools/ProcessingStatus';
+import { PDF_TOOLS } from '@/lib/constants';
 
 interface ToolPageProps {
-  params: Promise<{
+  params: {
     tool: string;
-  }>;
-}
-
-export async function generateMetadata({ params }: ToolPageProps): Promise<Metadata> {
-  const { tool: toolId } = await params;
-  const tool = PDF_TOOLS.find(t => t.id === toolId);
-
-  if (!tool) {
-    return {
-      title: 'Tool Not Found',
-      description: 'The requested PDF tool could not be found.'
-    };
-  }
-
-  return {
-    title: `${tool.title} - Free Online ${tool.title} Tool | PDFPro.pro`,
-    description: tool.description,
-    keywords: tool.keywords.join(', '),
-    openGraph: {
-      title: `${tool.title} - PDFPro.pro`,
-      description: tool.description,
-      type: 'website',
-    },
-    alternates: {
-      canonical: `https://pdfpro.pro${tool.href}`
-    }
   };
 }
 
-export async function generateStaticParams() {
-  return PDF_TOOLS.map((tool) => ({
-    tool: tool.id,
-  }));
+export default async function ToolPageRoute({ params }: ToolPageProps) {
+  const { toolId } = params;
+  const tool = PDF_TOOLS.find(t => t.id === toolId);
+
+  if (!tool) {
+    notFound();
+  }
+
+  // Simple static config for now - in a real implementation you'd want dynamic config
+  const config = {
+    features: [
+      'Fast and secure processing',
+      'High-quality results',
+      'No registration required',
+      'Files deleted after 2 hours'
+    ],
+    instructions: [
+      'Upload your files',
+      'Configure options if available',
+      'Click "Process Files"',
+      'Download the result'
+    ],
+    acceptedFileTypes: ['application/pdf'],
+    maxFiles: 10,
+    processingSteps: [
+      { id: 'upload', label: 'Upload files', status: 'pending', error: undefined },
+      { id: 'process', label: 'Process files', status: 'pending', error: undefined },
+      { id: 'complete', label: 'Complete', status: 'pending', error: undefined }
+    ]
+  };
+
+  return (
+    <div className="min-h-screen bg-black py-12 px-4">
+      <ToolPage
+        tool={tool}
+        description={tool.description}
+        features={config.features}
+        instructions={config.instructions}
+        acceptedFileTypes={config.acceptedFileTypes}
+        maxFiles={config.maxFiles}
+        onProcessFiles={async (files: File[]) => {
+          // Placeholder processing function
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          return files.map((file, index) => ({
+            id: `${file.name}-${index}`,
+            name: `processed_${file.name}`,
+            url: '#',
+            size: file.size,
+            type: file.type
+          }));
+        }}
+        processingSteps={config.processingSteps}
+      />
+    </div>
+  );
 }
 
 // Default processing steps for tools
