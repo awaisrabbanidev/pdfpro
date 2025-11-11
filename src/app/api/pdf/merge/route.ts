@@ -2,9 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PDFDocument } from 'pdf-lib';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
-import { v4 as uuidv4 } from 'uuid';
 
-// Ensure uuid is installed
+// Simple UUID function
 const uuid = () => Math.random().toString(36).substring(2, 15);
 
 interface MergeRequest {
