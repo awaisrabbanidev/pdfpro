@@ -237,7 +237,7 @@ export async function POST(request: NextRequest) {
         extractedWords: extractedData.text.split(/\s+/).filter(word => word.length > 0).length,
         pagesProcessed: extractedData.pages || 1,
         downloadUrl: `/api/download/${result.filename}`,
-        data: result.data.toString('base64'),
+        data: Buffer.from(result.data).toString('base64'),
         conversionReport
       }
     });
