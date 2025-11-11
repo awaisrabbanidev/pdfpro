@@ -210,7 +210,7 @@ export async function POST(request: NextRequest) {
       originalFile: {
         name: originalFilename,
         size: originalSize,
-        pages: extractedData.pages.length || 1
+        pages: extractedData.pages || 1
       },
       convertedFile: {
         name: result.filename,
