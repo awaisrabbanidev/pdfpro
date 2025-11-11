@@ -230,7 +230,7 @@ export async function POST(request: NextRequest) {
         compressionRatio,
         totalPages,
         downloadUrl: `/api/download/${outputName}`,
-        data: compressedBytes.toString('base64'),
+        data: Buffer.from(compressedBytes).toString('base64'),
         compressionReport
       }
     });
