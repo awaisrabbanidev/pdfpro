@@ -94,7 +94,7 @@ async function addTextSignature(
     y: y - 20,
     size: 10,
     font: await pdfDoc.embedFont('Helvetica'),
-    color: { r: 0.5, g: 0.5, b: 0.5 },
+    color: { r: 0.5, g: 0.5, b: 0.5 } as any,
     opacity: 0.7
   });
 }
@@ -149,7 +149,7 @@ async function addImageSignature(
       y: y - 20,
       size: 10,
       font: await pdfDoc.embedFont('Helvetica'),
-      color: { r: 0.5, g: 0.5, b: 0.5 },
+      color: { r: 0.5, g: 0.5, b: 0.5 } as any,
       opacity: 0.7
     });
 
@@ -221,7 +221,7 @@ async function addDrawingSignature(
     y: position.y - 20,
     size: 10,
     font: await pdfDoc.embedFont('Helvetica'),
-    color: { r: 0.5, g: 0.5, b: 0.5 },
+    color: { r: 0.5, g: 0.5, b: 0.5 } as any,
     opacity: 0.7
   });
 }
