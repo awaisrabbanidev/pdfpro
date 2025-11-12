@@ -87,15 +87,6 @@ export async function POST(request: NextRequest) {
     const body: RotatePDFRequest = await request.json();
 
     if (!body.file || !body.file.data) {
-      // Get the base URL for absolute download URLs
-
-      const protocol = request.headers.get('x-forwarded-proto') || 'http';
-
-      const host = request.headers.get('host') || 'localhost:3000';
-
-      const baseUrl = `${protocol}://${host}`;
-
-
       return NextResponse.json(
         { error: 'No file provided' },
         { status: 400 }
@@ -151,7 +142,7 @@ export async function POST(request: NextRequest) {
         rotatedSize: rotationResult.size,
         rotationAngle: body.rotation.angle,
         pagesRotated,
-        downloadUrl: `${baseUrl}/api/download/${rotationResult.filename}`,
+        downloadUrl: `/api/download/${rotationResult.filename}`,
         data: Buffer.from(rotationResult.data).toString('base64')
       }
     });

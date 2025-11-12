@@ -178,15 +178,6 @@ export async function POST(request: NextRequest) {
     const body: RepairPDFRequest = await request.json();
 
     if (!body.file || !body.file.data) {
-      // Get the base URL for absolute download URLs
-
-      const protocol = request.headers.get('x-forwarded-proto') || 'http';
-
-      const host = request.headers.get('host') || 'localhost:3000';
-
-      const baseUrl = `${protocol}://${host}`;
-
-
       return NextResponse.json(
         { error: 'No file provided' },
         { status: 400 }
@@ -215,7 +206,7 @@ export async function POST(request: NextRequest) {
         originalSize,
         repairedSize: repairResult.size,
         repairSuccessful: repairResult.repairReport.recoverySuccess,
-        downloadUrl: `${baseUrl}/api/download/${repairResult.filename}`,
+        downloadUrl: `/api/download/${repairResult.filename}`,
         data: Buffer.from(repairResult.data).toString('base64'),
         repairReport: repairResult.repairReport
       }

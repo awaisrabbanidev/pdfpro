@@ -106,15 +106,6 @@ export async function POST(request: NextRequest) {
     const body: OrganizePDFRequest = await request.json();
 
     if (!body.file || !body.file.data) {
-      // Get the base URL for absolute download URLs
-
-      const protocol = request.headers.get('x-forwarded-proto') || 'http';
-
-      const host = request.headers.get('host') || 'localhost:3000';
-
-      const baseUrl = `${protocol}://${host}`;
-
-
       return NextResponse.json(
         { error: 'No file provided' },
         { status: 400 }
@@ -176,7 +167,7 @@ export async function POST(request: NextRequest) {
         originalSize,
         organizedSize: organizationResult.size,
         operationsApplied: body.operations.length,
-        downloadUrl: `${baseUrl}/api/download/${organizationResult.filename}`,
+        downloadUrl: `/api/download/${organizationResult.filename}`,
         data: Buffer.from(organizationResult.data).toString('base64'),
         organizationReport
       }

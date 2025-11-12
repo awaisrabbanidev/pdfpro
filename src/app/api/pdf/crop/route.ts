@@ -216,11 +216,6 @@ export async function POST(request: NextRequest) {
       }
     };
 
-    // Get the base URL for absolute download URLs
-    const protocol = request.headers.get('x-forwarded-proto') || 'http';
-    const host = request.headers.get('host') || 'localhost:3000';
-    const baseUrl = `${protocol}://${host}`;
-
     return NextResponse.json({
       success: true,
       message: 'PDF cropped successfully',
@@ -230,7 +225,7 @@ export async function POST(request: NextRequest) {
         convertedSize: cropResult.size,
         sizeReduction: ((originalSize - cropResult.size) / originalSize * 100).toFixed(1),
         pagesProcessed: body.cropOptions.pages === 'all' ? totalPages : body.cropOptions.pages.length,
-        downloadUrl: `${baseUrl}/api/download/${cropResult.filename}`,
+        downloadUrl: `/api/download/${cropResult.filename}`,
         data: Buffer.from(cropResult.data).toString('base64'),
         cropReport
       }

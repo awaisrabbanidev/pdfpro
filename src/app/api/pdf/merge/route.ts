@@ -34,15 +34,6 @@ export async function POST(request: NextRequest) {
     const body: MergeRequest = await request.json();
 
     if (!body.files || body.files.length === 0) {
-      // Get the base URL for absolute download URLs
-
-      const protocol = request.headers.get('x-forwarded-proto') || 'http';
-
-      const host = request.headers.get('host') || 'localhost:3000';
-
-      const baseUrl = `${protocol}://${host}`;
-
-
       return NextResponse.json(
         { error: 'No files provided' },
         { status: 400 }
@@ -162,7 +153,7 @@ export async function POST(request: NextRequest) {
         size: pdfBytes.length,
         totalPages,
         filesMerged: body.files.length,
-        downloadUrl: `${baseUrl}/api/download/${outputName}`,
+        downloadUrl: `/api/download/${outputName}`,
         // Include base64 data for immediate preview
         data: Buffer.from(pdfBytes).toString('base64')
       }

@@ -132,15 +132,6 @@ export async function POST(request: NextRequest) {
     const body: PDFToPDFARequest = await request.json();
 
     if (!body.file || !body.file.data) {
-      // Get the base URL for absolute download URLs
-
-      const protocol = request.headers.get('x-forwarded-proto') || 'http';
-
-      const host = request.headers.get('host') || 'localhost:3000';
-
-      const baseUrl = `${protocol}://${host}`;
-
-
       return NextResponse.json(
         { error: 'No file provided' },
         { status: 400 }
@@ -211,7 +202,7 @@ export async function POST(request: NextRequest) {
         convertedSize: conversionResult.size,
         conformance: body.options.conformance,
         isCompliant: true,
-        downloadUrl: `${baseUrl}/api/download/${conversionResult.filename}`,
+        downloadUrl: `/api/download/${conversionResult.filename}`,
         data: Buffer.from(conversionResult.data).toString('base64'),
         conversionReport
       }

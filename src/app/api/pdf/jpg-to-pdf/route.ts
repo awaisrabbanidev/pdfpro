@@ -108,15 +108,6 @@ export async function POST(request: NextRequest) {
     const body: JPGToPDFRequest = await request.json();
 
     if (!body.files || body.files.length === 0) {
-      // Get the base URL for absolute download URLs
-
-      const protocol = request.headers.get('x-forwarded-proto') || 'http';
-
-      const host = request.headers.get('host') || 'localhost:3000';
-
-      const baseUrl = `${protocol}://${host}`;
-
-
       return NextResponse.json(
         { error: 'No image files provided' },
         { status: 400 }
@@ -158,7 +149,7 @@ export async function POST(request: NextRequest) {
         filename: conversionResult.filename,
         imagesConverted: body.files.length,
         fileSize: conversionResult.size,
-        downloadUrl: `${baseUrl}/api/download/${conversionResult.filename}`,
+        downloadUrl: `/api/download/${conversionResult.filename}`,
         data: Buffer.from(conversionResult.data).toString('base64')
       }
     });

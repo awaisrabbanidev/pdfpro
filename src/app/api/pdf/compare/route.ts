@@ -310,36 +310,6 @@ export async function POST(request: NextRequest) {
       originalFilename2
     );
 
-    // Get the base URL for absolute download URLs
-    const protocol = request.headers.get('x-forwarded-proto') || 'http';
-    const host = request.headers.get('host') || 'localhost:3000';
-    const baseUrl = `${protocol}://${host}`;
-
-    // Generate comparison report data
-    const comparisonReport = {
-      files: {
-        file1: {
-          name: originalFilename1,
-          size: originalSize1,
-          words: totalWords1
-        },
-        file2: {
-          name: originalFilename2,
-          size: originalSize2,
-          words: totalWords2
-        }
-      },
-      comparison: {
-        mode: body.options.compareMode,
-        format: body.options.outputFormat,
-        similarity: comparisonResult.similarity,
-        additions: comparisonResult.additions.length,
-        deletions: comparisonResult.deletions.length,
-        modifications: comparisonResult.modifications.length
-      },
-      options: body.options
-    };
-
     return NextResponse.json({
       success: true,
       message: 'PDF comparison completed successfully',
@@ -350,7 +320,7 @@ export async function POST(request: NextRequest) {
         deletions: comparisonResult.deletions.length,
         totalWords1: totalWords1,
         totalWords2: totalWords2,
-        downloadUrl: `${baseUrl}/api/download/${reportResult.filename}`,
+        downloadUrl: `/api/download/${reportResult.filename}`,
         data: Buffer.from(reportResult.data).toString('base64'),
         comparisonReport
       }

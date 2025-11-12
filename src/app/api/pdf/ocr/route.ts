@@ -141,15 +141,6 @@ export async function POST(request: NextRequest) {
     const body: OCRRequest = await request.json();
 
     if (!body.file || !body.file.data) {
-      // Get the base URL for absolute download URLs
-
-      const protocol = request.headers.get('x-forwarded-proto') || 'http';
-
-      const host = request.headers.get('host') || 'localhost:3000';
-
-      const baseUrl = `${protocol}://${host}`;
-
-
       return NextResponse.json(
         { error: 'No file provided' },
         { status: 400 }
@@ -221,7 +212,7 @@ export async function POST(request: NextRequest) {
         extractedText: ocrResult.extractedText,
         charactersExtracted: ocrResult.extractedText.length,
         wordsExtracted: ocrResult.extractedText.split(/\s+/).filter(word => word.length > 0).length,
-        downloadUrl: `${baseUrl}/api/download/${ocrResult.filename}`,
+        downloadUrl: `/api/download/${ocrResult.filename}`,
         data: Buffer.from(ocrResult.data).toString('base64'),
         ocrReport
       }

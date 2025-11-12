@@ -158,15 +158,6 @@ export async function POST(request: NextRequest) {
     const body: PageNumbersRequest = await request.json();
 
     if (!body.file || !body.file.data) {
-      // Get the base URL for absolute download URLs
-
-      const protocol = request.headers.get('x-forwarded-proto') || 'http';
-
-      const host = request.headers.get('host') || 'localhost:3000';
-
-      const baseUrl = `${protocol}://${host}`;
-
-
       return NextResponse.json(
         { error: 'No file provided' },
         { status: 400 }
@@ -214,7 +205,7 @@ export async function POST(request: NextRequest) {
         totalPages: Math.ceil(originalSize / 50000),
         format: body.options.format,
         position: body.options.position,
-        downloadUrl: `${baseUrl}/api/download/${pageNumbersResult.filename}`,
+        downloadUrl: `/api/download/${pageNumbersResult.filename}`,
         data: Buffer.from(pageNumbersResult.data).toString('base64')
       }
     });
