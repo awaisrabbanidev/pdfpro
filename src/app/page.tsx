@@ -28,12 +28,7 @@ export default function Home() {
     : PDF_TOOLS.filter(tool => tool.category === selectedCategory);
 
   return (
-    <>
-      {/* Global Ads - Popunder and Social Bar */}
-      <PopUnderAd />
-      <SocialBarAd />
-
-      <div className="bg-black text-gray-100 pt-0">
+    <div className="bg-black text-gray-100 pt-0">
         {/* Hero Section */}
         <section className="relative py-16 md:py-20 px-4 text-center overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent" />
