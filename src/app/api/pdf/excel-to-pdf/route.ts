@@ -149,7 +149,7 @@ async function convertExcelToPDF(
 
         // Draw row data
         for (let col = 0; col < maxCols; col++) {
-          const cellValue = jsonData[row][col];
+          const cellValue = Array.isArray(jsonData[row]) ? jsonData[row][col] : undefined;
           if (cellValue !== undefined && cellValue !== null) {
             const text = String(cellValue);
             let xPos = margins.left;
