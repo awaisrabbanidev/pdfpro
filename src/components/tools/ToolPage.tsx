@@ -558,7 +558,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
       }
 
       // Process files
-      const result = await onProcessFiles(files);
+      const result = await processFiles(files);
       setProcessedFiles(result);
       setState('complete');
 
