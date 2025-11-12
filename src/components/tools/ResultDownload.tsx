@@ -11,6 +11,7 @@ export interface DownloadFile {
   url: string;
   size: number;
   type?: string;
+  data?: string;
 }
 
 interface ResultDownloadProps {
