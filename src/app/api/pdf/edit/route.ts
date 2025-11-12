@@ -83,7 +83,7 @@ async function editPDF(
 
 export async function POST(request: NextRequest) {
   try {
-    await ensureDirectories();
+    // No need to create directories - we return data directly
 
     const body: EditPDFRequest = await request.json();
 
