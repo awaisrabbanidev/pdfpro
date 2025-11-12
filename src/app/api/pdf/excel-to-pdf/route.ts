@@ -104,8 +104,8 @@ async function convertExcelToPDF(
       const startRow = 2; // Start data rows
 
       // Calculate column widths based on content
-      const columnWidths = [];
-      const maxCols = Math.max(...jsonData.map(row => row ? row.length : 0));
+      const columnWidths: number[] = [];
+      const maxCols = Math.max(...jsonData.map(row => Array.isArray(row) ? row.length : 0));
 
       for (let col = 0; col < maxCols; col++) {
         columnWidths[col] = Math.max(
