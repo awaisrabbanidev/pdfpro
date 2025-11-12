@@ -94,7 +94,8 @@ const ToolPage: React.FC<ToolPageProps> = ({
             body: JSON.stringify({
               files: filesAsBase64,
               outputName: `merged_${Date.now()}.pdf`
-            })
+            }),
+            signal: AbortSignal.timeout(55000) // 55 second timeout (less than 60s Vercel limit)
           });
           console.log('📥 API Response status:', response.status);
           break;
