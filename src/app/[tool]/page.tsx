@@ -396,6 +396,265 @@ const getToolConfig = (toolId: string) => {
         ]
       };
 
+    // Add remaining tool configurations
+    case 'pdf-to-excel':
+      return {
+        ...baseConfig,
+        acceptedFileTypes: ['application/pdf'],
+        features: [
+          'Extract tables from PDFs to Excel',
+          'Preserve data formatting',
+          'Convert PDF tables accurately',
+          'Supports complex spreadsheet layouts'
+        ],
+        instructions: [
+          'Upload your PDF file containing tables',
+          'Wait for the extraction to complete',
+          'Download your Excel spreadsheet',
+          'Edit data in Microsoft Excel'
+        ]
+      };
+
+    case 'pdf-to-powerpoint':
+      return {
+        ...baseConfig,
+        acceptedFileTypes: ['application/pdf'],
+        features: [
+          'Convert PDF pages to PowerPoint slides',
+          'Preserve text and images',
+          'Create editable presentations',
+          'Maintain slide layout'
+        ],
+        instructions: [
+          'Upload your PDF file',
+          'Wait for the conversion to complete',
+          'Download your PowerPoint file',
+          'Edit slides in PowerPoint'
+        ]
+      };
+
+    case 'pdf-to-jpg':
+      return {
+        ...baseConfig,
+        acceptedFileTypes: ['application/pdf'],
+        features: [
+          'Convert PDF pages to high-quality JPG images',
+          'Choose resolution and quality',
+          'Extract specific pages',
+          'Batch conversion support'
+        ],
+        instructions: [
+          'Upload your PDF file',
+          'Choose image quality and pages',
+          'Wait for the conversion to complete',
+          'Download your JPG images'
+        ]
+      };
+
+    case 'sign-pdf':
+      return {
+        ...baseConfig,
+        acceptedFileTypes: ['application/pdf'],
+        features: [
+          'Add digital signatures to PDFs',
+          'Draw or type your signature',
+          'Add signature fields',
+          'Legally binding signatures'
+        ],
+        instructions: [
+          'Upload your PDF file',
+          'Create or upload your signature',
+          'Place signature on the document',
+          'Download your signed PDF'
+        ]
+      };
+
+    case 'repair-pdf':
+      return {
+        ...baseConfig,
+        acceptedFileTypes: ['application/pdf'],
+        features: [
+          'Fix corrupted or damaged PDFs',
+          'Recover content from broken files',
+          'Repair PDF structure errors',
+          'Restore document formatting'
+        ],
+        instructions: [
+          'Upload your damaged PDF file',
+          'Wait for the repair process',
+          'Review the recovered content',
+          'Download your repaired PDF'
+        ]
+      };
+
+    case 'protect-pdf':
+      return {
+        ...baseConfig,
+        acceptedFileTypes: ['application/pdf'],
+        features: [
+          'Add password protection',
+          'Encrypt PDF content',
+          'Set printing and copying restrictions',
+          'Secure sensitive documents'
+        ],
+        instructions: [
+          'Upload your PDF file',
+          'Set your password and security options',
+          'Choose protection level',
+          'Download your protected PDF'
+        ]
+      };
+
+    case 'unlock-pdf':
+      return {
+        ...baseConfig,
+        acceptedFileTypes: ['application/pdf'],
+        features: [
+          'Remove password protection',
+          'Unlock restricted PDFs',
+          'Restore access to content',
+          'Multiple password attempts'
+        ],
+        instructions: [
+          'Upload your password-protected PDF',
+          'Enter the PDF password',
+          'Wait for the unlock process',
+          'Download your unlocked PDF'
+        ]
+      };
+
+    case 'watermark':
+      return {
+        ...baseConfig,
+        acceptedFileTypes: ['application/pdf'],
+        features: [
+          'Add text or image watermarks',
+          'Custom watermark position',
+          'Adjust opacity and size',
+          'Batch watermark support'
+        ],
+        instructions: [
+          'Upload your PDF file',
+          'Create your watermark (text or image)',
+          'Set position and opacity',
+          'Download your watermarked PDF'
+        ]
+      };
+
+    case 'redact-pdf':
+      return {
+        ...baseConfig,
+        acceptedFileTypes: ['application/pdf'],
+        features: [
+          'Permanently remove sensitive content',
+          'Black out text and images',
+          'Search and redact specific terms',
+          'Secure document sanitization'
+        ],
+        instructions: [
+          'Upload your PDF file',
+          'Highlight areas to redact',
+          'Confirm redaction selections',
+          'Download your redacted PDF'
+        ]
+      };
+
+    case 'scan-to-pdf':
+      return {
+        ...baseConfig,
+        acceptedFileTypes: [
+          'image/jpeg',
+          'image/jpg',
+          'image/png',
+          'image/tiff',
+          'image/bmp'
+        ],
+        features: [
+          'Convert scanned documents to searchable PDFs',
+          'OCR text recognition technology',
+          'Multiple language support',
+          'Preserve original image quality'
+        ],
+        instructions: [
+          'Upload your scanned document images',
+          'Choose OCR language options',
+          'Wait for processing to complete',
+          'Download your searchable PDF'
+        ]
+      };
+
+    case 'organize-pdf':
+      return {
+        ...baseConfig,
+        acceptedFileTypes: ['application/pdf'],
+        features: [
+          'Rearrange pages easily',
+          'Add or remove pages',
+          'Rotate page orientation',
+          'Combine with other PDFs'
+        ],
+        instructions: [
+          'Upload your PDF file',
+          'Drag and drop to reorder pages',
+          'Add, remove, or rotate pages',
+          'Download your organized PDF'
+        ]
+      };
+
+    case 'rotate-pdf':
+      return {
+        ...baseConfig,
+        acceptedFileTypes: ['application/pdf'],
+        features: [
+          'Rotate pages 90°, 180°, 270°',
+          'Rotate individual pages',
+          'Batch rotation support',
+          'Preserve document quality'
+        ],
+        instructions: [
+          'Upload your PDF file',
+          'Select pages and rotation angle',
+          'Preview the rotation',
+          'Download your rotated PDF'
+        ]
+      };
+
+    case 'page-numbers':
+      return {
+        ...baseConfig,
+        acceptedFileTypes: ['application/pdf'],
+        features: [
+          'Add page numbers automatically',
+          'Custom number formatting',
+          'Position numbers on page',
+          'Starting number options'
+        ],
+        instructions: [
+          'Upload your PDF file',
+          'Choose number format and position',
+          'Set starting number',
+          'Download your numbered PDF'
+        ]
+      };
+
+    case 'edit-pdf':
+      return {
+        ...baseConfig,
+        acceptedFileTypes: ['application/pdf'],
+        features: [
+          'Edit text in PDFs',
+          'Add or modify images',
+          'Annotate and markup',
+          'Form field editing'
+        ],
+        instructions: [
+          'Upload your PDF file',
+          'Use editing tools to modify content',
+          'Save your changes',
+          'Download your edited PDF'
+        ]
+      };
+
     default:
       return {
         ...baseConfig,
