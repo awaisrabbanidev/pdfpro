@@ -122,6 +122,134 @@ const getToolConfig = (toolId: string) => {
   };
 
   switch (toolId) {
+    // Conversion Tools - FROM different formats TO PDF
+    case 'word-to-pdf':
+      return {
+        ...baseConfig,
+        maxFiles: 1,
+        acceptedFileTypes: [
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+          'application/msword', // .doc
+          'application/vnd.ms-word', // .doc
+          'application/vnd.ms-word.document.macroEnabled.12', // .docm
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.template', // .dotx
+          'application/vnd.ms-word.template.macroEnabled.12' // .dotm
+        ],
+        features: [
+          'Convert DOC and DOCX files to PDF',
+          'Preserves original formatting',
+          'Maintains images and layouts',
+          'High-quality PDF output'
+        ],
+        instructions: [
+          'Upload your Word document (.doc, .docx)',
+          'Wait for the conversion to complete',
+          'Download your PDF file',
+          'Share or print as needed'
+        ]
+      };
+
+    case 'excel-to-pdf':
+      return {
+        ...baseConfig,
+        maxFiles: 1,
+        acceptedFileTypes: [
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+          'application/vnd.ms-excel', // .xls
+          'application/vnd.ms-excel.sheet.macroEnabled.12', // .xlsm
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.template', // .xltx
+          'application/vnd.ms-excel.template.macroEnabled.12' // .xltm
+        ],
+        features: [
+          'Convert Excel spreadsheets to PDF',
+          'Preserves tables and formatting',
+          'Maintains charts and graphs',
+          'Supports multiple worksheets'
+        ],
+        instructions: [
+          'Upload your Excel file (.xls, .xlsx)',
+          'Choose worksheet options',
+          'Wait for the conversion to complete',
+          'Download your PDF file'
+        ]
+      };
+
+    case 'powerpoint-to-pdf':
+      return {
+        ...baseConfig,
+        maxFiles: 1,
+        acceptedFileTypes: [
+          'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
+          'application/vnd.ms-powerpoint', // .ppt
+          'application/vnd.ms-powerpoint.presentation.macroEnabled.12', // .pptm
+          'application/vnd.openxmlformats-officedocument.presentationml.template', // .potx
+          'application/vnd.ms-powerpoint.template.macroEnabled.12' // .potm
+        ],
+        features: [
+          'Convert PowerPoint presentations to PDF',
+          'Preserves slides and animations',
+          'Maintains speaker notes',
+          'High-quality output for printing'
+        ],
+        instructions: [
+          'Upload your PowerPoint file (.ppt, .pptx)',
+          'Wait for the conversion to complete',
+          'Download your PDF file',
+          'Perfect for sharing and printing'
+        ]
+      };
+
+    case 'jpg-to-pdf':
+      return {
+        ...baseConfig,
+        maxFiles: 20,
+        acceptedFileTypes: [
+          'image/jpeg',
+          'image/jpg',
+          'image/png',
+          'image/gif',
+          'image/bmp',
+          'image/webp'
+        ],
+        features: [
+          'Convert multiple images to PDF',
+          'Supports JPG, PNG, GIF, BMP formats',
+          'Maintain image quality',
+          'Custom page layout options'
+        ],
+        instructions: [
+          'Upload one or more images',
+          'Arrange order if needed (drag and drop)',
+          'Click "Process Files" to convert',
+          'Download your PDF file'
+        ]
+      };
+
+    case 'html-to-pdf':
+      return {
+        ...baseConfig,
+        maxFiles: 1,
+        acceptedFileTypes: [
+          'text/html',
+          'application/html',
+          'text/plain',
+          'application/xhtml+xml'
+        ],
+        features: [
+          'Convert HTML files to PDF',
+          'Preserve CSS styling',
+          'Maintain web page layout',
+          'Support for interactive content'
+        ],
+        instructions: [
+          'Upload your HTML file',
+          'Configure page settings',
+          'Click "Process File" to convert',
+          'Download your PDF file'
+        ]
+      };
+
+    // Conversion Tools - FROM PDF TO different formats
     case 'pdf-to-word':
       return {
         ...baseConfig,
