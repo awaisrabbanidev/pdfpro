@@ -150,7 +150,7 @@ async function createWordDocument(
 
 export async function POST(request: NextRequest) {
   try {
-    await ensureDirectories();
+    // No need to create directories - we return data directly
 
     const body: ConvertRequest = await request.json();
 
