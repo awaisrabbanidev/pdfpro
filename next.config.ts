@@ -1,15 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Remove static export for server-side deployment (needed for API routes)
-  trailingSlash: true,
-  distDir: 'out',
+  // Vercel-compatible configuration
+  trailingSlash: false, // Remove trailing slash for Vercel
   images: {
     unoptimized: true
   },
-  // Enable server-side features for API routes
+  // Vercel handles server-side features automatically
+  output: undefined, // Let Vercel handle output
+  // Remove conflicting settings
   experimental: {
-    // Remove invalid experimental config
+    // No experimental features for Vercel compatibility
   }
 };
 
