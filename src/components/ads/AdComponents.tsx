@@ -123,7 +123,7 @@ export const AdBanner300x250: React.FC<{ className?: string; placeholder?: boole
   }
 
   return (
-    <div className={`ad-container-300x250 ${className}`} style={{width: '300px', height: '250px'}}>
+    <div className={`ad-container-300x250 relative ${className}`} style={{width: '300px', height: '250px'}}>
       <div id={adId} style={{width: '100%', height: '100%'}} />
       {!adLoaded && (
         <div className="absolute inset-0 bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center">
