@@ -68,8 +68,6 @@ async function editPDF(
     pdfDoc.setModificationDate(new Date());
 
     const pdfBytes = await pdfDoc.save();
-    const outputPath = join(OUTPUT_DIR, filename);
-    await writeFile(outputPath, Buffer.from(pdfBytes));
 
     return {
       filename,
