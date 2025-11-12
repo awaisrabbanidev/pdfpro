@@ -1,11 +1,24 @@
 {
+  "functions": {
+    "src/app/api/pdf/**/*.ts": {
+      "maxDuration": 60
+    }
+  },
   "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
+      ]
+    },
     {
       "source": "/(.*)",
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' *.adsterra.com; connect-src 'self' https://pdfpro.pro *.adsterra.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: *.adsterra.com; frame-src 'self' *.adsterra.com;"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' *.adsterra.com; connect-src 'self' https://pdfpro.pro https://www.pdfpro.pro https://vercel.app *.adsterra.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://pdfpro.pro https://www.pdfpro.pro *.adsterra.com; frame-src 'self' *.adsterra.com;"
         }
       ]
     }
