@@ -43,7 +43,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
   // Helper function to make API calls with timeout and error handling
   const makeApiCall = async (url: string, options: RequestInit): Promise<Response> => {
     try {
-      const response = await makeApiCall(url, {
+      const response = await fetch(url, {
         ...options,
         signal: AbortSignal.timeout(55000) // 55 second timeout (less than 60s Vercel limit)
       });
