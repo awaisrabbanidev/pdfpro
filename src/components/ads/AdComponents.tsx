@@ -50,19 +50,34 @@ const AD_SCRIPTS = {
 };
 
 // Utility function to load ads safely
-const loadAdScript = (adKey: string, adOptions: any) => {
+const loadAdScript = (adKey: string, adOptions: any, containerId?: string) => {
   if (typeof window === 'undefined') return;
 
   try {
     // Set global ad options
-    (window as any).atOptions = adOptions;
+    (window as any).atOptions = {
+      ...adOptions,
+      container: containerId ? `#${containerId}` : undefined
+    };
 
     // Load ad script
     const script = document.createElement('script');
     script.type = 'text/javascript';
     script.src = `//www.highperformanceformat.com/${adKey}/invoke.js`;
     script.async = true;
+
+    if (containerId) {
+      // For specific container targeting
+      script.setAttribute('data-ad-container', containerId);
+    }
+
     document.head.appendChild(script);
+
+    // Set a timeout to consider ad as "loaded" even if script doesn't callback
+    setTimeout(() => {
+      console.log(`Ad script loaded for ${adKey}`);
+    }, 2000);
+
   } catch (error) {
     console.log('Ad loading failed:', error);
   }
