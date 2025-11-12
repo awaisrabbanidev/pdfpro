@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { join } from 'path';
 import { PDFDocument } from 'pdf-lib';
 import mammoth from 'mammoth';
 
