@@ -365,7 +365,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('PDF signing error:', error);
     return NextResponse.json(
-      { error: 'Failed to sign PDF file' },
+      { error: 'Failed to sign PDF file: ' + (error instanceof Error ? error.message : String(error)) },
       { status: 500 }
     );
   }
