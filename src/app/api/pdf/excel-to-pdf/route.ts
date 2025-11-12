@@ -157,13 +157,13 @@ async function convertExcelToPDF(
         // Draw row data
         for (let col = 0; col < maxCols; col++) {
           const cellValue = jsonData[row][col];
-          if (cellValue !== undefined && cellValue !== null) {
+          if (cellValue !== undefined && cellValue !== null && columnWidths[col] > 0) {
             const text = String(cellValue);
             let xPos = margins.left;
 
             // Calculate x position for this column
             for (let i = 0; i < col; i++) {
-              xPos += columnWidths[i];
+              xPos += columnWidths[i] || 0;
             }
 
             // Draw text with word wrap
@@ -203,10 +203,12 @@ async function convertExcelToPDF(
         }
 
         // Draw gridlines if requested
-        if (options.includeGridlines) {
+        if (options.includeGridlines && maxCols > 0) {
           let xPos = margins.left;
           for (let col = 0; col <= maxCols; col++) {
-            if (col < maxCols) xPos += columnWidths[col];
+            if (col < maxCols && columnWidths[col]) {
+              xPos += columnWidths[col];
+            }
 
             currentPage.drawLine({
               start: { x: xPos, y: currentY + rowHeight },
@@ -225,12 +227,14 @@ async function convertExcelToPDF(
       }
 
       // Add sheet footer
-      currentPage.drawText(`Page ${sheetIndex + 1} of ${sheetNames.length} - Sheet ${sheetIndex + 1}`, {
-        x: width - 150,
-        y: 30,
-        size: 8,
-        color: { type: 'RGB', r: 150, g: 150, b: 150 } as any
-      });
+      if (currentPage) {
+        currentPage.drawText(`Page ${sheetIndex + 1} of ${sheetNames.length} - Sheet ${sheetIndex + 1}`, {
+          x: width - 150,
+          y: 30,
+          size: 8,
+          color: { type: 'RGB', r: 150, g: 150, b: 150 } as any
+        });
+      }
     }
 
     // Set metadata
