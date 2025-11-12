@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
         rotatedSize: rotationResult.size,
         rotationAngle: body.rotation.angle,
         pagesRotated,
-        downloadUrl: `/api/download/${rotationResult.filename}`,
+        downloadUrl: `${baseUrl}/api/download/${rotationResult.filename}`,
         data: Buffer.from(rotationResult.data).toString('base64')
       }
     });

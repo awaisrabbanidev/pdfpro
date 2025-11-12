@@ -205,7 +205,7 @@ export async function POST(request: NextRequest) {
         totalPages: Math.ceil(originalSize / 50000),
         format: body.options.format,
         position: body.options.position,
-        downloadUrl: `/api/download/${pageNumbersResult.filename}`,
+        downloadUrl: `${baseUrl}/api/download/${pageNumbersResult.filename}`,
         data: Buffer.from(pageNumbersResult.data).toString('base64')
       }
     });

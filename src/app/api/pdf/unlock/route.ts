@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
         unlockedSize: unlockResult.size,
         unlocked: unlockResult.unlocked,
         passwordProvided: body.password.length,
-        downloadUrl: `/api/download/${unlockResult.filename}`,
+        downloadUrl: `${baseUrl}/api/download/${unlockResult.filename}`,
         data: Buffer.from(unlockResult.data).toString('base64')
       }
     });

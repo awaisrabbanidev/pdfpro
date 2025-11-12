@@ -199,7 +199,7 @@ export async function POST(request: NextRequest) {
         originalSize,
         convertedSize: conversionResult.size,
         sheetsCreated: conversionReport.processing.sheetsCreated,
-        downloadUrl: `/api/download/${conversionResult.filename}`,
+        downloadUrl: `${baseUrl}/api/download/${conversionResult.filename}`,
         data: Buffer.from(conversionResult.data).toString('base64'),
         conversionReport
       }

@@ -206,7 +206,7 @@ export async function POST(request: NextRequest) {
         originalSize,
         repairedSize: repairResult.size,
         repairSuccessful: repairResult.repairReport.recoverySuccess,
-        downloadUrl: `/api/download/${repairResult.filename}`,
+        downloadUrl: `${baseUrl}/api/download/${repairResult.filename}`,
         data: Buffer.from(repairResult.data).toString('base64'),
         repairReport: repairResult.repairReport
       }

@@ -183,7 +183,7 @@ export async function POST(request: NextRequest) {
         originalSize,
         redactedSize: redactionResult.size,
         redactionsApplied: body.redactions.length,
-        downloadUrl: `/api/download/${redactionResult.filename}`,
+        downloadUrl: `${baseUrl}/api/download/${redactionResult.filename}`,
         data: Buffer.from(redactionResult.data).toString('base64'),
         redactionReport
       }

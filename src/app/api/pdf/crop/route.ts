@@ -225,7 +225,7 @@ export async function POST(request: NextRequest) {
         convertedSize: cropResult.size,
         sizeReduction: ((originalSize - cropResult.size) / originalSize * 100).toFixed(1),
         pagesProcessed: body.cropOptions.pages === 'all' ? totalPages : body.cropOptions.pages.length,
-        downloadUrl: `/api/download/${cropResult.filename}`,
+        downloadUrl: `${baseUrl}/api/download/${cropResult.filename}`,
         data: Buffer.from(cropResult.data).toString('base64'),
         cropReport
       }

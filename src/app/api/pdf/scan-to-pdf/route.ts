@@ -267,7 +267,7 @@ export async function POST(request: NextRequest) {
         convertedSize: conversionResult.size,
         searchable: body.options.ocrEnabled,
         enhancement: body.options.enhancement,
-        downloadUrl: `/api/download/${conversionResult.filename}`,
+        downloadUrl: `${baseUrl}/api/download/${conversionResult.filename}`,
         data: Buffer.from(conversionResult.data).toString('base64'),
         conversionReport
       }

@@ -149,7 +149,7 @@ export async function POST(request: NextRequest) {
         filename: conversionResult.filename,
         imagesConverted: body.files.length,
         fileSize: conversionResult.size,
-        downloadUrl: `/api/download/${conversionResult.filename}`,
+        downloadUrl: `${baseUrl}/api/download/${conversionResult.filename}`,
         data: Buffer.from(conversionResult.data).toString('base64')
       }
     });

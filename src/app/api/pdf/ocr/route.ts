@@ -212,7 +212,7 @@ export async function POST(request: NextRequest) {
         extractedText: ocrResult.extractedText,
         charactersExtracted: ocrResult.extractedText.length,
         wordsExtracted: ocrResult.extractedText.split(/\s+/).filter(word => word.length > 0).length,
-        downloadUrl: `/api/download/${ocrResult.filename}`,
+        downloadUrl: `${baseUrl}/api/download/${ocrResult.filename}`,
         data: Buffer.from(ocrResult.data).toString('base64'),
         ocrReport
       }

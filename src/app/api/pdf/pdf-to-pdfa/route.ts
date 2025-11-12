@@ -202,7 +202,7 @@ export async function POST(request: NextRequest) {
         convertedSize: conversionResult.size,
         conformance: body.options.conformance,
         isCompliant: true,
-        downloadUrl: `/api/download/${conversionResult.filename}`,
+        downloadUrl: `${baseUrl}/api/download/${conversionResult.filename}`,
         data: Buffer.from(conversionResult.data).toString('base64'),
         conversionReport
       }

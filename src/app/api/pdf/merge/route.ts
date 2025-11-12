@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
         size: pdfBytes.length,
         totalPages,
         filesMerged: body.files.length,
-        downloadUrl: `/api/download/${outputName}`,
+        downloadUrl: `${baseUrl}/api/download/${outputName}`,
         // Include base64 data for immediate preview
         data: Buffer.from(pdfBytes).toString('base64')
       }

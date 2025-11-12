@@ -199,7 +199,7 @@ export async function POST(request: NextRequest) {
         originalSize,
         protectedSize: protectionResult.size,
         password: body.protection.password,
-        downloadUrl: `/api/download/${protectionResult.filename}`,
+        downloadUrl: `${baseUrl}/api/download/${protectionResult.filename}`,
         data: Buffer.from(protectionResult.data).toString('base64'),
         protectionReport
       }

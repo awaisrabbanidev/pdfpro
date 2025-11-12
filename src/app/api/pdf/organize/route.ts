@@ -167,7 +167,7 @@ export async function POST(request: NextRequest) {
         originalSize,
         organizedSize: organizationResult.size,
         operationsApplied: body.operations.length,
-        downloadUrl: `/api/download/${organizationResult.filename}`,
+        downloadUrl: `${baseUrl}/api/download/${organizationResult.filename}`,
         data: Buffer.from(organizationResult.data).toString('base64'),
         organizationReport
       }

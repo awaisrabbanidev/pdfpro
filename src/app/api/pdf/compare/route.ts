@@ -345,7 +345,7 @@ export async function POST(request: NextRequest) {
         deletions: comparisonResult.deletions.length,
         totalWords1: totalWords1,
         totalWords2: totalWords2,
-        downloadUrl: `/api/download/${reportResult.filename}`,
+        downloadUrl: `${baseUrl}/api/download/${reportResult.filename}`,
         data: Buffer.from(reportResult.data).toString('base64'),
         comparisonReport
       }

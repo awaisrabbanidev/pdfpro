@@ -252,7 +252,7 @@ export async function POST(request: NextRequest) {
         originalSize,
         convertedSize: conversionResult.size,
         pagesCreated: Math.ceil(originalSize / 2000), // Estimate
-        downloadUrl: `/api/download/${conversionResult.filename}`,
+        downloadUrl: `${baseUrl}/api/download/${conversionResult.filename}`,
         data: Buffer.from(conversionResult.data).toString('base64')
       }
     });

@@ -186,7 +186,7 @@ export async function POST(request: NextRequest) {
         originalSize,
         watermarkedSize: watermarkResult.size,
         watermarkType: body.watermark.type,
-        downloadUrl: `/api/download/${watermarkResult.filename}`,
+        downloadUrl: `${baseUrl}/api/download/${watermarkResult.filename}`,
         data: Buffer.from(watermarkResult.data).toString('base64')
       }
     });
