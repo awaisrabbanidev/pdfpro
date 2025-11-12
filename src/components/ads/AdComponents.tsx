@@ -198,19 +198,23 @@ export const PopUnderAd: React.FC = () => {
   return null;
 };
 
-// Social Bar Ad (client-side only)
+// EXACT AdsTerra Social Bar Ad
 export const SocialBarAd: React.FC = () => {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const timer = setTimeout(() => {
       try {
+        // Load exact AdsTerra Social Bar script
         const script = document.createElement('script');
         script.type = 'text/javascript';
         script.src = '//pl28033957.effectivegatecpm.com/db/c0/8b/dbc08b2e31d941c4ee105765681dcac9.js';
         document.body.appendChild(script);
+
+        console.log('🚀 Loading AdsTerra Social Bar Ad');
+
       } catch (error) {
-        console.log('Social bar ad loading error:', error);
+        console.log('❌ Social bar ad loading error:', error);
       }
     }, 2500);
 
