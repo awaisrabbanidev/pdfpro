@@ -30,8 +30,8 @@ interface SignRequest {
   };
 }
 
-const UPLOAD_DIR = join(process.cwd(), 'tmp', 'uploads');
-const OUTPUT_DIR = join(process.cwd(), 'tmp', 'outputs');
+const UPLOAD_DIR = join('/tmp', 'uploads');
+const OUTPUT_DIR = join('/tmp', 'outputs');
 
 // Ensure directories exist
 async function ensureDirectories() {
