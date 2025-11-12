@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
         originalSize,
         editedSize: editResult.size,
         editsApplied: body.edits.length,
-        downloadUrl: `/api/download/${editResult.filename}`,
+        downloadUrl: `data:application/pdf;base64,${editResult.data.toString('base64')}`,
         data: editResult.data.toString('base64'),
         editReport
       }
