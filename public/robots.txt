@@ -1,0 +1,44 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://pdfpro.pro/sitemap.xml
+
+# Block common non-content paths
+Disallow: /api/
+Disallow: /_next/
+Disallow: /uploads/
+Disallow: /outputs/
+Disallow: /temp/
+
+# Allow search engines to crawl all tools and content
+Allow: /
+Allow: /merge-pdf
+Allow: /split-pdf
+Allow: /compress-pdf
+Allow: /pdf-to-word
+Allow: /pdf-to-excel
+Allow: /pdf-to-powerpoint
+Allow: /word-to-pdf
+Allow: /excel-to-pdf
+Allow: /powerpoint-to-pdf
+Allow: /pdf-to-jpg
+Allow: /jpg-to-pdf
+Allow: /rotate-pdf
+Allow: /protect-pdf
+Allow: /unlock-pdf
+Allow: /sign-pdf
+Allow: /watermark
+Allow: /edit-pdf
+Allow: /organize-pdf
+Allow: /page-numbers
+Allow: /crop-pdf
+Allow: /html-to-pdf
+Allow: /scan-to-pdf
+Allow: /ocr-pdf
+Allow: /repair-pdf
+Allow: /pdf-to-pdfa
+Allow: /compare-pdf
+Allow: /redact-pdf
+
+Crawl-delay: 1
