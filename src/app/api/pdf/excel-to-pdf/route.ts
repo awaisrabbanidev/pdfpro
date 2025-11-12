@@ -248,7 +248,7 @@ async function convertExcelToPDF(
 
   } catch (error) {
     console.error('Excel to PDF conversion error:', error);
-    throw new Error('Failed to convert Excel to PDF: ' + error.message);
+    throw new Error('Failed to convert Excel to PDF: ' + (error instanceof Error ? error.message : String(error)));
   }
 }
 
