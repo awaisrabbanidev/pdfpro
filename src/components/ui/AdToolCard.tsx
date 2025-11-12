@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { AdBanner300x250 } from '../ads/AdComponents';
 
 interface AdToolCardProps {
