@@ -135,12 +135,12 @@ export default function Home() {
               {/* Left Sidebar - Desktop Ads */}
               <div className="hidden xl:block xl:col-span-3 space-y-6">
                 <div className="sticky top-6">
-                  <AdBanner160x600 placeholder={true} />
+                  <AdBanner160x600 placeholder={false} />
                   <div className="mt-6">
-                    <AdBanner160x300 placeholder={true} />
+                    <AdBanner160x300 placeholder={false} />
                   </div>
                   <div className="mt-6">
-                    <AdBanner300x250 placeholder={true} />
+                    <AdBanner300x250 placeholder={false} />
                   </div>
                 </div>
               </div>
