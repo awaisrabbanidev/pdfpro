@@ -105,21 +105,28 @@ async function convertExcelToPDF(
 
       // Calculate column widths based on content
       const columnWidths: number[] = [];
-      const maxCols = Math.max(...jsonData.map((row: any[]) => row ? row.length : 0));
+      const maxCols = jsonData.length > 0
+        ? Math.max(...jsonData.map((row: any[]) => Array.isArray(row) ? row.length : 0))
+        : 0;
 
-      for (let col = 0; col < maxCols; col++) {
-        columnWidths[col] = Math.max(
-          80, // Minimum width
-          ...jsonData.map((row: any[]) => (row && row[col] !== undefined ? String(row[col]).length * 6 : 0))
-        );
-      }
+      if (maxCols > 0) {
+        for (let col = 0; col < maxCols; col++) {
+          const colWidths = jsonData.map((row: any[]) => {
+            if (!Array.isArray(row) || row[col] === undefined || row[col] === null) {
+              return 0;
+            }
+            return String(row[col]).length * 6;
+          });
+          columnWidths[col] = Math.max(80, ...colWidths); // Minimum width
+        }
 
-      // Adjust column widths to fit page
-      const totalWidth = columnWidths.reduce((sum, width) => sum + width, 0);
-      if (totalWidth > usableWidth) {
-        const scaleFactor = usableWidth / totalWidth;
-        for (let i = 0; i < columnWidths.length; i++) {
-          columnWidths[i] *= scaleFactor;
+        // Adjust column widths to fit page
+        const totalWidth = columnWidths.reduce((sum, width) => sum + width, 0);
+        if (totalWidth > usableWidth) {
+          const scaleFactor = usableWidth / totalWidth;
+          for (let i = 0; i < columnWidths.length; i++) {
+            columnWidths[i] *= scaleFactor;
+          }
         }
       }
 
@@ -129,7 +136,7 @@ async function convertExcelToPDF(
       let rowsOnThisPage = 0;
 
       for (let row = 0; row < jsonData.length; row++) {
-        if (!jsonData[row]) continue;
+        if (!Array.isArray(jsonData[row]) || jsonData[row].length === 0) continue;
 
         // Check if we need a new page
         if (rowsOnThisPage >= maxRowsPerPage) {
@@ -149,7 +156,7 @@ async function convertExcelToPDF(
 
         // Draw row data
         for (let col = 0; col < maxCols; col++) {
-          const cellValue = Array.isArray(jsonData[row]) ? jsonData[row][col] : undefined;
+          const cellValue = jsonData[row][col];
           if (cellValue !== undefined && cellValue !== null) {
             const text = String(cellValue);
             let xPos = margins.left;
