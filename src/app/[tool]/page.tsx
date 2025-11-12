@@ -655,6 +655,24 @@ const getToolConfig = (toolId: string) => {
         ]
       };
 
+    case 'pdf-to-pdfa':
+      return {
+        ...baseConfig,
+        acceptedFileTypes: ['application/pdf'],
+        features: [
+          'Convert to PDF/A format for archiving',
+          'Long-term document preservation',
+          'ISO standard compliance',
+          'Metadata optimization'
+        ],
+        instructions: [
+          'Upload your PDF file',
+          'Choose PDF/A version (PDF/A-1, PDF/A-2, PDF/A-3)',
+          'Wait for the conversion to complete',
+          'Download your PDF/A file'
+        ]
+      };
+
     default:
       return {
         ...baseConfig,
