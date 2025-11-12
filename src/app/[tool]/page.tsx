@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import ToolPage from '@/components/tools/ToolPage';
-import { PDF_TOOLS } from '@/lib/constants';
+import { PDF_TOOLS, SEO_CONFIG } from '@/lib/constants';
 
 interface ToolPageProps {
   params: Promise<{
