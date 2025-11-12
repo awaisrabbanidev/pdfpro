@@ -95,7 +95,7 @@ async function convertPDFToImages(
 }
 
 // Create simulated image data (in real implementation would be actual image bytes)
-function createSimulatedImageData(pageNumber: number, totalPages: number, options: any): Buffer {
+function createSimulatedImageData(pageNumber: number, totalPages: number, options: PDFToJPGRequest['options']): Buffer {
   // This is a placeholder for actual image conversion
   // In a real implementation, you'd use libraries like:
   // - pdf2pic (Node.js)
