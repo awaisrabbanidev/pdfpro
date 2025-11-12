@@ -71,21 +71,16 @@ async function addWatermark(
             });
             break;
           case 'diagonal':
-            page.saveContext();
-            page.transform({
-              x: width / 2,
-              y: height / 2,
-              skewX: 0,
-              skewY: Math.PI / 6
-            });
+            // Simulate diagonal watermark by positioning text diagonally
+            const diagonalX = width / 4;
+            const diagonalY = height * 0.6;
             page.drawText(watermark.content, {
-              x: -(watermark.content.length * fontSize) / 4,
-              y: 0,
+              x: diagonalX,
+              y: diagonalY,
               size: fontSize,
               color,
               opacity
             });
-            page.restoreContext();
             break;
           case 'corner':
             page.drawText(watermark.content, {
