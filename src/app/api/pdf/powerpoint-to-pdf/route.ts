@@ -285,6 +285,9 @@ export async function POST(request: NextRequest) {
     const originalSize = buffer.length;
     const originalFilename = body.file.name;
 
+    // Parse PowerPoint first to get slide count
+    const { slides } = await parsePPTX(buffer);
+
     // Convert PowerPoint to PDF
     const conversionResult = await convertPowerPointToPDF(
       buffer,
@@ -293,18 +296,17 @@ export async function POST(request: NextRequest) {
     );
 
     // Generate conversion report
-    const estimatedSlides = Math.max(1, Math.floor(originalSize / 10000));
     const conversionReport = {
       originalFile: {
         name: originalFilename,
         size: originalSize,
         type: originalFilename.endsWith('.pptx') ? 'PowerPoint XML' : 'PowerPoint Binary',
-        estimatedSlides
+        slidesCount: slides.length
       },
       convertedFile: {
         name: conversionResult.filename,
         size: conversionResult.size,
-        pages: estimatedSlides
+        pages: slides.length
       },
       options: body.options,
       processing: {
