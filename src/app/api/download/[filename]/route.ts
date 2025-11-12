@@ -3,7 +3,7 @@ import { readFile, access } from 'fs/promises';
 import { join } from 'path';
 import { stat } from 'fs/promises';
 
-const OUTPUT_DIR = join(process.cwd(), 'outputs');
+const OUTPUT_DIR = join('/tmp', 'outputs');
 
 export async function GET(
   request: NextRequest,
