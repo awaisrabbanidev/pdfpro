@@ -142,93 +142,107 @@ async function convertPowerPointToPDF(
 
     // Create PDF pages for each slide
     for (let i = 0; i < slides.length; i++) {
-      const slide = slides[i];
-      const page = pdfDoc.addPage([width, height]);
+      try {
+        const slide = slides[i];
+        if (!slide) continue;
 
-      const margins = { top: 60, right: 50, bottom: 50, left: 50 };
-      let currentY = height - margins.top;
+        const page = pdfDoc.addPage([width, height]);
 
-      // Add slide title
-      page.drawText(slide.title, {
-        x: margins.left,
-        y: currentY,
-        size: 24,
-        color: rgb(0, 0, 0),
-        maxWidth: width - margins.left - margins.right
-      });
+        const margins = { top: 60, right: 50, bottom: 50, left: 50 };
+        let currentY = height - margins.top;
+        let currentPage = page;
 
-      currentY -= 50;
+        // Add slide title
+        const slideTitle = slide.title || `Slide ${i + 1}`;
+        currentPage.drawText(slideTitle, {
+          x: margins.left,
+          y: currentY,
+          size: 24,
+          color: rgb(0, 0, 0),
+          maxWidth: width - margins.left - margins.right
+        });
 
-      // Add slide content
-      if (slide.hasContent && slide.content.length > 0) {
-        for (const text of slide.content) {
-          if (currentY < margins.bottom + 30) {
-            // Add new page if content doesn't fit
-            const newPage = pdfDoc.addPage([width, height]);
-            currentY = height - margins.top;
-          }
+        currentY -= 50;
 
-          // Add text with word wrap
-          const lines = text.match(/.{1,80}/g) || [text]; // Simple line splitting
-          for (const line of lines) {
-            if (currentY < margins.bottom + 20) {
-              const newPage = pdfDoc.addPage([width, height]);
+        // Add slide content
+        if (slide.hasContent && Array.isArray(slide.content) && slide.content.length > 0) {
+          for (const text of slide.content) {
+            if (!text || typeof text !== 'string') continue;
+
+            if (currentY < margins.bottom + 30) {
+              // Add new page if content doesn't fit
+              currentPage = pdfDoc.addPage([width, height]);
               currentY = height - margins.top;
             }
 
-            page.drawText(line, {
-              x: margins.left,
-              y: currentY,
-              size: 14,
-              color: rgb(0, 0, 0),
-              maxWidth: width - margins.left - margins.right
-            });
+            // Add text with word wrap
+            const lines = text.match(/.{1,80}/g) || [text]; // Simple line splitting
+            for (const line of lines) {
+              if (!line) continue;
 
-            currentY -= 25;
+              if (currentY < margins.bottom + 20) {
+                currentPage = pdfDoc.addPage([width, height]);
+                currentY = height - margins.top;
+              }
+
+              currentPage.drawText(line, {
+                x: margins.left,
+                y: currentY,
+                size: 14,
+                color: rgb(0, 0, 0),
+                maxWidth: width - margins.left - margins.right
+              });
+
+              currentY -= 25;
+            }
+
+            currentY -= 10; // Add spacing between paragraphs
           }
+        } else {
+          // Add placeholder content for slides without extracted text
+          currentPage.drawText(`Content from ${originalFilename} - Slide ${i + 1}`, {
+            x: margins.left,
+            y: currentY,
+            size: 16,
+            color: rgb(100, 100, 100),
+            maxWidth: width - margins.left - margins.right
+          });
 
-          currentY -= 10; // Add spacing between paragraphs
+          currentY -= 40;
+
+          currentPage.drawText('This slide has been converted from PowerPoint to PDF.', {
+            x: margins.left,
+            y: currentY,
+            size: 12,
+            color: rgb(100, 100, 100),
+            maxWidth: width - margins.left - margins.right
+          });
         }
-      } else {
-        // Add placeholder content for slides without extracted text
-        page.drawText(`Content from ${originalFilename} - Slide ${i + 1}`, {
-          x: margins.left,
-          y: currentY,
-          size: 16,
-          color: rgb(100, 100, 100),
-          maxWidth: width - margins.left - margins.right
-        });
 
-        currentY -= 40;
+        // Add speaker notes if requested
+        if (options.includeNotes && i % 2 === 0) {
+          currentY -= 30;
+          currentPage.drawText(`Speaker notes for slide ${i + 1}: This would contain any presenter notes from the original PowerPoint slide.`, {
+            x: margins.left,
+            y: currentY,
+            size: 10,
+            color: rgb(150, 150, 150),
+            maxWidth: width - margins.left - margins.right
+          });
+        }
 
-        page.drawText('This slide has been converted from PowerPoint to PDF.', {
-          x: margins.left,
-          y: currentY,
-          size: 12,
-          color: rgb(100, 100, 100),
-          maxWidth: width - margins.left - margins.right
-        });
-      }
-
-      // Add speaker notes if requested
-      if (options.includeNotes && i % 2 === 0) {
-        currentY -= 30;
-        page.drawText(`Speaker notes for slide ${i + 1}: This would contain any presenter notes from the original PowerPoint slide.`, {
-          x: margins.left,
-          y: currentY,
+        // Add slide number
+        currentPage.drawText(`Slide ${i + 1} of ${slides.length}`, {
+          x: width - 100,
+          y: 30,
           size: 10,
-          color: rgb(150, 150, 150),
-          maxWidth: width - margins.left - margins.right
+          color: rgb(150, 150, 150)
         });
+      } catch (slideError) {
+        console.error(`Error processing slide ${i}:`, slideError);
+        // Continue with next slide even if one fails
+        continue;
       }
-
-      // Add slide number
-      page.drawText(`Slide ${i + 1} of ${slides.length}`, {
-        x: width - 100,
-        y: 30,
-        size: 10,
-        color: rgb(150, 150, 150)
-      });
     }
 
     // Set metadata
