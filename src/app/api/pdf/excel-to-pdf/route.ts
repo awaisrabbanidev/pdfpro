@@ -303,18 +303,17 @@ export async function POST(request: NextRequest) {
     );
 
     // Generate conversion report
-    const estimatedSheets = Math.max(1, Math.floor(originalSize / 15000));
     const conversionReport = {
       originalFile: {
         name: originalFilename,
         size: originalSize,
         type: originalFilename.endsWith('.xlsx') ? 'Excel XML' : 'Excel Binary',
-        estimatedSheets
+        sheetsCount: workbook.SheetNames.length
       },
       convertedFile: {
         name: conversionResult.filename,
         size: conversionResult.size,
-        pages: estimatedSheets
+        pages: workbook.SheetNames.length
       },
       options: body.options,
       processing: {
