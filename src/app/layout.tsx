@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { SEO_CONFIG } from "@/lib/constants";
+import { PopUnderAd, SocialBarAd } from "@/components/ads/AdComponents";
 
 // Initialize cleanup system (server-side only)
 if (typeof window === 'undefined') {
