@@ -317,7 +317,7 @@ export async function POST(request: NextRequest) {
       convertedFile: {
         name: conversionResult.filename,
         size: conversionResult.size,
-        pages: workbook.SheetNames.length
+        pages: sheetsCount
       },
       options: body.options,
       processing: {
