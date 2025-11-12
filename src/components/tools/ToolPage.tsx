@@ -111,14 +111,13 @@ const ToolPage: React.FC<ToolPageProps> = ({
       switch (toolId) {
         case 'merge-pdf':
           console.log('🚀 Making API call to:', `${baseUrl}/api/pdf/merge`);
-          response = await fetch(`${baseUrl}/api/pdf/merge`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/merge`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               files: filesAsBase64,
               outputName: `merged_${Date.now()}.pdf`
-            }),
-            signal: AbortSignal.timeout(55000) // 55 second timeout (less than 60s Vercel limit)
+            })
           });
           console.log('📥 API Response status:', response.status);
           break;
