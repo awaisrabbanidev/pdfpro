@@ -11,7 +11,7 @@ interface UnlockPDFRequest {
   password: string;
 }
 
-const UPLOAD_DIR = join(process.cwd(), 'uploads');
+const UPLOAD_DIR = join('/tmp', 'uploads');
 const OUTPUT_DIR = join('/tmp', 'outputs');
 
 async function ensureDirectories() {
