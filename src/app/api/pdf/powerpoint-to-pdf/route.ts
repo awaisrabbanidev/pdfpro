@@ -65,7 +65,7 @@ async function parsePPTX(pptxBuffer: Buffer): Promise<{ slides: any[] }> {
 
       // Extract title (usually the first or largest text)
       const titleMatches = slideContent.match(/<a:t>([^<]{10,})<\/a:t>/g) || [];
-      const title = titleMatches.length > 0
+      const title = titleMatches.length > 0 && titleMatches[0]
         ? titleMatches[0].replace(/<\/?a:t>/g, '').trim()
         : `Slide ${slides.length + 1}`;
 
