@@ -167,7 +167,7 @@ async function convertWordToPDF(
 
   } catch (error) {
     console.error('Word to PDF conversion error:', error);
-    throw new Error('Failed to convert Word document to PDF');
+    throw new Error('Failed to convert Word document to PDF: ' + (error instanceof Error ? error.message : String(error)));
   }
 }
 
