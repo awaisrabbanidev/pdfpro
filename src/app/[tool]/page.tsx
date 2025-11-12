@@ -751,6 +751,47 @@ const getToolConfig = (toolId: string) => {
   }
 };
 
+// Generate dynamic metadata for each tool page
+export async function generateMetadata({ params }: ToolPageProps): Promise<Metadata> {
+  const { tool: toolId } = await params;
+  const tool = PDF_TOOLS.find(t => t.id === toolId);
+
+  if (!tool) {
+    return {
+      title: 'Tool Not Found - PDFPro.pro',
+      description: 'The requested PDF tool could not be found.',
+    };
+  }
+
+  return {
+    title: `${tool.title} - Free Online ${tool.title} Tool | PDFPro.pro`,
+    description: tool.description,
+    keywords: tool.keywords.join(', ') + ', ' + SEO_CONFIG.keywords,
+    openGraph: {
+      title: `${tool.title} - PDFPro.pro`,
+      description: tool.description,
+      url: `${SEO_CONFIG.url}${tool.href}`,
+      images: [
+        {
+          url: SEO_CONFIG.ogImage,
+          width: 1200,
+          height: 630,
+          alt: `${tool.title} - PDFPro.pro`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${tool.title} - PDFPro.pro`,
+      description: tool.description,
+      images: [SEO_CONFIG.ogImage],
+    },
+    alternates: {
+      canonical: `${SEO_CONFIG.url}${tool.href}`,
+    },
+  };
+}
+
 export default async function ToolPageRoute({ params }: ToolPageProps) {
   const { tool: toolId } = await params;
   const tool = PDF_TOOLS.find(t => t.id === toolId);
