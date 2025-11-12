@@ -84,6 +84,15 @@ const getDefaultProcessingSteps = (toolId: string): Omit<ProcessingStep, 'status
       ];
 
     case 'pdf-to-word':
+      return [
+        { id: 'upload', label: 'Upload PDF file' },
+        { id: 'analyze', label: 'Analyze document structure' },
+        { id: 'extract', label: 'Extract text and layout' },
+        { id: 'convert', label: 'Convert to Word format' },
+        { id: 'format', label: 'Format document' },
+        { id: 'complete', label: 'Complete' }
+      ];
+
     case 'pdf-to-excel':
       return [
         { id: 'upload', label: 'Upload PDF file' },
