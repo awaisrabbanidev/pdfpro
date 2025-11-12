@@ -40,6 +40,29 @@ const ToolPage: React.FC<ToolPageProps> = ({
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
+  // Helper function to make API calls with timeout and error handling
+  const makeApiCall = async (url: string, options: RequestInit): Promise<Response> => {
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: AbortSignal.timeout(55000) // 55 second timeout (less than 60s Vercel limit)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => 'Unknown error');
+        console.error(`API Error (${response.status}):`, errorText);
+        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      }
+
+      return response;
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('Request timeout. Please try again with a smaller file.');
+      }
+      throw error;
+    }
+  };
+
   // Processing function moved to client side
   const processFiles = async (files: File[]): Promise<DownloadFile[]> => {
     try {
