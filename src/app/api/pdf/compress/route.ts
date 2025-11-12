@@ -220,6 +220,11 @@ export async function POST(request: NextRequest) {
       }
     };
 
+    // Get the base URL for absolute download URLs
+    const protocol = request.headers.get('x-forwarded-proto') || 'http';
+    const host = request.headers.get('host') || 'localhost:3000';
+    const baseUrl = `${protocol}://${host}`;
+
     return NextResponse.json({
       success: true,
       message: 'PDF compressed successfully',
@@ -229,7 +234,7 @@ export async function POST(request: NextRequest) {
         compressedSize,
         compressionRatio,
         totalPages,
-        downloadUrl: `/api/download/${outputName}`,
+        downloadUrl: `${baseUrl}/api/download/${outputName}`,
         data: Buffer.from(compressedBytes).toString('base64'),
         compressionReport
       }
