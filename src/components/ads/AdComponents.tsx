@@ -83,293 +83,62 @@ const loadAdScript = (adKey: string, adOptions: any, containerId?: string) => {
   }
 };
 
-// Create a safe Ad Banner component
-export const AdBanner300x250: React.FC<{ className?: string; placeholder?: boolean }> = ({
-  className = '',
-  placeholder = false
-}) => {
-  const [adLoaded, setAdLoaded] = useState(false);
-  const [adId] = useState(() => `ad-300x250-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
+// Generic Ad Banner Component
+const createAdBanner = (adType: keyof typeof AD_SCRIPTS) => {
+  return ({ className = '', placeholder = false }: { className?: string; placeholder?: boolean }) => {
+    const [adLoaded, setAdLoaded] = useState(false);
+    const [adId] = useState(() => `ad-${adType}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
 
-  useEffect(() => {
-    if (placeholder || typeof window === 'undefined') return;
+    useEffect(() => {
+      if (placeholder || typeof window === 'undefined') return;
 
-    const adOptions = {
-      key: AD_SCRIPTS['300x250'].key,
-      format: AD_SCRIPTS['300x250'].format,
-      height: AD_SCRIPTS['300x250'].height,
-      width: AD_SCRIPTS['300x250'].width,
-      params: {}
-    };
+      const adOptions = {
+        key: AD_SCRIPTS[adType].key,
+        format: AD_SCRIPTS[adType].format,
+        height: AD_SCRIPTS[adType].height,
+        width: AD_SCRIPTS[adType].width,
+        params: {}
+      };
 
-    // Delay ad loading to prevent SSR issues
-    const timer = setTimeout(() => {
-      loadAdScript(AD_SCRIPTS['300x250'].key, adOptions, adId);
-      setAdLoaded(true);
-    }, 1500);
+      const timer = setTimeout(() => {
+        loadAdScript(AD_SCRIPTS[adType].key, adOptions, adId);
+        setAdLoaded(true);
+      }, 1500);
 
-    return () => clearTimeout(timer);
-  }, [placeholder, adId]);
+      return () => clearTimeout(timer);
+    }, [placeholder, adId]);
 
-  if (placeholder) {
-    return (
-      <div className={`bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center text-center p-4 ${className}`} style={{width: '300px', height: '250px'}}>
-        <div>
-          <div className="text-gray-500 text-xs uppercase tracking-wide mb-2">Advertisement</div>
-          <div className="text-gray-600 text-xs">300x250 banner</div>
+    if (placeholder) {
+      return (
+        <div className={`bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center text-center p-4 ${className}`} style={{width: `${AD_SCRIPTS[adType].width}px`, height: `${AD_SCRIPTS[adType].height}px`}}>
+          <div>
+            <div className="text-gray-500 text-xs uppercase tracking-wide mb-2">Advertisement</div>
+            <div className="text-gray-600 text-xs">{adType} banner</div>
+          </div>
         </div>
+      );
+    }
+
+    return (
+      <div className={`ad-container-${adType} relative ${className}`} style={{width: `${AD_SCRIPTS[adType].width}px`, height: `${AD_SCRIPTS[adType].height}px`}}>
+        <div id={adId} style={{width: '100%', height: '100%'}} />
+        {!adLoaded && (
+          <div className="absolute inset-0 bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center">
+            <div className="text-gray-600 text-xs">Loading ad...</div>
+          </div>
+        )}
       </div>
     );
-  }
-
-  return (
-    <div className={`ad-container-300x250 relative ${className}`} style={{width: '300px', height: '250px'}}>
-      <div id={adId} style={{width: '100%', height: '100%'}} />
-      {!adLoaded && (
-        <div className="absolute inset-0 bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center">
-          <div className="text-gray-600 text-xs">Loading ad...</div>
-        </div>
-      )}
-    </div>
-  );
+  };
 };
 
-export const AdBanner728x90: React.FC<{ className?: string; placeholder?: boolean }> = ({
-  className = '',
-  placeholder = false
-}) => {
-  const [adLoaded, setAdLoaded] = useState(false);
-  const [adId] = useState(() => `ad-728x90-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
-
-  useEffect(() => {
-    if (placeholder || typeof window === 'undefined') return;
-
-    const adOptions = {
-      key: AD_SCRIPTS['728x90'].key,
-      format: AD_SCRIPTS['728x90'].format,
-      height: AD_SCRIPTS['728x90'].height,
-      width: AD_SCRIPTS['728x90'].width,
-      params: {}
-    };
-
-    const timer = setTimeout(() => {
-      loadAdScript(AD_SCRIPTS['728x90'].key, adOptions, adId);
-      setAdLoaded(true);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, [placeholder, adId]);
-
-  if (placeholder) {
-    return (
-      <div className={`bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center text-center p-4 ${className}`} style={{width: '728px', height: '90px'}}>
-        <div>
-          <div className="text-gray-500 text-xs uppercase tracking-wide mb-2">Advertisement</div>
-          <div className="text-gray-600 text-xs">728x90 banner</div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className={`ad-container-728x90 relative ${className}`} style={{width: '728px', height: '90px'}}>
-      <div id={adId} style={{width: '100%', height: '100%'}} />
-      {!adLoaded && (
-        <div className="absolute inset-0 bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center">
-          <div className="text-gray-600 text-xs">Loading ad...</div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export const AdBanner160x600: React.FC<{ className?: string; placeholder?: boolean }> = ({
-  className = '',
-  placeholder = false
-}) => {
-  const [adLoaded, setAdLoaded] = useState(false);
-
-  useEffect(() => {
-    if (placeholder || typeof window === 'undefined') return;
-
-    const adOptions = {
-      key: AD_SCRIPTS['160x600'].key,
-      format: AD_SCRIPTS['160x600'].format,
-      height: AD_SCRIPTS['160x600'].height,
-      width: AD_SCRIPTS['160x600'].width,
-      params: {}
-    };
-
-    const timer = setTimeout(() => {
-      loadAdScript(AD_SCRIPTS['160x600'].key, adOptions);
-      setAdLoaded(true);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [placeholder]);
-
-  if (placeholder) {
-    return (
-      <div className={`bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center text-center p-4 ${className}`} style={{width: '160px', height: '600px'}}>
-        <div>
-          <div className="text-gray-500 text-xs uppercase tracking-wide mb-2">Advertisement</div>
-          <div className="text-gray-600 text-xs">160x600 banner</div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className={`ad-container-160x600 ${className}`} style={{width: '160px', height: '600px'}}>
-      {!adLoaded && (
-        <div className="bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center h-full">
-          <div className="text-gray-600 text-xs">Loading ad...</div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export const AdBanner160x300: React.FC<{ className?: string; placeholder?: boolean }> = ({
-  className = '',
-  placeholder = false
-}) => {
-  const [adLoaded, setAdLoaded] = useState(false);
-
-  useEffect(() => {
-    if (placeholder || typeof window === 'undefined') return;
-
-    const adOptions = {
-      key: AD_SCRIPTS['160x300'].key,
-      format: AD_SCRIPTS['160x300'].format,
-      height: AD_SCRIPTS['160x300'].height,
-      width: AD_SCRIPTS['160x300'].width,
-      params: {}
-    };
-
-    const timer = setTimeout(() => {
-      loadAdScript(AD_SCRIPTS['160x300'].key, adOptions);
-      setAdLoaded(true);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [placeholder]);
-
-  if (placeholder) {
-    return (
-      <div className={`bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center text-center p-4 ${className}`} style={{width: '160px', height: '300px'}}>
-        <div>
-          <div className="text-gray-500 text-xs uppercase tracking-wide mb-2">Advertisement</div>
-          <div className="text-gray-600 text-xs">160x300 banner</div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className={`ad-container-160x300 ${className}`} style={{width: '160px', height: '300px'}}>
-      {!adLoaded && (
-        <div className="bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center h-full">
-          <div className="text-gray-600 text-xs">Loading ad...</div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export const AdBanner468x60: React.FC<{ className?: string; placeholder?: boolean }> = ({
-  className = '',
-  placeholder = false
-}) => {
-  const [adLoaded, setAdLoaded] = useState(false);
-
-  useEffect(() => {
-    if (placeholder || typeof window === 'undefined') return;
-
-    const adOptions = {
-      key: AD_SCRIPTS['468x60'].key,
-      format: AD_SCRIPTS['468x60'].format,
-      height: AD_SCRIPTS['468x60'].height,
-      width: AD_SCRIPTS['468x60'].width,
-      params: {}
-    };
-
-    const timer = setTimeout(() => {
-      loadAdScript(AD_SCRIPTS['468x60'].key, adOptions);
-      setAdLoaded(true);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [placeholder]);
-
-  if (placeholder) {
-    return (
-      <div className={`bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center text-center p-4 ${className}`} style={{width: '468px', height: '60px'}}>
-        <div>
-          <div className="text-gray-500 text-xs uppercase tracking-wide mb-2">Advertisement</div>
-          <div className="text-gray-600 text-xs">468x60 banner</div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className={`ad-container-468x60 ${className}`} style={{width: '468px', height: '60px'}}>
-      {!adLoaded && (
-        <div className="bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center h-full">
-          <div className="text-gray-600 text-xs">Loading ad...</div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export const AdBanner320x50: React.FC<{ className?: string; placeholder?: boolean }> = ({
-  className = '',
-  placeholder = false
-}) => {
-  const [adLoaded, setAdLoaded] = useState(false);
-
-  useEffect(() => {
-    if (placeholder || typeof window === 'undefined') return;
-
-    const adOptions = {
-      key: AD_SCRIPTS['320x50'].key,
-      format: AD_SCRIPTS['320x50'].format,
-      height: AD_SCRIPTS['320x50'].height,
-      width: AD_SCRIPTS['320x50'].width,
-      params: {}
-    };
-
-    const timer = setTimeout(() => {
-      loadAdScript(AD_SCRIPTS['320x50'].key, adOptions);
-      setAdLoaded(true);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [placeholder]);
-
-  if (placeholder) {
-    return (
-      <div className={`bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center text-center p-4 ${className}`} style={{width: '320px', height: '50px'}}>
-        <div>
-          <div className="text-gray-500 text-xs uppercase tracking-wide mb-2">Advertisement</div>
-          <div className="text-gray-600 text-xs">320x50 banner</div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className={`ad-container-320x50 ${className}`} style={{width: '320px', height: '50px'}}>
-      {!adLoaded && (
-        <div className="bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center h-full">
-          <div className="text-gray-600 text-xs">Loading ad...</div>
-        </div>
-      )}
-    </div>
-  );
-};
+// Create all ad banner components
+export const AdBanner300x250 = createAdBanner('300x250');
+export const AdBanner728x90 = createAdBanner('728x90');
+export const AdBanner160x600 = createAdBanner('160x600');
+export const AdBanner160x300 = createAdBanner('160x300');
+export const AdBanner468x60 = createAdBanner('468x60');
+export const AdBanner320x50 = createAdBanner('320x50');
 
 // Native Banner Ad (more reliable)
 export const NativeBannerAd: React.FC<{ className?: string }> = ({ className = '' }) => {
