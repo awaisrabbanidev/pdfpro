@@ -61,13 +61,51 @@ const ResultDownload: React.FC<ResultDownloadProps> = ({
       if (onDownloadSingle) {
         onDownloadSingle(file);
       } else {
-        // Default download behavior
-        const response = await fetch(file.url);
-        const blob = await response.blob();
-        saveAs(blob, file.name);
+        // Enhanced download behavior with better error handling
+        console.log('🔗 Downloading file:', { name: file.name, url: file.url, type: file.type });
+
+        // If we have base64 data, use it directly (fallback)
+        if (file.data) {
+          console.log('📦 Using base64 data for download');
+          const byteCharacters = atob(file.data);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], { type: file.type || 'application/octet-stream' });
+          saveAs(blob, file.name);
+        } else {
+          // Try to download from URL
+          console.log('🌐 Downloading from URL:', file.url);
+
+          // Ensure the URL is absolute
+          let downloadUrl = file.url;
+          if (!downloadUrl.startsWith('http')) {
+            const baseUrl = typeof window !== 'undefined'
+              ? `${window.location.protocol}//${window.location.host}`
+              : 'https://www.pdfpro.pro';
+            downloadUrl = `${baseUrl}${downloadUrl.startsWith('/') ? '' : '/'}${downloadUrl}`;
+            console.log('🔧 Converted to absolute URL:', downloadUrl);
+          }
+
+          const response = await fetch(downloadUrl);
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const blob = await response.blob();
+          console.log('✅ File downloaded successfully:', { size: blob.size, type: blob.type });
+          saveAs(blob, file.name);
+        }
       }
     } catch (error) {
-      console.error('Download failed:', error);
+      console.error('❌ Download failed for', file.name, ':', error);
+
+      // Show user-friendly error message
+      const errorMessage = error instanceof Error ? error.message : 'Unknown download error';
+      alert(`Download failed: ${errorMessage}. Please try again.`);
     } finally {
       setDownloading(prev => {
         const newSet = new Set(prev);
