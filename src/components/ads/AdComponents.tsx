@@ -49,6 +49,26 @@ const AD_SCRIPTS = {
   }
 };
 
+// Utility function to load ads safely
+const loadAdScript = (adKey: string, adOptions: any) => {
+  if (typeof window === 'undefined') return;
+
+  try {
+    // Set global ad options
+    (window as any).atOptions = adOptions;
+
+    // Load ad script
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = `//www.highperformanceformat.com/${adKey}/invoke.js`;
+    script.async = true;
+    document.head.appendChild(script);
+  } catch (error) {
+    console.log('Ad loading failed:', error);
+  }
+};
+
+// Create a safe Ad Banner component
 export const AdBanner300x250: React.FC<{ className?: string; placeholder?: boolean }> = ({
   className = '',
   placeholder = false
@@ -56,52 +76,24 @@ export const AdBanner300x250: React.FC<{ className?: string; placeholder?: boole
   const [adLoaded, setAdLoaded] = useState(false);
 
   useEffect(() => {
-    if (placeholder) return;
+    if (placeholder || typeof window === 'undefined') return;
 
-    // Ensure we're in browser environment
-    if (typeof window === 'undefined') return;
-
-    // Create unique ad container ID
-    const adId = `ad-300x250-${Math.random().toString(36).substr(2, 9)}`;
-    const container = document.getElementById(adId);
-
-    if (!container) return;
-
-    // Load ad scripts only after component mounts
-    const timer = setTimeout(() => {
-      try {
-        // First script with ad options
-        const script1 = document.createElement('script');
-        script1.type = 'text/javascript';
-        script1.text = `
-          atOptions = {
-            'key' : '${AD_SCRIPTS['300x250'].key}',
-            'format' : '${AD_SCRIPTS['300x250'].format}',
-            'height' : ${AD_SCRIPTS['300x250'].height},
-            'width' : ${AD_SCRIPTS['300x250'].width},
-            'params' : {}
-          };
-        `;
-        container.appendChild(script1);
-
-        // Second script to load the ad
-        const script2 = document.createElement('script');
-        script2.type = 'text/javascript';
-        script2.src = `//www.highperformanceformat.com/${AD_SCRIPTS['300x250'].key}/invoke.js`;
-        script2.async = true;
-        container.appendChild(script2);
-
-        // Mark as loaded after script attempts to load
-        setTimeout(() => setAdLoaded(true), 2000);
-      } catch (error) {
-        console.log('Ad loading error:', error);
-        setAdLoaded(true); // Still mark as loaded to remove loading state
-      }
-    }, 500); // Small delay to ensure DOM is ready
-
-    return () => {
-      clearTimeout(timer);
+    const adId = `ad-300x250-${Date.now()}`;
+    const adOptions = {
+      key: AD_SCRIPTS['300x250'].key,
+      format: AD_SCRIPTS['300x250'].format,
+      height: AD_SCRIPTS['300x250'].height,
+      width: AD_SCRIPTS['300x250'].width,
+      params: {}
     };
+
+    // Delay ad loading to prevent SSR issues
+    const timer = setTimeout(() => {
+      loadAdScript(AD_SCRIPTS['300x250'].key, adOptions);
+      setAdLoaded(true);
+    }, 1000);
+
+    return () => clearTimeout(timer);
   }, [placeholder]);
 
   if (placeholder) {
@@ -117,13 +109,17 @@ export const AdBanner300x250: React.FC<{ className?: string; placeholder?: boole
 
   return (
     <div className={`ad-container-300x250 ${className}`} style={{width: '300px', height: '250px'}}>
-      <div id={`ad-300x250-${Math.random().toString(36).substr(2, 9)}`}>
-        {!adLoaded && (
-          <div className="bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center h-full">
-            <div className="text-gray-600 text-xs">Loading ad...</div>
-          </div>
-        )}
-      </div>
+      <ins
+        className="adsbygoogle"
+        style={{ display: 'inline-block', width: '300px', height: '250px' }}
+        data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+        data-ad-slot="XXXXXXXXXX"
+      />
+      {!adLoaded && (
+        <div className="bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center h-full">
+          <div className="text-gray-600 text-xs">Loading ad...</div>
+        </div>
+      )}
     </div>
   );
 };
@@ -135,27 +131,22 @@ export const AdBanner728x90: React.FC<{ className?: string; placeholder?: boolea
   const [adLoaded, setAdLoaded] = useState(false);
 
   useEffect(() => {
-    if (placeholder) return;
+    if (placeholder || typeof window === 'undefined') return;
 
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.innerHTML = `
-      atOptions = {
-        'key' : '${AD_SCRIPTS['728x90'].key}',
-        'format' : '${AD_SCRIPTS['728x90'].format}',
-        'height' : ${AD_SCRIPTS['728x90'].height},
-        'width' : ${AD_SCRIPTS['728x90'].width},
-        'params' : {}
-      };
-    `;
+    const adOptions = {
+      key: AD_SCRIPTS['728x90'].key,
+      format: AD_SCRIPTS['728x90'].format,
+      height: AD_SCRIPTS['728x90'].height,
+      width: AD_SCRIPTS['728x90'].width,
+      params: {}
+    };
 
-    const script2 = document.createElement('script');
-    script2.type = 'text/javascript';
-    script2.src = `//www.highperformanceformat.com/${AD_SCRIPTS['728x90'].key}/invoke.js`;
+    const timer = setTimeout(() => {
+      loadAdScript(AD_SCRIPTS['728x90'].key, adOptions);
+      setAdLoaded(true);
+    }, 1000);
 
-    setTimeout(() => setAdLoaded(true), 1000);
-
-    return () => {};
+    return () => clearTimeout(timer);
   }, [placeholder]);
 
   if (placeholder) {
@@ -171,13 +162,11 @@ export const AdBanner728x90: React.FC<{ className?: string; placeholder?: boolea
 
   return (
     <div className={`ad-container-728x90 ${className}`} style={{width: '728px', height: '90px'}}>
-      <div id={`ad-728x90-${Math.random().toString(36).substr(2, 9)}`}>
-        {!adLoaded && (
-          <div className="bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center h-full">
-            <div className="text-gray-600 text-xs">Loading ad...</div>
-          </div>
-        )}
-      </div>
+      {!adLoaded && (
+        <div className="bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center h-full">
+          <div className="text-gray-600 text-xs">Loading ad...</div>
+        </div>
+      )}
     </div>
   );
 };
@@ -189,27 +178,22 @@ export const AdBanner160x600: React.FC<{ className?: string; placeholder?: boole
   const [adLoaded, setAdLoaded] = useState(false);
 
   useEffect(() => {
-    if (placeholder) return;
+    if (placeholder || typeof window === 'undefined') return;
 
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.innerHTML = `
-      atOptions = {
-        'key' : '${AD_SCRIPTS['160x600'].key}',
-        'format' : '${AD_SCRIPTS['160x600'].format}',
-        'height' : ${AD_SCRIPTS['160x600'].height},
-        'width' : ${AD_SCRIPTS['160x600'].width},
-        'params' : {}
-      };
-    `;
+    const adOptions = {
+      key: AD_SCRIPTS['160x600'].key,
+      format: AD_SCRIPTS['160x600'].format,
+      height: AD_SCRIPTS['160x600'].height,
+      width: AD_SCRIPTS['160x600'].width,
+      params: {}
+    };
 
-    const script2 = document.createElement('script');
-    script2.type = 'text/javascript';
-    script2.src = `//www.highperformanceformat.com/${AD_SCRIPTS['160x600'].key}/invoke.js`;
+    const timer = setTimeout(() => {
+      loadAdScript(AD_SCRIPTS['160x600'].key, adOptions);
+      setAdLoaded(true);
+    }, 1000);
 
-    setTimeout(() => setAdLoaded(true), 1000);
-
-    return () => {};
+    return () => clearTimeout(timer);
   }, [placeholder]);
 
   if (placeholder) {
@@ -225,13 +209,11 @@ export const AdBanner160x600: React.FC<{ className?: string; placeholder?: boole
 
   return (
     <div className={`ad-container-160x600 ${className}`} style={{width: '160px', height: '600px'}}>
-      <div id={`ad-160x600-${Math.random().toString(36).substr(2, 9)}`}>
-        {!adLoaded && (
-          <div className="bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center h-full">
-            <div className="text-gray-600 text-xs">Loading ad...</div>
-          </div>
-        )}
-      </div>
+      {!adLoaded && (
+        <div className="bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center h-full">
+          <div className="text-gray-600 text-xs">Loading ad...</div>
+        </div>
+      )}
     </div>
   );
 };
@@ -243,27 +225,22 @@ export const AdBanner160x300: React.FC<{ className?: string; placeholder?: boole
   const [adLoaded, setAdLoaded] = useState(false);
 
   useEffect(() => {
-    if (placeholder) return;
+    if (placeholder || typeof window === 'undefined') return;
 
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.innerHTML = `
-      atOptions = {
-        'key' : '${AD_SCRIPTS['160x300'].key}',
-        'format' : '${AD_SCRIPTS['160x300'].format}',
-        'height' : ${AD_SCRIPTS['160x300'].height},
-        'width' : ${AD_SCRIPTS['160x300'].width},
-        'params' : {}
-      };
-    `;
+    const adOptions = {
+      key: AD_SCRIPTS['160x300'].key,
+      format: AD_SCRIPTS['160x300'].format,
+      height: AD_SCRIPTS['160x300'].height,
+      width: AD_SCRIPTS['160x300'].width,
+      params: {}
+    };
 
-    const script2 = document.createElement('script');
-    script2.type = 'text/javascript';
-    script2.src = `//www.highperformanceformat.com/${AD_SCRIPTS['160x300'].key}/invoke.js`;
+    const timer = setTimeout(() => {
+      loadAdScript(AD_SCRIPTS['160x300'].key, adOptions);
+      setAdLoaded(true);
+    }, 1000);
 
-    setTimeout(() => setAdLoaded(true), 1000);
-
-    return () => {};
+    return () => clearTimeout(timer);
   }, [placeholder]);
 
   if (placeholder) {
@@ -279,13 +256,11 @@ export const AdBanner160x300: React.FC<{ className?: string; placeholder?: boole
 
   return (
     <div className={`ad-container-160x300 ${className}`} style={{width: '160px', height: '300px'}}>
-      <div id={`ad-160x300-${Math.random().toString(36).substr(2, 9)}`}>
-        {!adLoaded && (
-          <div className="bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center h-full">
-            <div className="text-gray-600 text-xs">Loading ad...</div>
-          </div>
-        )}
-      </div>
+      {!adLoaded && (
+        <div className="bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center h-full">
+          <div className="text-gray-600 text-xs">Loading ad...</div>
+        </div>
+      )}
     </div>
   );
 };
@@ -297,27 +272,22 @@ export const AdBanner468x60: React.FC<{ className?: string; placeholder?: boolea
   const [adLoaded, setAdLoaded] = useState(false);
 
   useEffect(() => {
-    if (placeholder) return;
+    if (placeholder || typeof window === 'undefined') return;
 
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.innerHTML = `
-      atOptions = {
-        'key' : '${AD_SCRIPTS['468x60'].key}',
-        'format' : '${AD_SCRIPTS['468x60'].format}',
-        'height' : ${AD_SCRIPTS['468x60'].height},
-        'width' : ${AD_SCRIPTS['468x60'].width},
-        'params' : {}
-      };
-    `;
+    const adOptions = {
+      key: AD_SCRIPTS['468x60'].key,
+      format: AD_SCRIPTS['468x60'].format,
+      height: AD_SCRIPTS['468x60'].height,
+      width: AD_SCRIPTS['468x60'].width,
+      params: {}
+    };
 
-    const script2 = document.createElement('script');
-    script2.type = 'text/javascript';
-    script2.src = `//www.highperformanceformat.com/${AD_SCRIPTS['468x60'].key}/invoke.js`;
+    const timer = setTimeout(() => {
+      loadAdScript(AD_SCRIPTS['468x60'].key, adOptions);
+      setAdLoaded(true);
+    }, 1000);
 
-    setTimeout(() => setAdLoaded(true), 1000);
-
-    return () => {};
+    return () => clearTimeout(timer);
   }, [placeholder]);
 
   if (placeholder) {
@@ -333,13 +303,11 @@ export const AdBanner468x60: React.FC<{ className?: string; placeholder?: boolea
 
   return (
     <div className={`ad-container-468x60 ${className}`} style={{width: '468px', height: '60px'}}>
-      <div id={`ad-468x60-${Math.random().toString(36).substr(2, 9)}`}>
-        {!adLoaded && (
-          <div className="bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center h-full">
-            <div className="text-gray-600 text-xs">Loading ad...</div>
-          </div>
-        )}
-      </div>
+      {!adLoaded && (
+        <div className="bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center h-full">
+          <div className="text-gray-600 text-xs">Loading ad...</div>
+        </div>
+      )}
     </div>
   );
 };
@@ -351,27 +319,22 @@ export const AdBanner320x50: React.FC<{ className?: string; placeholder?: boolea
   const [adLoaded, setAdLoaded] = useState(false);
 
   useEffect(() => {
-    if (placeholder) return;
+    if (placeholder || typeof window === 'undefined') return;
 
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.innerHTML = `
-      atOptions = {
-        'key' : '${AD_SCRIPTS['320x50'].key}',
-        'format' : '${AD_SCRIPTS['320x50'].format}',
-        'height' : ${AD_SCRIPTS['320x50'].height},
-        'width' : ${AD_SCRIPTS['320x50'].width},
-        'params' : {}
-      };
-    `;
+    const adOptions = {
+      key: AD_SCRIPTS['320x50'].key,
+      format: AD_SCRIPTS['320x50'].format,
+      height: AD_SCRIPTS['320x50'].height,
+      width: AD_SCRIPTS['320x50'].width,
+      params: {}
+    };
 
-    const script2 = document.createElement('script');
-    script2.type = 'text/javascript';
-    script2.src = `//www.highperformanceformat.com/${AD_SCRIPTS['320x50'].key}/invoke.js`;
+    const timer = setTimeout(() => {
+      loadAdScript(AD_SCRIPTS['320x50'].key, adOptions);
+      setAdLoaded(true);
+    }, 1000);
 
-    setTimeout(() => setAdLoaded(true), 1000);
-
-    return () => {};
+    return () => clearTimeout(timer);
   }, [placeholder]);
 
   if (placeholder) {
@@ -387,29 +350,41 @@ export const AdBanner320x50: React.FC<{ className?: string; placeholder?: boolea
 
   return (
     <div className={`ad-container-320x50 ${className}`} style={{width: '320px', height: '50px'}}>
-      <div id={`ad-320x50-${Math.random().toString(36).substr(2, 9)}`}>
-        {!adLoaded && (
-          <div className="bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center h-full">
-            <div className="text-gray-600 text-xs">Loading ad...</div>
-          </div>
-        )}
-      </div>
+      {!adLoaded && (
+        <div className="bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center h-full">
+          <div className="text-gray-600 text-xs">Loading ad...</div>
+        </div>
+      )}
     </div>
   );
 };
 
+// Native Banner Ad (more reliable)
 export const NativeBannerAd: React.FC<{ className?: string }> = ({ className = '' }) => {
   const [adLoaded, setAdLoaded] = useState(false);
 
   useEffect(() => {
-    const script = document.createElement('script');
-    script.async = true;
-    script.setAttribute('data-cfasync', 'false');
-    script.src = '//pl28033936.effectivegatecpm.com/538f84346f6d0f9234e5674bddfa9e4b/invoke.js';
+    if (typeof window === 'undefined') return;
 
-    setTimeout(() => setAdLoaded(true), 1000);
+    const timer = setTimeout(() => {
+      try {
+        // Create container for native ad
+        const container = document.getElementById('container-538f84346f6d0f9234e5674bddfa9e4b');
+        if (container) {
+          const script = document.createElement('script');
+          script.async = true;
+          script.setAttribute('data-cfasync', 'false');
+          script.src = '//pl28033936.effectivegatecpm.com/538f84346f6d0f9234e5674bddfa9e4b/invoke.js';
+          container.appendChild(script);
+        }
+        setAdLoaded(true);
+      } catch (error) {
+        console.log('Native ad loading error:', error);
+        setAdLoaded(true);
+      }
+    }, 1000);
 
-    return () => {};
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -425,41 +400,51 @@ export const NativeBannerAd: React.FC<{ className?: string }> = ({ className = '
   );
 };
 
+// PopUnder Ad (client-side only)
 export const PopUnderAd: React.FC = () => {
   useEffect(() => {
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = '//pl28033939.effectivegatecpm.com/27/e0/0e/27e00e04b42fc26c73e3ad4be8bd85d8.js';
-    document.body.appendChild(script);
+    if (typeof window === 'undefined') return;
 
-    return () => {
-      // Cleanup script if component unmounts
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
+    const timer = setTimeout(() => {
+      try {
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = '//pl28033939.effectivegatecpm.com/27/e0/0e/27e00e04b42fc26c73e3ad4be8bd85d8.js';
+        document.body.appendChild(script);
+      } catch (error) {
+        console.log('PopUnder ad loading error:', error);
       }
-    };
+    }, 2000);
+
+    return () => clearTimeout(timer);
   }, []);
 
-  return null; // Popunder ads don't have visual components
+  return null;
 };
 
+// Social Bar Ad (client-side only)
 export const SocialBarAd: React.FC = () => {
   useEffect(() => {
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = '//pl28033957.effectivegatecpm.com/db/c0/8b/dbc08b2e31d941c4ee105765681dcac9.js';
-    document.body.appendChild(script);
+    if (typeof window === 'undefined') return;
 
-    return () => {
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
+    const timer = setTimeout(() => {
+      try {
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = '//pl28033957.effectivegatecpm.com/db/c0/8b/dbc08b2e31d941c4ee105765681dcac9.js';
+        document.body.appendChild(script);
+      } catch (error) {
+        console.log('Social bar ad loading error:', error);
       }
-    };
+    }, 2500);
+
+    return () => clearTimeout(timer);
   }, []);
 
-  return null; // Social bar ads don't have visual components
+  return null;
 };
 
+// Smart Link Ad (simple, reliable)
 export const SmartLinkAd: React.FC<{ className?: string }> = ({ className = '' }) => {
   return (
     <div className={`smartlink-container ${className}`}>
