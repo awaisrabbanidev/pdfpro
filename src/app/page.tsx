@@ -192,12 +192,12 @@ export default function Home() {
               {/* Right Sidebar - More Ads */}
               <div className="hidden lg:block lg:col-span-3 xl:col-span-3 space-y-6">
                 <div className="sticky top-6">
-                  <AdBanner300x250 placeholder={false} />
+                  <AdBanner300x250 placeholder={true} />
                   <div className="mt-6">
-                    <AdBanner300x250 placeholder={false} />
+                    <AdBanner300x250 placeholder={true} />
                   </div>
                   <div className="mt-6">
-                    <AdBanner160x300 placeholder={false} />
+                    <AdBanner160x300 placeholder={true} />
                   </div>
                 </div>
               </div>
