@@ -40,6 +40,485 @@ const ToolPage: React.FC<ToolPageProps> = ({
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
+  // Processing function moved to client side
+  const processFiles = async (files: File[]): Promise<DownloadFile[]> => {
+    try {
+      let response;
+      const baseUrl = process.env.NODE_ENV === 'production'
+        ? 'https://pdfpro.pro'
+        : 'http://localhost:3000';
+
+      // Convert files to base64
+      const filesAsBase64 = await Promise.all(
+        files.map(async (file) => {
+          const arrayBuffer = await file.arrayBuffer();
+          const base64 = Buffer.from(arrayBuffer).toString('base64');
+          return {
+            name: file.name,
+            data: base64
+          };
+        })
+      );
+
+      switch (toolId) {
+        case 'merge-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/merge`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              files: filesAsBase64,
+              outputName: `merged_${Date.now()}.pdf`
+            })
+          });
+          break;
+
+        case 'split-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/split`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              splitType: 'single'
+            })
+          });
+          break;
+
+        case 'compress-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/compress`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              compressionLevel: 'medium'
+            })
+          });
+          break;
+
+        case 'pdf-to-word':
+          response = await fetch(`${baseUrl}/api/pdf/pdf-to-word`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                preserveFormatting: true,
+                includeImages: false,
+                ocrEnabled: false
+              }
+            })
+          });
+          break;
+
+        case 'word-to-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/word-to-pdf`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                preserveFormatting: true,
+                pageSize: 'A4',
+                margins: { top: 72, bottom: 72, left: 72, right: 72 }
+              }
+            })
+          });
+          break;
+
+        case 'ocr-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/ocr`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                language: 'en',
+                outputFormat: 'pdf',
+                preserveLayout: true
+              }
+            })
+          });
+          break;
+
+        case 'crop-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/crop`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              cropOptions: {
+                pages: 'all',
+                margins: { top: 10, bottom: 10, left: 10, right: 10 },
+                units: 'mm'
+              }
+            })
+          });
+          break;
+
+        case 'compare-pdf':
+          if (files.length !== 2) {
+            throw new Error('Compare tool requires exactly 2 files');
+          }
+          response = await fetch(`${baseUrl}/api/pdf/compare`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              files: filesAsBase64,
+              options: {
+                compareMode: 'text',
+                outputFormat: 'html',
+                showDifferences: true
+              }
+            })
+          });
+          break;
+
+        // NEW API INTEGRATIONS
+        case 'pdf-to-powerpoint':
+          response = await fetch(`${baseUrl}/api/pdf/pdf-to-powerpoint`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                preserveLayout: true,
+                includeImages: false,
+                slideLayout: 'auto'
+              }
+            })
+          });
+          break;
+
+        case 'pdf-to-excel':
+          response = await fetch(`${baseUrl}/api/pdf/pdf-to-excel`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                extractTables: true,
+                includeFormatting: true,
+                sheetLayout: 'auto'
+              }
+            })
+          });
+          break;
+
+        case 'powerpoint-to-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/powerpoint-to-pdf`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                preserveAnimations: false,
+                includeNotes: false,
+                pageSize: 'A4',
+                quality: 'medium'
+              }
+            })
+          });
+          break;
+
+        case 'excel-to-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/excel-to-pdf`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                preserveFormatting: true,
+                pageSize: 'A4',
+                orientation: 'portrait',
+                includeGridlines: true
+              }
+            })
+          });
+          break;
+
+        case 'pdf-to-jpg':
+          response = await fetch(`${baseUrl}/api/pdf/pdf-to-jpg`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                pageRange: 'all',
+                quality: 'medium',
+                format: 'jpg',
+                dpi: 150
+              }
+            })
+          });
+          break;
+
+        case 'jpg-to-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/jpg-to-pdf`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              files: filesAsBase64,
+              options: {
+                pageSize: 'A4',
+                orientation: 'portrait',
+                margins: { top: 20, bottom: 20, left: 20, right: 20 },
+                imageLayout: 'fit'
+              }
+            })
+          });
+          break;
+
+        case 'rotate-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/rotate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              rotation: {
+                angle: 90,
+                pages: 'all'
+              }
+            })
+          });
+          break;
+
+        case 'protect-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/protect`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              protection: {
+                password: 'protected',
+                permissions: {
+                  printing: true,
+                  copying: false,
+                  modifying: false,
+                  annotating: false
+                }
+              }
+            })
+          });
+          break;
+
+        case 'watermark':
+          response = await fetch(`${baseUrl}/api/pdf/watermark`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              watermark: {
+                type: 'text',
+                content: 'PDFPro.pro',
+                position: 'diagonal',
+                opacity: 0.3,
+                color: '#cccccc'
+              }
+            })
+          });
+          break;
+
+        case 'html-to-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/html-to-pdf`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                pageSize: 'A4',
+                orientation: 'portrait',
+                margins: { top: 20, bottom: 20, left: 20, right: 20 },
+                header: true,
+                footer: true
+              }
+            })
+          });
+          break;
+
+        case 'sign-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/sign`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              signature: {
+                text: 'Digitally Signed',
+                position: { x: 100, y: 100 },
+                style: 'text'
+              }
+            })
+          });
+          break;
+
+        case 'unlock-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/unlock`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              password: 'unlock'
+            })
+          });
+          break;
+
+        case 'page-numbers':
+          response = await fetch(`${baseUrl}/api/pdf/page-numbers`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                position: 'bottom-center',
+                format: '1 of N',
+                startNumber: 1,
+                fontSize: 10,
+                color: '#000000',
+                margin: 20
+              }
+            })
+          });
+          break;
+
+        case 'organize-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/organize`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              operations: [
+                { type: 'move', sourcePage: 1, targetPage: 3 }
+              ]
+            })
+          });
+          break;
+
+        case 'edit-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/edit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              edits: [
+                { type: 'text', page: 1, x: 100, y: 100, content: 'Edited Text', fontSize: 12 }
+              ]
+            })
+          });
+          break;
+
+        case 'repair-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/repair`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                attemptRecovery: true,
+                reconstructStructure: true,
+                removeCorruptedObjects: true
+              }
+            })
+          });
+          break;
+
+        case 'redact-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/redact`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              redactions: [
+                { text: 'CONFIDENTIAL', type: 'text', pages: 'all', style: 'blackout' }
+              ]
+            })
+          });
+          break;
+
+        case 'pdf-to-pdfa':
+          response = await fetch(`${baseUrl}/api/pdf/pdf-to-pdfa`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                conformance: 'A1b',
+                preserveColor: true,
+                embedFonts: true
+              }
+            })
+          });
+          break;
+
+        case 'scan-to-pdf':
+          response = await fetch(`${baseUrl}/api/pdf/scan-to-pdf`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                enhancement: 'auto',
+                ocrEnabled: true,
+                compression: 'medium',
+                pageSize: 'A4'
+              }
+            })
+          });
+          break;
+
+        default:
+          throw new Error(`Tool ${toolId} is not yet implemented`);
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Processing failed with status ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      // Handle different response formats
+      if (toolId === 'merge-pdf') {
+        return [{
+          id: result.data.filename,
+          name: result.data.filename,
+          url: result.data.downloadUrl,
+          size: result.data.size,
+          type: 'application/pdf',
+          data: result.data.data
+        }];
+      } else if (toolId === 'split-pdf') {
+        return result.data.files.map((file: any) => ({
+          id: file.filename,
+          name: file.filename,
+          url: file.downloadUrl,
+          size: file.size,
+          type: 'application/pdf',
+          data: file.data
+        }));
+      } else if (toolId === 'compare-pdf') {
+        return [{
+          id: result.data.filename,
+          name: result.data.filename,
+          url: result.data.downloadUrl,
+          size: result.data.size,
+          type: result.data.filename.endsWith('.html') ? 'text/html' : 'application/pdf',
+          data: result.data.data
+        }];
+      } else {
+        return [{
+          id: result.data.filename,
+          name: result.data.filename,
+          url: result.data.downloadUrl,
+          size: result.data.convertedSize || result.data.size,
+          type: toolId.includes('word') ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/pdf',
+          data: result.data.data
+        }];
+      }
+
+    } catch (error) {
+      console.error('Processing error:', error);
+      throw error;
+    }
+  };
+
   const handleFilesChange = (newFiles: File[]) => {
     setFiles(newFiles);
     setError(null);
