@@ -310,6 +310,31 @@ export async function POST(request: NextRequest) {
       originalFilename2
     );
 
+    // Generate comparison report object for response
+    const comparisonReport = {
+      files: {
+        file1: {
+          name: originalFilename1,
+          size: originalSize1,
+          words: totalWords1
+        },
+        file2: {
+          name: originalFilename2,
+          size: originalSize2,
+          words: totalWords2
+        }
+      },
+      comparison: {
+        mode: body.options.compareMode,
+        format: body.options.outputFormat,
+        similarity: comparisonResult.similarity,
+        additions: comparisonResult.additions.length,
+        deletions: comparisonResult.deletions.length,
+        modifications: comparisonResult.modifications.length
+      },
+      options: body.options
+    };
+
     return NextResponse.json({
       success: true,
       message: 'PDF comparison completed successfully',
