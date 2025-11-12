@@ -224,7 +224,7 @@ export const SocialBarAd: React.FC = () => {
   return null;
 };
 
-// Smart Link Ad (simple, reliable)
+// EXACT AdsTerra Smart Link HTML HyperTag
 export const SmartLinkAd: React.FC<{ className?: string }> = ({ className = '' }) => {
   return (
     <div className={`smartlink-container ${className}`}>
@@ -232,9 +232,9 @@ export const SmartLinkAd: React.FC<{ className?: string }> = ({ className = '' }
         href="https://www.effectivegatecpm.com/egdw906gqt?key=3165e0bbe3b19ccbb8cc20c32cda5301"
         target="_blank"
         rel="noopener noreferrer"
-        className="block bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-center py-3 px-6 rounded-lg transition-all duration-200 font-medium"
+        className="block bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-center py-3 px-6 rounded-lg transition-all duration-200 font-medium shadow-lg hover:shadow-xl"
       >
-        🎯 Special Offer - Boost Your PDF Workflow
+        🎯 Boost Your PDF Workflow - Special Offer
       </a>
     </div>
   );
