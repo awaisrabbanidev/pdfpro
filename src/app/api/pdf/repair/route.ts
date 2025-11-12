@@ -149,7 +149,7 @@ async function repairPDF(
         const repairReport = {
           originalStatus: 'Corrupted',
           repairActions,
-          issuesFound: [loadError.message],
+          issuesFound: [loadError instanceof Error ? loadError.message : 'Unknown error'],
           recoverySuccess: false,
           pagesRecovered: 1
         };
