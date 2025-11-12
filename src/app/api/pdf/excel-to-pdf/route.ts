@@ -40,17 +40,13 @@ async function convertExcelToPDF(
   originalFilename: string
 ): Promise<{ filename: string; size: number; data: Buffer }> {
   try {
-    // In a real implementation, you would:
-    // 1. Parse XLSX file structure
-    // 2. Extract sheets, data, and formatting
-    // 3. Convert each sheet to PDF page
-    // 4. Preserve tables and formatting
+    // Parse Excel file using xlsx library
+    const workbook = XLSX.read(xlsxBuffer, { type: 'buffer' });
+    const sheetNames = workbook.SheetNames;
 
-    // For now, simulate the conversion by creating a PDF with sheet content
-    const pdfDoc = await PDFDocument.create();
-
-    // Simulate extracting sheets from XLSX (estimate based on file size)
-    const estimatedSheets = Math.max(1, Math.floor(xlsxBuffer.length / 15000));
+    if (sheetNames.length === 0) {
+      throw new Error('Excel file contains no sheets');
+    }
 
     // Page dimensions based on options
     const pageSizes = {
@@ -65,81 +61,165 @@ async function convertExcelToPDF(
       [width, height] = [height, width];
     }
 
-    // Create pages for each sheet
-    for (let i = 1; i <= estimatedSheets; i++) {
-      const page = pdfDoc.addPage([width, height]);
+    const pdfDoc = await PDFDocument.create();
 
-      // Add sheet title
-      page.drawText(`Sheet ${i}`, {
-        x: 50,
-        y: height - 50,
-        size: 18,
+    // Process each sheet
+    for (let sheetIndex = 0; sheetIndex < sheetNames.length; sheetIndex++) {
+      const sheetName = sheetNames[sheetIndex];
+      const worksheet = workbook.Sheets[sheetName];
+
+      // Convert sheet to JSON
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+      if (!jsonData || jsonData.length === 0) {
+        continue; // Skip empty sheets
+      }
+
+      // Create PDF page for this sheet
+      const page = pdfDoc.addPage([width, height]);
+      const margins = { top: 50, right: 50, bottom: 50, left: 50 };
+      const usableWidth = width - margins.left - margins.right;
+      const usableHeight = height - margins.top - margins.bottom;
+
+      // Add sheet header
+      page.drawText(`Sheet: ${sheetName}`, {
+        x: margins.left,
+        y: height - margins.top,
+        size: 16,
         color: { type: 'RGB', r: 0, g: 0, b: 0 } as any
       });
 
-      // Add source filename
       page.drawText(`From: ${originalFilename}`, {
-        x: 50,
-        y: height - 80,
-        size: 12,
+        x: margins.left,
+        y: height - margins.top - 20,
+        size: 10,
         color: { type: 'RGB', r: 100, g: 100, b: 100 } as any
       });
 
-      // Simulate table header
-      let yPosition = height - 120;
-      const headerRow = ['Column A', 'Column B', 'Column C', 'Column D'];
-      let xPosition = 50;
-      const columnWidth = (width - 100) / headerRow.length;
+      // Table settings
+      const fontSize = 9;
+      const lineHeight = fontSize * 1.5;
+      const rowHeight = lineHeight;
+      const maxRowsPerPage = Math.floor((usableHeight - 80) / rowHeight);
+      const startRow = 2; // Start data rows
 
-      // Draw headers
-      headerRow.forEach((header, index) => {
-        page.drawText(header, {
-          x: xPosition + (index * columnWidth),
-          y: yPosition,
-          size: 10,
-          color: { type: 'RGB', r: 0, g: 0, b: 0 } as any
-        });
-      });
+      // Calculate column widths based on content
+      const columnWidths = [];
+      const maxCols = Math.max(...jsonData.map(row => row ? row.length : 0));
 
-      // Draw gridlines if requested
-      if (options.includeGridlines) {
-        for (let col = 0; col <= headerRow.length; col++) {
-          const x = xPosition + (col * columnWidth);
-          page.drawLine({
-            start: { x, y: yPosition - 5 },
-            end: { x, y: yPosition - 205 },
-            thickness: 1,
-            color: { type: 'RGB', r: 200, g: 200, b: 200 } as any
-          });
-        }
-        for (let row = 0; row <= 10; row++) {
-          const y = yPosition - 5 - (row * 20);
-          page.drawLine({
-            start: { x: xPosition, y },
-            end: { x: xPosition + (headerRow.length * columnWidth), y },
-            thickness: 1,
-            color: { type: 'RGB', r: 200, g: 200, b: 200 } as any
-          });
+      for (let col = 0; col < maxCols; col++) {
+        columnWidths[col] = Math.max(
+          80, // Minimum width
+          ...jsonData.map(row => (row[col] ? String(row[col]).length * 6 : 0))
+        );
+      }
+
+      // Adjust column widths to fit page
+      const totalWidth = columnWidths.reduce((sum, width) => sum + width, 0);
+      if (totalWidth > usableWidth) {
+        const scaleFactor = usableWidth / totalWidth;
+        for (let i = 0; i < columnWidths.length; i++) {
+          columnWidths[i] *= scaleFactor;
         }
       }
 
-      // Simulate data rows
-      for (let row = 1; row <= 10; row++) {
-        yPosition -= 20;
-        for (let col = 0; col < headerRow.length; col++) {
-          const dataValue = `Data ${row}-${col + 1}`;
-          page.drawText(dataValue, {
-            x: xPosition + (col * columnWidth) + 5,
-            y: yPosition,
-            size: 9,
+      // Render table data
+      let currentPage = page;
+      let currentY = height - margins.top - 50;
+      let rowsOnThisPage = 0;
+
+      for (let row = 0; row < jsonData.length; row++) {
+        if (!jsonData[row]) continue;
+
+        // Check if we need a new page
+        if (rowsOnThisPage >= maxRowsPerPage) {
+          currentPage = pdfDoc.addPage([width, height]);
+          currentY = height - margins.top;
+          rowsOnThisPage = 0;
+
+          // Add sheet name on new page
+          currentPage.drawText(`Sheet: ${sheetName} (continued)`, {
+            x: margins.left,
+            y: currentY,
+            size: 14,
             color: { type: 'RGB', r: 0, g: 0, b: 0 } as any
           });
+          currentY -= 30;
         }
+
+        // Draw row data
+        for (let col = 0; col < maxCols; col++) {
+          const cellValue = jsonData[row][col];
+          if (cellValue !== undefined && cellValue !== null) {
+            const text = String(cellValue);
+            let xPos = margins.left;
+
+            // Calculate x position for this column
+            for (let i = 0; i < col; i++) {
+              xPos += columnWidths[i];
+            }
+
+            // Draw text with word wrap
+            const words = text.split(' ');
+            let currentLine = '';
+            let lineY = currentY;
+
+            for (const word of words) {
+              const testLine = currentLine ? `${currentLine} ${word}` : word;
+              const textWidth = testLine.length * 6; // Rough estimate
+
+              if (textWidth > columnWidths[col] - 10 && currentLine) {
+                // Draw current line
+                currentPage.drawText(currentLine, {
+                  x: xPos + 5,
+                  y: lineY,
+                  size: fontSize,
+                  color: { type: 'RGB', r: 0, g: 0, b: 0 } as any
+                });
+                currentLine = word;
+                lineY -= lineHeight;
+              } else {
+                currentLine = testLine;
+              }
+            }
+
+            // Draw remaining text
+            if (currentLine) {
+              currentPage.drawText(currentLine, {
+                x: xPos + 5,
+                y: lineY,
+                size: fontSize,
+                color: { type: 'RGB', r: 0, g: 0, b: 0 } as any
+              });
+            }
+          }
+        }
+
+        // Draw gridlines if requested
+        if (options.includeGridlines) {
+          let xPos = margins.left;
+          for (let col = 0; col <= maxCols; col++) {
+            if (col < maxCols) xPos += columnWidths[col];
+
+            currentPage.drawLine({
+              start: { x: xPos, y: currentY + rowHeight },
+              end: { x: xPos, y: currentY },
+              thickness: 1,
+              color: { type: 'RGB', r: 200, g: 200, b: 200 } as any
+            });
+          }
+        }
+
+        currentY -= rowHeight;
+        rowsOnThisPage++;
+
+        // Add spacing between rows
+        currentY -= 2;
       }
 
-      // Add footer
-      page.drawText(`Page ${i} of ${estimatedSheets} - Generated by PDFPro.pro`, {
-        x: width - 200,
+      // Add sheet footer
+      currentPage.drawText(`Page ${sheetIndex + 1} of ${sheetNames.length} - Sheet ${sheetIndex + 1}`, {
+        x: width - 150,
         y: 30,
         size: 8,
         color: { type: 'RGB', r: 150, g: 150, b: 150 } as any
@@ -168,7 +248,7 @@ async function convertExcelToPDF(
 
   } catch (error) {
     console.error('Excel to PDF conversion error:', error);
-    throw new Error('Failed to convert Excel to PDF');
+    throw new Error('Failed to convert Excel to PDF: ' + error.message);
   }
 }
 
