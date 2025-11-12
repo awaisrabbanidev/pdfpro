@@ -233,6 +233,15 @@ export async function POST(request: NextRequest) {
     const body: SignRequest = await request.json();
 
     if (!body.pdfFile || !body.pdfFile.data) {
+      // Get the base URL for absolute download URLs
+
+      const protocol = request.headers.get('x-forwarded-proto') || 'http';
+
+      const host = request.headers.get('host') || 'localhost:3000';
+
+      const baseUrl = `${protocol}://${host}`;
+
+
       return NextResponse.json(
         { error: 'No PDF file provided' },
         { status: 400 }
