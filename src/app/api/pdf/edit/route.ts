@@ -17,17 +17,6 @@ interface EditPDFRequest {
   }>;
 }
 
-const UPLOAD_DIR = join('/tmp', 'uploads');
-const OUTPUT_DIR = join('/tmp', 'outputs');
-
-async function ensureDirectories() {
-  try {
-    await mkdir(UPLOAD_DIR, { recursive: true });
-    await mkdir(OUTPUT_DIR, { recursive: true });
-  } catch (error) {
-    // Directory might already exist
-  }
-}
 
 async function editPDF(
   pdfBuffer: Buffer,
