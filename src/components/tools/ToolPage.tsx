@@ -45,7 +45,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
     try {
       const response = await fetch(url, {
         ...options,
-        signal: AbortSignal.timeout(55000) // 55 second timeout (less than 60s Vercel limit)
+        signal: AbortSignal.timeout(59000) // 59 second timeout (less than 60s Vercel limit)
       });
 
       if (!response.ok) {
