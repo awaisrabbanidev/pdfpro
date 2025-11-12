@@ -19,7 +19,7 @@ interface PDFToExcelRequest {
 }
 
 const UPLOAD_DIR = join(process.cwd(), 'uploads');
-const OUTPUT_DIR = join(process.cwd(), 'outputs');
+const OUTPUT_DIR = join('/tmp', 'outputs');
 
 // Ensure directories exist
 async function ensureDirectories() {
