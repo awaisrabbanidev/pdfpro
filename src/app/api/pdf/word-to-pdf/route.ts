@@ -265,7 +265,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Word to PDF conversion error:', error);
     return NextResponse.json(
-      { error: 'Failed to convert Word document to PDF' },
+      { error: 'Failed to convert Word document to PDF: ' + (error instanceof Error ? error.message : String(error)) },
       { status: 500 }
     );
   }
