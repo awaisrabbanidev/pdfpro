@@ -129,7 +129,7 @@ export const AdBanner160x300 = createAdBanner('160x300');
 export const AdBanner468x60 = createAdBanner('468x60');
 export const AdBanner320x50 = createAdBanner('320x50');
 
-// Native Banner Ad (more reliable)
+// EXACT AdsTerra Native Banner Ad 4:1
 export const NativeBannerAd: React.FC<{ className?: string }> = ({ className = '' }) => {
   const [adLoaded, setAdLoaded] = useState(false);
 
@@ -138,18 +138,19 @@ export const NativeBannerAd: React.FC<{ className?: string }> = ({ className = '
 
     const timer = setTimeout(() => {
       try {
-        // Create container for native ad
-        const container = document.getElementById('container-538f84346f6d0f9234e5674bddfa9e4b');
-        if (container) {
-          const script = document.createElement('script');
-          script.async = true;
-          script.setAttribute('data-cfasync', 'false');
-          script.src = '//pl28033936.effectivegatecpm.com/538f84346f6d0f9234e5674bddfa9e4b/invoke.js';
-          container.appendChild(script);
-        }
+        // Load exact AdsTerra Native Banner script
+        const script = document.createElement('script');
+        script.async = true;
+        script.setAttribute('data-cfasync', 'false');
+        script.src = '//pl28033936.effectivegatecpm.com/538f84346f6d0f9234e5674bddfa9e4b/invoke.js';
+
+        document.head.appendChild(script);
         setAdLoaded(true);
+
+        console.log('🚀 Loading AdsTerra Native Banner 4:1');
+
       } catch (error) {
-        console.log('Native ad loading error:', error);
+        console.log('❌ Native banner loading error:', error);
         setAdLoaded(true);
       }
     }, 1000);
@@ -159,9 +160,10 @@ export const NativeBannerAd: React.FC<{ className?: string }> = ({ className = '
 
   return (
     <div className={`native-banner-container ${className}`}>
-      <div id="container-538f84346f6d0f9234e5674bddfa9e4b">
+      {/* Exact AdsTerra container for Native Banner 4:1 */}
+      <div id="container-538f84346f6d0f9234e5674bddfa9e4b" className="min-h-[200px] flex items-center justify-center">
         {!adLoaded && (
-          <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 text-center">
+          <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 text-center w-full">
             <div className="text-gray-600 text-xs">Loading native ad...</div>
           </div>
         )}
