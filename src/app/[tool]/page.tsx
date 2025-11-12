@@ -117,7 +117,6 @@ const getToolConfig = (toolId: string) => {
       status: 'pending' as const,
       error: undefined
     })),
-    onProcessFiles: getDefaultProcessFunction(toolId),
     maxFiles: 10,
     acceptedFileTypes: ['application/pdf']
   };
