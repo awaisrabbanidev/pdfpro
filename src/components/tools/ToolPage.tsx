@@ -90,7 +90,6 @@ const ToolPage: React.FC<ToolPageProps> = ({
 
       console.log('🔍 API Debug Info:', {
         NODE_ENV: process.env.NODE_ENV,
-        isDevelopment,
         baseUrl,
         windowOrigin: typeof window !== 'undefined' ? window.location.origin : 'N/A',
         currentHostname: typeof window !== 'undefined' ? window.location.hostname : 'N/A',
