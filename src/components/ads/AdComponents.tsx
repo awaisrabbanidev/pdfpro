@@ -58,29 +58,49 @@ export const AdBanner300x250: React.FC<{ className?: string; placeholder?: boole
   useEffect(() => {
     if (placeholder) return;
 
-    // Load ad script
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.innerHTML = `
-      atOptions = {
-        'key' : '${AD_SCRIPTS['300x250'].key}',
-        'format' : '${AD_SCRIPTS['300x250'].format}',
-        'height' : ${AD_SCRIPTS['300x250'].height},
-        'width' : ${AD_SCRIPTS['300x250'].width},
-        'params' : {}
-      };
-    `;
+    // Ensure we're in browser environment
+    if (typeof window === 'undefined') return;
 
-    const script2 = document.createElement('script');
-    script2.type = 'text/javascript';
-    script2.src = `//www.highperformanceformat.com/${AD_SCRIPTS['300x250'].key}/invoke.js`;
+    // Create unique ad container ID
+    const adId = `ad-300x250-${Math.random().toString(36).substr(2, 9)}`;
+    const container = document.getElementById(adId);
 
-    setTimeout(() => {
-      setAdLoaded(true);
-    }, 1000);
+    if (!container) return;
+
+    // Load ad scripts only after component mounts
+    const timer = setTimeout(() => {
+      try {
+        // First script with ad options
+        const script1 = document.createElement('script');
+        script1.type = 'text/javascript';
+        script1.text = `
+          atOptions = {
+            'key' : '${AD_SCRIPTS['300x250'].key}',
+            'format' : '${AD_SCRIPTS['300x250'].format}',
+            'height' : ${AD_SCRIPTS['300x250'].height},
+            'width' : ${AD_SCRIPTS['300x250'].width},
+            'params' : {}
+          };
+        `;
+        container.appendChild(script1);
+
+        // Second script to load the ad
+        const script2 = document.createElement('script');
+        script2.type = 'text/javascript';
+        script2.src = `//www.highperformanceformat.com/${AD_SCRIPTS['300x250'].key}/invoke.js`;
+        script2.async = true;
+        container.appendChild(script2);
+
+        // Mark as loaded after script attempts to load
+        setTimeout(() => setAdLoaded(true), 2000);
+      } catch (error) {
+        console.log('Ad loading error:', error);
+        setAdLoaded(true); // Still mark as loaded to remove loading state
+      }
+    }, 500); // Small delay to ensure DOM is ready
 
     return () => {
-      // Cleanup scripts if component unmounts
+      clearTimeout(timer);
     };
   }, [placeholder]);
 
