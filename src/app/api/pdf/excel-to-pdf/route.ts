@@ -69,7 +69,7 @@ async function convertExcelToPDF(
       const worksheet = workbook.Sheets[sheetName];
 
       // Convert sheet to JSON
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      const jsonData: any[][] = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
 
       if (!jsonData || jsonData.length === 0) {
         continue; // Skip empty sheets
