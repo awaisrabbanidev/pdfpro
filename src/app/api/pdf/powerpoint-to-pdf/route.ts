@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { PDFDocument, rgb } from 'pdf-lib';
-import * as PPTX2JSON from 'pptx2json';
+import * as JSZip from 'jszip';
 
 // Simple UUID function
 const uuid = () => Math.random().toString(36).substring(2, 15);
