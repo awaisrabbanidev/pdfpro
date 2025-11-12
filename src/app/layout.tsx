@@ -97,6 +97,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* Global AdsTerra Ads - Load on every page */}
+        <PopUnderAd />
+        <SocialBarAd />
+
         <div className="min-h-screen flex flex-col">
           <Header />
           <main className="flex-1">
