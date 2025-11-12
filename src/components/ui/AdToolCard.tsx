@@ -36,7 +36,9 @@ const AdToolCard: React.FC<AdToolCardProps> = ({
   const [showAd, setShowAd] = useState(false);
   const [hasSeenAd, setHasSeenAd] = useState(false);
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+
     if (isPopular && !hasSeenAd) {
       setShowAd(true);
       setHasSeenAd(true);
