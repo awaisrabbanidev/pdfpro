@@ -109,12 +109,7 @@ export const AdBanner300x250: React.FC<{ className?: string; placeholder?: boole
 
   return (
     <div className={`ad-container-300x250 ${className}`} style={{width: '300px', height: '250px'}}>
-      <ins
-        className="adsbygoogle"
-        style={{ display: 'inline-block', width: '300px', height: '250px' }}
-        data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-        data-ad-slot="XXXXXXXXXX"
-      />
+      <div id={`ad-300x250-${Date.now()}`} style={{width: '100%', height: '100%'}} />
       {!adLoaded && (
         <div className="bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center h-full">
           <div className="text-gray-600 text-xs">Loading ad...</div>
