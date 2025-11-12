@@ -57,7 +57,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
       return response;
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
-        throw new Error('Request timeout. Please try again with a smaller file.');
+        throw new Error('Request timeout after 59 seconds. Please try again with a smaller file.');
       }
       throw error;
     }
