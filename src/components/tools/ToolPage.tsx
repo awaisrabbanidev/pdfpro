@@ -29,7 +29,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
   instructions,
   acceptedFileTypes,
   maxFiles = 10,
-  onProcessFiles,
+  toolId,
   processingSteps,
   className = ''
 }) => {
