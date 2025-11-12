@@ -167,7 +167,7 @@ async function repairPDF(
 
   } catch (error) {
     console.error('PDF repair error:', error);
-    throw new Error('Failed to repair PDF');
+    throw new Error('Failed to repair PDF: ' + (error instanceof Error ? error.message : String(error)));
   }
 }
 
