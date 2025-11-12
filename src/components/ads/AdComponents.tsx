@@ -172,19 +172,23 @@ export const NativeBannerAd: React.FC<{ className?: string }> = ({ className = '
   );
 };
 
-// PopUnder Ad (client-side only)
+// EXACT AdsTerra PopUnder Ad
 export const PopUnderAd: React.FC = () => {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const timer = setTimeout(() => {
       try {
+        // Load exact AdsTerra PopUnder script
         const script = document.createElement('script');
         script.type = 'text/javascript';
         script.src = '//pl28033939.effectivegatecpm.com/27/e0/0e/27e00e04b42fc26c73e3ad4be8bd85d8.js';
         document.body.appendChild(script);
+
+        console.log('🚀 Loading AdsTerra PopUnder Ad');
+
       } catch (error) {
-        console.log('PopUnder ad loading error:', error);
+        console.log('❌ PopUnder ad loading error:', error);
       }
     }, 2000);
 
