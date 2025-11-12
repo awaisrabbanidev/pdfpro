@@ -78,30 +78,24 @@ const loadAdScript = (adKey: string, adOptions: any) => {
   }
 };
 
-// Generic Ad Banner Component
+// Generic AdsTerra Ad Banner Component (EXACT IMPLEMENTATION)
 const createAdBanner = (adType: keyof typeof AD_SCRIPTS) => {
   return ({ className = '', placeholder = false }: { className?: string; placeholder?: boolean }) => {
     const [adLoaded, setAdLoaded] = useState(false);
-    const [adId] = useState(() => `ad-${adType}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
 
     useEffect(() => {
       if (placeholder || typeof window === 'undefined') return;
 
-      const adOptions = {
-        key: AD_SCRIPTS[adType].key,
-        format: AD_SCRIPTS[adType].format,
-        height: AD_SCRIPTS[adType].height,
-        width: AD_SCRIPTS[adType].width,
-        params: {}
-      };
+      // Use exact AdsTerra configuration
+      const adOptions = AD_SCRIPTS[adType];
 
       const timer = setTimeout(() => {
-        loadAdScript(AD_SCRIPTS[adType].key, adOptions, adId);
+        loadAdScript(adOptions.key, adOptions);
         setAdLoaded(true);
-      }, 1500);
+      }, 1000); // Load ads after 1 second
 
       return () => clearTimeout(timer);
-    }, [placeholder, adId]);
+    }, [placeholder, adType]);
 
     if (placeholder) {
       return (
@@ -116,9 +110,9 @@ const createAdBanner = (adType: keyof typeof AD_SCRIPTS) => {
 
     return (
       <div className={`ad-container-${adType} relative ${className}`} style={{width: `${AD_SCRIPTS[adType].width}px`, height: `${AD_SCRIPTS[adType].height}px`}}>
-        <div id={adId} style={{width: '100%', height: '100%'}} />
+        {/* AdsTerra will inject iframe here */}
         {!adLoaded && (
-          <div className="absolute inset-0 bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center">
+          <div className="absolute inset-0 bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center z-10">
             <div className="text-gray-600 text-xs">Loading ad...</div>
           </div>
         )}
