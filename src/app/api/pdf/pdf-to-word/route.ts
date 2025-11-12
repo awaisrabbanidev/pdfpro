@@ -220,7 +220,7 @@ export async function POST(request: NextRequest) {
         extractedCharacters: extractedData.text.length,
         extractedWords: extractedData.text.split(/\s+/).filter(word => word.length > 0).length,
         pagesProcessed: extractedData.pages || 1,
-        downloadUrl: `/api/download/${result.filename}`,
+        downloadUrl: `data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,${result.data.toString('base64')}`,
         data: result.data.toString('base64'),
         conversionReport
       }
