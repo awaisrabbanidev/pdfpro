@@ -18,7 +18,8 @@ function removeBaseUrlReferences(filePath) {
 
     // Remove baseUrl definitions from error condition blocks
     if (content.includes('Get the base URL for absolute download URLs')) {
-      content = content.replace(/(\s*)\/\/ Get the base URL for absolute download URLs[\s\S]*?const baseUrl = `\$\{protocol\}://\$\{host\}`;[\s\S]*?(\s*)return NextResponse\.json\(/g, '$2return NextResponse.json(');
+      const pattern = /\/\/ Get the base URL for absolute download URLs[\s\S]*?const baseUrl = `\$\{protocol\}:\/\/\$\{host\}`;[\s\S]*?return NextResponse\.json\(/g;
+      content = content.replace(pattern, 'return NextResponse.json(');
       modified = true;
     }
 
