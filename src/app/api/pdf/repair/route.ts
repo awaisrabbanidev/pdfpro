@@ -215,7 +215,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('PDF repair error:', error);
     return NextResponse.json(
-      { error: 'Failed to repair PDF' },
+      { error: 'Failed to repair PDF: ' + (error instanceof Error ? error.message : String(error)) },
       { status: 500 }
     );
   }
