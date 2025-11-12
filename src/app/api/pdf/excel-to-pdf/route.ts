@@ -110,7 +110,7 @@ async function convertExcelToPDF(
       for (let col = 0; col < maxCols; col++) {
         columnWidths[col] = Math.max(
           80, // Minimum width
-          ...jsonData.map(row => (row[col] ? String(row[col]).length * 6 : 0))
+          ...jsonData.map(row => (Array.isArray(row) && row[col] !== undefined ? String(row[col]).length * 6 : 0))
         );
       }
 
