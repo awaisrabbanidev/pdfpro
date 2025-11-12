@@ -92,7 +92,7 @@ export default function Home() {
 
         {/* Main 728x90 Banner Ad - Above Tools */}
         <div className="flex justify-center py-4 px-4 bg-gray-900/30">
-          <AdBanner728x90 placeholder={true} />
+          <AdBanner728x90 placeholder={false} />
         </div>
 
         {/* Tools Section */}
