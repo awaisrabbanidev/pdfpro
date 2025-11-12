@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
         editedSize: editResult.size,
         editsApplied: body.edits.length,
         downloadUrl: `/api/download/${editResult.filename}`,
-        data: Buffer.from(editResult.data).toString('base64'),
+        data: editResult.data.toString('base64'),
         editReport
       }
     });
