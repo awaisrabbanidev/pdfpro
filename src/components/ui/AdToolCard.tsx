@@ -32,6 +32,7 @@ const AdToolCard: React.FC<AdToolCardProps> = ({
   className = '',
   isPopular = false
 }) => {
+  const router = useRouter();
   const [showAd, setShowAd] = useState(false);
   const [hasSeenAd, setHasSeenAd] = useState(false);
 
@@ -42,10 +43,10 @@ const AdToolCard: React.FC<AdToolCardProps> = ({
       // Auto-navigate after 3 seconds
       setTimeout(() => {
         setShowAd(false);
-        window.open(href, '_blank');
+        router.push(href);
       }, 3000);
     } else {
-      window.open(href, '_blank');
+      router.push(href);
     }
   };
 
