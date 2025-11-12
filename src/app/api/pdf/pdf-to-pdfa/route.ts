@@ -106,10 +106,8 @@ async function convertToPDFA(
     pdfDoc.setCreationDate(new Date());
     pdfDoc.setModificationDate(new Date());
 
-    // Add custom properties for PDF/A compliance
-    pdfDoc.setCustomProperty('pdfaid:part', '1');
-    pdfDoc.setCustomProperty('pdfaid:conformance', options.conformance);
-    pdfDoc.setCustomProperty('pdfaid:amd', { custom: 'http://www.aiim.org/pdfa/ns/id/' });
+    // Note: PDF/A custom properties would require specialized PDF/A libraries
+    // This is a simplified simulation for demonstration purposes
 
     const pdfBytes = await pdfDoc.save();
     const outputPath = join(OUTPUT_DIR, filename);
