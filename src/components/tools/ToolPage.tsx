@@ -43,6 +43,20 @@ const ToolPage: React.FC<ToolPageProps> = ({
   // Processing function moved to client side
   const processFiles = async (files: File[]): Promise<DownloadFile[]> => {
     try {
+      // Solution 2: File Size Validation (Vercel limit is 4.5MB)
+      const MAX_FILE_SIZE = 4.5 * 1024 * 1024; // 4.5MB in bytes
+      const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+
+      for (const file of files) {
+        if (file.size > MAX_FILE_SIZE) {
+          throw new Error(`File "${file.name}" is too large. Maximum file size is 4.5MB. File size: ${(file.size / 1024 / 1024).toFixed(1)}MB`);
+        }
+      }
+
+      if (totalSize > MAX_FILE_SIZE) {
+        throw new Error(`Total file size is too large. Maximum total size is 4.5MB. Total size: ${(totalSize / 1024 / 1024).toFixed(1)}MB`);
+      }
+
       let response;
       // More robust baseUrl detection for development/production
       const isDevelopment = process.env.NODE_ENV !== 'production' || typeof window !== 'undefined' && window.location.hostname === 'localhost';
@@ -55,7 +69,8 @@ const ToolPage: React.FC<ToolPageProps> = ({
         isDevelopment,
         baseUrl,
         windowOrigin: typeof window !== 'undefined' ? window.location.origin : 'N/A',
-        currentHostname: typeof window !== 'undefined' ? window.location.hostname : 'N/A'
+        currentHostname: typeof window !== 'undefined' ? window.location.hostname : 'N/A',
+        fileSizeValidation: `✅ File sizes validated (Max: 4.5MB each, Total: ${(totalSize / 1024 / 1024).toFixed(1)}MB)`
       });
 
       // Convert files to base64
