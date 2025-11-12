@@ -55,25 +55,40 @@ async function parsePPTX(pptxBuffer: Buffer): Promise<{ slides: any[] }> {
     });
 
     for (const slideFile of slideFiles) {
-      const slideContent = await content.files[slideFile].async('string');
+      try {
+        if (!content.files[slideFile]) {
+          console.warn(`Slide file not found: ${slideFile}`);
+          continue;
+        }
 
-      // Extract text content from XML
-      const textMatches = slideContent.match(/<a:t>([^<]*)<\/a:t>/g) || [];
-      const texts = textMatches.map(match =>
-        match.replace(/<\/?a:t>/g, '').trim()
-      ).filter(text => text.length > 0);
+        const slideContent = await content.files[slideFile].async('string');
 
-      // Extract title (usually the first or largest text)
-      const titleMatches = slideContent.match(/<a:t>([^<]{10,})<\/a:t>/g) || [];
-      const title = titleMatches.length > 0 && titleMatches[0]
-        ? titleMatches[0].replace(/<\/?a:t>/g, '').trim()
-        : `Slide ${slides.length + 1}`;
+        // Extract text content from XML
+        const textMatches = slideContent.match(/<a:t>([^<]*)<\/a:t>/g) || [];
+        const texts = textMatches.map(match =>
+          match.replace(/<\/?a:t>/g, '').trim()
+        ).filter(text => text.length > 0);
 
-      slides.push({
-        title: title,
-        content: texts,
-        hasContent: texts.length > 0
-      });
+        // Extract title (usually the first or largest text)
+        const titleMatches = slideContent.match(/<a:t>([^<]{10,})<\/a:t>/g) || [];
+        const title = titleMatches.length > 0 && titleMatches[0]
+          ? titleMatches[0].replace(/<\/?a:t>/g, '').trim()
+          : `Slide ${slides.length + 1}`;
+
+        slides.push({
+          title: title || `Slide ${slides.length + 1}`,
+          content: texts || [],
+          hasContent: texts && texts.length > 0
+        });
+      } catch (slideError) {
+        console.warn(`Failed to process slide ${slideFile}:`, slideError);
+        // Add a placeholder slide for failed slides
+        slides.push({
+          title: `Slide ${slides.length + 1}`,
+          content: ['Content could not be extracted'],
+          hasContent: false
+        });
+      }
     }
 
     // If no slides found, create a placeholder
