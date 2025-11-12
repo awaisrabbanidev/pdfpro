@@ -89,11 +89,11 @@ export const AdBanner300x250: React.FC<{ className?: string; placeholder?: boole
   placeholder = false
 }) => {
   const [adLoaded, setAdLoaded] = useState(false);
+  const [adId] = useState(() => `ad-300x250-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
 
   useEffect(() => {
     if (placeholder || typeof window === 'undefined') return;
 
-    const adId = `ad-300x250-${Date.now()}`;
     const adOptions = {
       key: AD_SCRIPTS['300x250'].key,
       format: AD_SCRIPTS['300x250'].format,
@@ -104,12 +104,12 @@ export const AdBanner300x250: React.FC<{ className?: string; placeholder?: boole
 
     // Delay ad loading to prevent SSR issues
     const timer = setTimeout(() => {
-      loadAdScript(AD_SCRIPTS['300x250'].key, adOptions);
+      loadAdScript(AD_SCRIPTS['300x250'].key, adOptions, adId);
       setAdLoaded(true);
-    }, 1000);
+    }, 1500);
 
     return () => clearTimeout(timer);
-  }, [placeholder]);
+  }, [placeholder, adId]);
 
   if (placeholder) {
     return (
@@ -124,9 +124,9 @@ export const AdBanner300x250: React.FC<{ className?: string; placeholder?: boole
 
   return (
     <div className={`ad-container-300x250 ${className}`} style={{width: '300px', height: '250px'}}>
-      <div id={`ad-300x250-${Date.now()}`} style={{width: '100%', height: '100%'}} />
+      <div id={adId} style={{width: '100%', height: '100%'}} />
       {!adLoaded && (
-        <div className="bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center h-full">
+        <div className="absolute inset-0 bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center">
           <div className="text-gray-600 text-xs">Loading ad...</div>
         </div>
       )}
