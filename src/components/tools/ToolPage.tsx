@@ -44,9 +44,11 @@ const ToolPage: React.FC<ToolPageProps> = ({
   const processFiles = async (files: File[]): Promise<DownloadFile[]> => {
     try {
       let response;
-      const baseUrl = process.env.NODE_ENV === 'production'
-        ? 'https://pdfpro.pro'
-        : 'http://localhost:3001';
+      // More robust baseUrl detection for development/production
+      const isDevelopment = process.env.NODE_ENV !== 'production' || typeof window !== 'undefined' && window.location.hostname === 'localhost';
+      const baseUrl = isDevelopment
+        ? `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001'}`
+        : 'https://pdfpro.pro';
 
       // Convert files to base64
       const filesAsBase64 = await Promise.all(
