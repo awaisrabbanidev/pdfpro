@@ -81,11 +81,12 @@ const ToolPage: React.FC<ToolPageProps> = ({
       }
 
       let response;
-      // More robust baseUrl detection for development/production
-      const isDevelopment = process.env.NODE_ENV !== 'production' || typeof window !== 'undefined' && window.location.hostname === 'localhost';
-      const baseUrl = isDevelopment
-        ? `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001'}`
-        : 'https://pdfpro.pro';
+      // Dynamic API URL detection for all domain variants (www, non-www, development)
+      const baseUrl = typeof window !== 'undefined'
+        ? (window.location.hostname === 'localhost' || window.location.hostname === '172.19.3.10')
+          ? 'http://localhost:3001'
+          : `${window.location.protocol}//${window.location.hostname}`
+        : 'https://www.pdfpro.pro';
 
       console.log('🔍 API Debug Info:', {
         NODE_ENV: process.env.NODE_ENV,
