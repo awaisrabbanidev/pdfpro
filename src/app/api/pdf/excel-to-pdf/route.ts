@@ -295,6 +295,10 @@ export async function POST(request: NextRequest) {
     const originalSize = buffer.length;
     const originalFilename = body.file.name;
 
+    // Parse Excel file first to get sheet count
+    const workbookInfo = XLSX.read(buffer, { type: 'buffer' });
+    const sheetsCount = workbookInfo.SheetNames.length;
+
     // Convert Excel to PDF
     const conversionResult = await convertExcelToPDF(
       buffer,
@@ -308,7 +312,7 @@ export async function POST(request: NextRequest) {
         name: originalFilename,
         size: originalSize,
         type: originalFilename.endsWith('.xlsx') ? 'Excel XML' : 'Excel Binary',
-        sheetsCount: workbook.SheetNames.length
+        sheetsCount
       },
       convertedFile: {
         name: conversionResult.filename,
