@@ -324,7 +324,7 @@ export async function POST(request: NextRequest) {
         filename: conversionResult.filename,
         originalSize,
         convertedSize: conversionResult.size,
-        slidesConverted: estimatedSlides,
+        slidesConverted: slides.length,
         downloadUrl: `/api/download/${conversionResult.filename}`,
         data: Buffer.from(conversionResult.data).toString('base64'),
         conversionReport
