@@ -18,21 +18,6 @@ interface ConvertRequest {
   };
 }
 
-const UPLOAD_DIR = join('/tmp', 'uploads');
-const OUTPUT_DIR = join('/tmp', 'outputs');
-
-// Ensure directories exist
-async function ensureDirectories() {
-  try {
-    console.log('Creating directories:', { UPLOAD_DIR, OUTPUT_DIR });
-    await mkdir(UPLOAD_DIR, { recursive: true });
-    await mkdir(OUTPUT_DIR, { recursive: true });
-    console.log('Directories created successfully');
-  } catch (error) {
-    console.log('Directory creation error:', error);
-    // Directory might already exist, continue
-  }
-}
 
 // Simple PDF analysis (placeholder for now)
 async function analyzePDF(pdfBuffer: Buffer): Promise<{
