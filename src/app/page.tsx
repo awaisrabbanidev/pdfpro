@@ -2,8 +2,19 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import ToolCard from '@/components/ui/ToolCard';
-import AdBanner, { AD_SIZES } from '@/components/ui/AdBanner';
+import AdToolCard from '@/components/ui/AdToolCard';
+import {
+  AdBanner728x90,
+  AdBanner300x250,
+  AdBanner160x600,
+  AdBanner160x300,
+  AdBanner468x60,
+  AdBanner320x50,
+  NativeBannerAd,
+  PopUnderAd,
+  SocialBarAd,
+  SmartLinkAd
+} from '@/components/ads/AdComponents';
 import { PDF_TOOLS, TOOL_CATEGORIES } from '@/lib/constants';
 
 export default function Home() {
