@@ -17,6 +17,9 @@ import {
 } from '@/components/ads/AdComponents';
 import { PDF_TOOLS, TOOL_CATEGORIES } from '@/lib/constants';
 
+// Most popular tools that get first-click ad treatment
+const POPULAR_TOOLS = ['pdf-to-word', 'merge-pdf', 'split-pdf', 'compress-pdf', 'pdf-to-jpg'];
+
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
@@ -25,58 +28,72 @@ export default function Home() {
     : PDF_TOOLS.filter(tool => tool.category === selectedCategory);
 
   return (
-    <div className="bg-black text-gray-100 pt-0">
-      {/* Hero Section */}
-      <section className="relative py-20 px-4 text-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent" />
-        <div className="relative max-w-6xl mx-auto">
-          <motion.h1
-            className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-green-400 to-green-600 bg-clip-text text-transparent"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            PDFPro.pro
-          </motion.h1>
-          <motion.p
-            className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-          >
-            Professional PDF Tools Online. 27 powerful tools to merge, split, convert, edit, and secure your PDF files.
-          </motion.p>
-          <motion.div
-            className="flex flex-wrap justify-center gap-4"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <div className="bg-green-500/20 border border-green-500/50 px-4 py-2 rounded-full text-green-400 text-sm">
-              ✨ 100% Free
-            </div>
-            <div className="bg-green-500/20 border border-green-500/50 px-4 py-2 rounded-full text-green-400 text-sm">
-              🔒 Secure & Private
-            </div>
-            <div className="bg-green-500/20 border border-green-500/50 px-4 py-2 rounded-full text-green-400 text-sm">
-              ⚡ Fast Processing
-            </div>
-            <div className="bg-green-500/20 border border-green-500/50 px-4 py-2 rounded-full text-green-400 text-sm">
-              📱 Mobile Friendly
-            </div>
-          </motion.div>
-        </div>
-      </section>
+    <>
+      {/* Global Ads */}
+      <PopUnderAd />
+      <SocialBarAd />
 
-      {/* Ad Banner - Header */}
-      <div className="flex justify-center py-6 px-4">
-        <AdBanner
-          size="728x90"
-          type="banner"
-          showPlaceholder={true}
-          className="hidden md:block"
-        />
-      </div>
+      <div className="bg-black text-gray-100 pt-0">
+        {/* Hero Section */}
+        <section className="relative py-16 md:py-20 px-4 text-center overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent" />
+          <div className="relative max-w-6xl mx-auto">
+            <motion.h1
+              className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-green-400 to-green-600 bg-clip-text text-transparent"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              PDFPro.pro
+            </motion.h1>
+            <motion.p
+              className="text-lg md:text-xl lg:text-2xl text-gray-300 mb-6 md:mb-8 max-w-4xl mx-auto"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
+              Professional PDF Tools Online. 27 powerful tools to merge, split, convert, edit, and secure your PDF files.
+            </motion.p>
+
+            {/* SmartLink Ad */}
+            <motion.div
+              className="flex justify-center mb-6"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <SmartLinkAd className="w-full max-w-md" />
+            </motion.div>
+
+            <motion.div
+              className="flex flex-wrap justify-center gap-3 md:gap-4"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
+              <div className="bg-green-500/20 border border-green-500/50 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-green-400 text-xs md:text-sm">
+                ✨ 100% Free
+              </div>
+              <div className="bg-green-500/20 border border-green-500/50 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-green-400 text-xs md:text-sm">
+                🔒 Secure & Private
+              </div>
+              <div className="bg-green-500/20 border border-green-500/50 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-green-400 text-xs md:text-sm">
+                ⚡ Fast Processing
+              </div>
+              <div className="bg-green-500/20 border border-green-500/50 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-green-400 text-xs md:text-sm">
+                📱 Mobile Friendly
+              </div>
+              <div className="bg-orange-500/20 border border-orange-500/50 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-orange-400 text-xs md:text-sm animate-pulse">
+                💰 Bonus Rewards
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Main 728x90 Banner Ad - Above Tools */}
+        <div className="flex justify-center py-4 px-4 bg-gray-900/30">
+          <AdBanner728x90 placeholder={false} />
+        </div>
 
       {/* Tools Section */}
       <section className="py-16 px-4">
