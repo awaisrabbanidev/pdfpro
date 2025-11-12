@@ -73,15 +73,15 @@ const ToolPage: React.FC<ToolPageProps> = ({
       switch (toolId) {
         case 'merge-pdf':
           console.log('🚀 Making API call to:', `${baseUrl}/api/pdf/merge`);
-        response = await fetch(`${baseUrl}/api/pdf/merge`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            files: filesAsBase64,
-            outputName: `merged_${Date.now()}.pdf`
-          })
-        });
-        console.log('📥 API Response status:', response.status);
+          response = await fetch(`${baseUrl}/api/pdf/merge`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              files: filesAsBase64,
+              outputName: `merged_${Date.now()}.pdf`
+            })
+          });
+          console.log('📥 API Response status:', response.status);
           break;
 
         case 'split-pdf':
