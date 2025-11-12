@@ -139,10 +139,8 @@ async function createWordDocument(
   // For demonstration, we'll save as HTML with .docx extension
   // In production, use a library like 'docx' or 'officegen'
   const outputName = `${originalFilename.replace('.pdf', '')}_converted.docx`;
-  const outputPath = join(OUTPUT_DIR, outputName);
 
-  await writeFile(outputPath, htmlBuffer);
-
+  // Return data directly without writing to file system
   return {
     filename: outputName,
     size: htmlBuffer.length,
