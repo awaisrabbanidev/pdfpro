@@ -253,6 +253,11 @@ export async function POST(request: NextRequest) {
     // Convert HTML to PDF
     const conversionResult = await convertHTMLToPDF(buffer, body.options, originalFilename);
 
+    // Get the base URL for absolute download URLs
+    const protocol = request.headers.get('x-forwarded-proto') || 'http';
+    const host = request.headers.get('host') || 'localhost:3000';
+    const baseUrl = `${protocol}://${host}`;
+
     return NextResponse.json({
       success: true,
       message: 'HTML converted to PDF successfully',
