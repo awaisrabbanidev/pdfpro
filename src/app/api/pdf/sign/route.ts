@@ -196,12 +196,18 @@ async function addDrawingSignature(
   const yValues = points.map(p => p.y);
   const drawingWidth = Math.max(...xValues) - Math.min(...xValues);
   const drawingHeight = Math.max(...yValues) - Math.min(...yValues);
+
+  // Prevent division by zero
+  if (drawingWidth === 0 || drawingHeight === 0) {
+    throw new Error('Invalid drawing data - points must have different coordinates');
+  }
+
   const scaleX = position.width / drawingWidth;
   const scaleY = position.height / drawingHeight;
   const scale = Math.min(scaleX, scaleY);
 
-  const minX = Math.min(...points.map(p => p.x));
-  const minY = Math.min(...points.map(p => p.y));
+  const minX = Math.min(...xValues);
+  const minY = Math.min(...yValues);
 
   // Draw signature lines
   for (let i = 0; i < points.length - 1; i++) {
