@@ -92,7 +92,7 @@ const AdToolCard: React.FC<AdToolCardProps> = ({
           <button
             onClick={() => {
               setShowAd(false);
-              window.open(href, '_blank');
+              router.push(href);
             }}
             className="text-xs text-green-500 hover:text-green-400 transition-colors font-medium"
           >
