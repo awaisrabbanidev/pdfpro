@@ -106,13 +106,22 @@ async function addPageNumbers(
           break;
       }
 
+      // Adjust x position based on alignment
+      let adjustedX = x;
+      if (options.position.includes('center')) {
+        // Approximate center alignment by adjusting x position
+        adjustedX = x - (pageText.length * fontSize * 0.3); // Rough approximation
+      } else if (options.position.includes('right')) {
+        // Approximate right alignment
+        adjustedX = x - (pageText.length * fontSize * 0.6); // Rough approximation
+      }
+
       // Draw page number
       page.drawText(pageText, {
-        x,
+        x: adjustedX,
         y,
         size: fontSize,
-        color,
-        align: options.position.includes('center') ? 'center' : options.position.includes('right') ? 'right' : 'left'
+        color
       });
     }
 
