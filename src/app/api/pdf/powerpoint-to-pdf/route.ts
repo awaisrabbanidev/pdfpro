@@ -334,7 +334,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('PowerPoint to PDF conversion error:', error);
     return NextResponse.json(
-      { error: 'Failed to convert PowerPoint to PDF' },
+      { error: 'Failed to convert PowerPoint to PDF: ' + (error instanceof Error ? error.message : String(error)) },
       { status: 500 }
     );
   }
