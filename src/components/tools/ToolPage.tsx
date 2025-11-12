@@ -43,7 +43,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
   // Helper function to make API calls with timeout and error handling
   const makeApiCall = async (url: string, options: RequestInit): Promise<Response> => {
     try {
-      const response = await fetch(url, {
+      const response = await makeApiCall(url, {
         ...options,
         signal: AbortSignal.timeout(55000) // 55 second timeout (less than 60s Vercel limit)
       });
@@ -123,7 +123,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'split-pdf':
-          response = await fetch(`${baseUrl}/api/pdf/split`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/split`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -134,7 +134,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'compress-pdf':
-          response = await fetch(`${baseUrl}/api/pdf/compress`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/compress`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -145,7 +145,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'pdf-to-word':
-          response = await fetch(`${baseUrl}/api/pdf/pdf-to-word`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/pdf-to-word`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -160,7 +160,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'word-to-pdf':
-          response = await fetch(`${baseUrl}/api/pdf/word-to-pdf`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/word-to-pdf`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -175,7 +175,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'ocr-pdf':
-          response = await fetch(`${baseUrl}/api/pdf/ocr`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/ocr`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -190,7 +190,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'crop-pdf':
-          response = await fetch(`${baseUrl}/api/pdf/crop`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/crop`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -208,7 +208,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           if (files.length !== 2) {
             throw new Error('Compare tool requires exactly 2 files');
           }
-          response = await fetch(`${baseUrl}/api/pdf/compare`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/compare`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -224,7 +224,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
 
         // NEW API INTEGRATIONS
         case 'pdf-to-powerpoint':
-          response = await fetch(`${baseUrl}/api/pdf/pdf-to-powerpoint`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/pdf-to-powerpoint`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -239,7 +239,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'pdf-to-excel':
-          response = await fetch(`${baseUrl}/api/pdf/pdf-to-excel`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/pdf-to-excel`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -254,7 +254,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'powerpoint-to-pdf':
-          response = await fetch(`${baseUrl}/api/pdf/powerpoint-to-pdf`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/powerpoint-to-pdf`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -270,7 +270,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'excel-to-pdf':
-          response = await fetch(`${baseUrl}/api/pdf/excel-to-pdf`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/excel-to-pdf`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -286,7 +286,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'pdf-to-jpg':
-          response = await fetch(`${baseUrl}/api/pdf/pdf-to-jpg`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/pdf-to-jpg`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -302,7 +302,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'jpg-to-pdf':
-          response = await fetch(`${baseUrl}/api/pdf/jpg-to-pdf`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/jpg-to-pdf`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -318,7 +318,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'rotate-pdf':
-          response = await fetch(`${baseUrl}/api/pdf/rotate`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/rotate`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -332,7 +332,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'protect-pdf':
-          response = await fetch(`${baseUrl}/api/pdf/protect`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/protect`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -351,7 +351,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'watermark':
-          response = await fetch(`${baseUrl}/api/pdf/watermark`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/watermark`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -368,7 +368,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'html-to-pdf':
-          response = await fetch(`${baseUrl}/api/pdf/html-to-pdf`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/html-to-pdf`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -385,7 +385,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'sign-pdf':
-          response = await fetch(`${baseUrl}/api/pdf/sign`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/sign`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -400,7 +400,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'unlock-pdf':
-          response = await fetch(`${baseUrl}/api/pdf/unlock`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/unlock`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -411,7 +411,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'page-numbers':
-          response = await fetch(`${baseUrl}/api/pdf/page-numbers`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/page-numbers`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -429,7 +429,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'organize-pdf':
-          response = await fetch(`${baseUrl}/api/pdf/organize`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/organize`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -442,7 +442,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'edit-pdf':
-          response = await fetch(`${baseUrl}/api/pdf/edit`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/edit`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -455,7 +455,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'repair-pdf':
-          response = await fetch(`${baseUrl}/api/pdf/repair`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/repair`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -470,7 +470,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'redact-pdf':
-          response = await fetch(`${baseUrl}/api/pdf/redact`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/redact`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -483,7 +483,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'pdf-to-pdfa':
-          response = await fetch(`${baseUrl}/api/pdf/pdf-to-pdfa`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/pdf-to-pdfa`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -498,7 +498,7 @@ const ToolPage: React.FC<ToolPageProps> = ({
           break;
 
         case 'scan-to-pdf':
-          response = await fetch(`${baseUrl}/api/pdf/scan-to-pdf`, {
+          response = await makeApiCall(`${baseUrl}/api/pdf/scan-to-pdf`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
