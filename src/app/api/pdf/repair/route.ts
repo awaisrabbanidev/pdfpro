@@ -113,7 +113,7 @@ async function repairPDF(
           color: { type: 'RGB', r: 0, g: 0, b: 0 } as any
         });
 
-        page.drawText(`Error: ${loadError.message}`, {
+        page.drawText(`Error: ${loadError instanceof Error ? loadError.message : 'Unknown error'}`, {
           x: 50,
           y: 650,
           size: 10,
