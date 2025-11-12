@@ -9,77 +9,72 @@ interface AdComponentProps {
   placeholder?: boolean;
 }
 
-// Individual Ad Scripts Configuration
+// Exact AdsTerra Configuration from provided scripts
 const AD_SCRIPTS = {
   '300x250': {
     key: 'ba27940e74baf283d86f8660cae41d24',
     width: 300,
     height: 250,
-    format: 'iframe'
+    format: 'iframe',
+    params: {}
   },
   '728x90': {
     key: '8ec7631dfd51068968dbd73089bf3b26',
     width: 728,
     height: 90,
-    format: 'iframe'
+    format: 'iframe',
+    params: {}
   },
   '160x600': {
     key: 'a384d2956c86a7fd01d08db11eb8584c',
     width: 160,
     height: 600,
-    format: 'iframe'
+    format: 'iframe',
+    params: {}
   },
   '160x300': {
     key: 'df90677345a5b60bbb29cbe4970f2242',
     width: 160,
     height: 300,
-    format: 'iframe'
+    format: 'iframe',
+    params: {}
   },
   '468x60': {
     key: '849d38461fd2bd641c5a7c889b44521d',
     width: 468,
     height: 60,
-    format: 'iframe'
+    format: 'iframe',
+    params: {}
   },
   '320x50': {
     key: 'c4633a11d683cbe2bec94da10f617f82',
     width: 320,
     height: 50,
-    format: 'iframe'
+    format: 'iframe',
+    params: {}
   }
 };
 
-// Utility function to load ads safely
-const loadAdScript = (adKey: string, adOptions: any, containerId?: string) => {
+// Exact AdsTerra script loading function
+const loadAdScript = (adKey: string, adOptions: any) => {
   if (typeof window === 'undefined') return;
 
   try {
-    // Set global ad options
-    (window as any).atOptions = {
-      ...adOptions,
-      container: containerId ? `#${containerId}` : undefined
-    };
+    // Set global atOptions exactly as AdsTerra expects
+    (window as any).atOptions = adOptions;
 
-    // Load ad script
+    // Load the exact AdsTerra script
     const script = document.createElement('script');
     script.type = 'text/javascript';
     script.src = `//www.highperformanceformat.com/${adKey}/invoke.js`;
     script.async = true;
 
-    if (containerId) {
-      // For specific container targeting
-      script.setAttribute('data-ad-container', containerId);
-    }
-
     document.head.appendChild(script);
 
-    // Set a timeout to consider ad as "loaded" even if script doesn't callback
-    setTimeout(() => {
-      console.log(`Ad script loaded for ${adKey}`);
-    }, 2000);
+    console.log(`🚀 Loading AdsTerra ad: ${adKey} (${adOptions.width}x${adOptions.height})`);
 
   } catch (error) {
-    console.log('Ad loading failed:', error);
+    console.log('❌ AdsTerra ad loading failed:', error);
   }
 };
 
