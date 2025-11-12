@@ -85,12 +85,22 @@ const getDefaultProcessingSteps = (toolId: string): Omit<ProcessingStep, 'status
 
     case 'pdf-to-word':
     case 'pdf-to-excel':
+      return [
+        { id: 'upload', label: 'Upload PDF file' },
+        { id: 'analyze', label: 'Analyze document structure' },
+        { id: 'extract', label: 'Extract tables and data' },
+        { id: 'convert', label: 'Convert to Excel format' },
+        { id: 'format', label: 'Format spreadsheet' },
+        { id: 'complete', label: 'Complete' }
+      ];
+
     case 'pdf-to-powerpoint':
       return [
         { id: 'upload', label: 'Upload PDF file' },
-        { id: 'extract', label: 'Extract text and layout' },
-        { id: 'convert', label: `Convert to ${toolId.includes('word') ? 'Word' : toolId.includes('excel') ? 'Excel' : 'PowerPoint'}` },
-        { id: 'format', label: 'Format document' },
+        { id: 'analyze', label: 'Analyze document layout' },
+        { id: 'extract', label: 'Extract slides and content' },
+        { id: 'convert', label: 'Convert to PowerPoint format' },
+        { id: 'format', label: 'Format presentation' },
         { id: 'complete', label: 'Complete' }
       ];
 
