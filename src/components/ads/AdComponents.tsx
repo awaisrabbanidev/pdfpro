@@ -139,6 +139,7 @@ export const AdBanner728x90: React.FC<{ className?: string; placeholder?: boolea
   placeholder = false
 }) => {
   const [adLoaded, setAdLoaded] = useState(false);
+  const [adId] = useState(() => `ad-728x90-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
 
   useEffect(() => {
     if (placeholder || typeof window === 'undefined') return;
@@ -152,12 +153,12 @@ export const AdBanner728x90: React.FC<{ className?: string; placeholder?: boolea
     };
 
     const timer = setTimeout(() => {
-      loadAdScript(AD_SCRIPTS['728x90'].key, adOptions);
+      loadAdScript(AD_SCRIPTS['728x90'].key, adOptions, adId);
       setAdLoaded(true);
-    }, 1000);
+    }, 1500);
 
     return () => clearTimeout(timer);
-  }, [placeholder]);
+  }, [placeholder, adId]);
 
   if (placeholder) {
     return (
@@ -171,9 +172,10 @@ export const AdBanner728x90: React.FC<{ className?: string; placeholder?: boolea
   }
 
   return (
-    <div className={`ad-container-728x90 ${className}`} style={{width: '728px', height: '90px'}}>
+    <div className={`ad-container-728x90 relative ${className}`} style={{width: '728px', height: '90px'}}>
+      <div id={adId} style={{width: '100%', height: '100%'}} />
       {!adLoaded && (
-        <div className="bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center h-full">
+        <div className="absolute inset-0 bg-gray-900 border border-gray-700 rounded-lg flex items-center justify-center">
           <div className="text-gray-600 text-xs">Loading ad...</div>
         </div>
       )}
