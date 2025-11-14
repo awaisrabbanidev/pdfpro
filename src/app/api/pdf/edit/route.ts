@@ -94,7 +94,7 @@ async function editPDF(
               y: operation.area.y,
               width: operation.area.width,
               height: operation.area.height,
-              color: { type: 'RGB', r: 1, g: 1, b: 0 }, // Yellow highlight
+              color: { type: 'RGB', r: 1, g: 1, b: 0 } as any, // Yellow highlight
               opacity: 0.3,
             });
           }
