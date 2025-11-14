@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       const workbook = XLSX.read(inputBuffer, { type: 'buffer' });
 
       // Convert to PDF using pdf-lib
-      const { PDFDocument } = await import('pdf-lib');
+      const { PDFDocument, rgb } = await import('pdf-lib');
       const pdfDoc = await PDFDocument.create();
 
       // Process each worksheet
