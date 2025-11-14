@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
             font: font,
             color: color,
             opacity: watermarkSettings.opacity,
-            rotate: { type: 'degrees', angle: watermarkSettings.rotation }
+            rotate: degrees(watermarkSettings.rotation)
           });
 
         } else if (watermarkSettings.type === 'image' && imageBytes) {
@@ -169,7 +169,7 @@ export async function POST(request: NextRequest) {
             width: imgWidth,
             height: imgHeight,
             opacity: watermarkSettings.opacity,
-            rotate: { type: 'degrees', angle: watermarkSettings.rotation }
+            rotate: degrees(watermarkSettings.rotation)
           });
         }
       }
