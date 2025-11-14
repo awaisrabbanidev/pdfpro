@@ -1,0 +1,118 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { writeFile, readFile, unlink } from 'fs/promises';
+import { join } from 'path';
+import { ensureDirectories, getDirectories } from '@/lib/api-config';
+import * as XLSX from 'xlsx';
+
+export async function POST(request: NextRequest) {
+  try {
+    ensureDirectories();
+    const dirs = getDirectories();
+
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
+
+    if (!file) {
+      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
+    }
+
+    if (file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+      return NextResponse.json({ error: 'Invalid file type. Please upload an Excel file.' }, { status: 400 });
+    }
+
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    const timestamp = Date.now();
+    const inputPath = join(dirs.UPLOADS, `${timestamp}-${file.name}`);
+    const outputPath = join(dirs.OUTPUTS, `${timestamp}-converted.pdf`);
+
+    await writeFile(inputPath, buffer);
+
+    try {
+      // Read the Excel file
+      const inputBuffer = await readFile(inputPath);
+      const workbook = XLSX.read(inputBuffer, { type: 'buffer' });
+
+      // Convert to PDF using pdf-lib
+      const { PDFDocument } = await import('pdf-lib');
+      const pdfDoc = await PDFDocument.create();
+
+      // Process each worksheet
+      workbook.SheetNames.forEach((sheetName, index) => {
+        const worksheet = workbook.Sheets[sheetName];
+        const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+        // Create a page for each worksheet
+        const page = pdfDoc.addPage([595.28, 841.89]); // A4 size
+
+        // Add worksheet title
+        page.drawText(`Worksheet: ${sheetName}`, {
+          x: 50,
+          y: 800,
+          size: 16,
+          color: rgb(0, 0, 0),
+        });
+
+        // Add worksheet data
+        let yPosition = 750;
+        const lineHeight = 20;
+
+        data.forEach((row: any, rowIndex: number) => {
+          if (yPosition < 50) {
+            // Add new page if space runs out
+            const newPage = pdfDoc.addPage([595.28, 841.89]);
+            yPosition = 750;
+          }
+
+          if (Array.isArray(row)) {
+            const rowText = row.map(cell => String(cell || '')).join('\t');
+            page.drawText(rowText, {
+              x: 50,
+              y: yPosition,
+              size: 10,
+              color: rgb(0, 0, 0),
+            });
+            yPosition -= lineHeight;
+          }
+        });
+      });
+
+      const pdfBytes = await pdfDoc.save();
+      await writeFile(outputPath, pdfBytes);
+
+    } catch (conversionError) {
+      console.error('Excel conversion error:', conversionError);
+      throw new Error('Failed to convert Excel to PDF');
+    } finally {
+      // Clean up input file
+      try {
+        await unlink(inputPath);
+      } catch (error) {
+        console.error('Failed to clean up input file:', error);
+      }
+    }
+
+    // Read the output file for base64 encoding
+    const outputBuffer = await readFile(outputPath);
+    const base64 = outputBuffer.toString('base64');
+
+    return NextResponse.json({
+      success: true,
+      filename: `${file.name.replace('.xlsx', '.pdf')}`,
+      base64: base64,
+      message: 'Excel file converted to PDF successfully'
+    });
+
+  } catch (error) {
+    console.error('Excel to PDF conversion error:', error);
+    return NextResponse.json(
+      { error: 'Failed to convert Excel to PDF' },
+      { status: 500 }
+    );
+  }
+}
+
+function rgb(r: number, g: number, b: number) {
+  return { r: r / 255, g: g / 255, b: b / 255 };
+}
