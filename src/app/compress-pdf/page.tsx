@@ -54,11 +54,11 @@ export default function CompressPDFPage() {
             maxFiles={1}
             toolId="compress-pdf"
             processingSteps={[
-              { id: 'upload', label: 'Upload PDF file', status: 'pending' },
-              { id: 'analyze', label: 'Analyze content', status: 'pending' },
-              { id: 'compress', label: 'Compress images and fonts', status: 'pending' },
-              { id: 'optimize', label: 'Optimize file size', status: 'pending' },
-              { id: 'complete', label: 'Complete', status: 'pending' }
+              { id: 'upload', label: 'Upload PDF file' },
+              { id: 'analyze', label: 'Analyze content' },
+              { id: 'compress', label: 'Compress images and fonts' },
+              { id: 'optimize', label: 'Optimize file size' },
+              { id: 'complete', label: 'Complete' }
             ]}
           />
         </div>

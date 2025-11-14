@@ -55,11 +55,11 @@ export default function PDFToPowerPointPage() {
             maxFiles={1}
             toolId="pdf-to-powerpoint"
             processingSteps={[
-              { id: 'upload', label: 'Upload PDF file', status: 'pending' },
-              { id: 'analyze', label: 'Analyze PDF content', status: 'pending' },
-              { id: 'convert', label: 'Convert to PowerPoint', status: 'pending' },
-              { id: 'format', label: 'Format slides', status: 'pending' },
-              { id: 'complete', label: 'Complete', status: 'pending' }
+              { id: 'upload', label: 'Upload PDF file' },
+              { id: 'analyze', label: 'Analyze PDF content' },
+              { id: 'convert', label: 'Convert to PowerPoint' },
+              { id: 'format', label: 'Format slides' },
+              { id: 'complete', label: 'Complete' }
             ]}
           />
         </div>

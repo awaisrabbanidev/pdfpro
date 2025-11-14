@@ -63,12 +63,12 @@ export default function PDFToWordPage() {
             maxFiles={1}
             toolId="pdf-to-word"
             processingSteps={[
-              { id: 'upload', label: 'Upload PDF file', status: 'pending' },
-              { id: 'analyze', label: 'Analyze document structure', status: 'pending' },
-              { id: 'extract', label: 'Extract text and layout', status: 'pending' },
-              { id: 'convert', label: 'Convert to Word format', status: 'pending' },
-              { id: 'format', label: 'Format document', status: 'pending' },
-              { id: 'complete', label: 'Complete', status: 'pending' }
+              { id: 'upload', label: 'Upload PDF file' },
+              { id: 'analyze', label: 'Analyze document structure' },
+              { id: 'extract', label: 'Extract text and layout' },
+              { id: 'convert', label: 'Convert to Word format' },
+              { id: 'format', label: 'Format document' },
+              { id: 'complete', label: 'Complete' }
             ]}
           />
         </div>

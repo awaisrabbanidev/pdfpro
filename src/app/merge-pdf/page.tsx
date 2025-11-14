@@ -54,11 +54,11 @@ export default function MergePDFPage() {
             maxFiles={20}
             toolId="merge-pdf"
             processingSteps={[
-              { id: 'upload', label: 'Upload PDF files', status: 'pending' },
-              { id: 'validate', label: 'Validate PDF integrity', status: 'pending' },
-              { id: 'merge', label: 'Merge PDF pages', status: 'pending' },
-              { id: 'optimize', label: 'Optimize merged file', status: 'pending' },
-              { id: 'complete', label: 'Complete', status: 'pending' }
+              { id: 'upload', label: 'Upload PDF files' },
+              { id: 'validate', label: 'Validate PDF integrity' },
+              { id: 'merge', label: 'Merge PDF pages' },
+              { id: 'optimize', label: 'Optimize merged file' },
+              { id: 'complete', label: 'Complete' }
             ]}
           />
         </div>

@@ -57,11 +57,11 @@ export default function WordToPDFPage() {
             maxFiles={1}
             toolId="word-to-pdf"
             processingSteps={[
-              { id: 'upload', label: 'Upload Word document', status: 'pending' },
-              { id: 'analyze', label: 'Analyze document structure', status: 'pending' },
-              { id: 'convert', label: 'Convert to PDF', status: 'pending' },
-              { id: 'optimize', label: 'Optimize output', status: 'pending' },
-              { id: 'complete', label: 'Complete', status: 'pending' }
+              { id: 'upload', label: 'Upload Word document' },
+              { id: 'analyze', label: 'Analyze document structure' },
+              { id: 'convert', label: 'Convert to PDF' },
+              { id: 'optimize', label: 'Optimize output' },
+              { id: 'complete', label: 'Complete' }
             ]}
           />
         </div>

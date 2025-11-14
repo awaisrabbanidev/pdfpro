@@ -62,11 +62,11 @@ export default function EditPDFPage() {
             maxFiles={1}
             toolId="edit-pdf"
             processingSteps={[
-              { id: 'upload', label: 'Upload PDF file', status: 'pending' },
-              { id: 'parse', label: 'Parse PDF structure', status: 'pending' },
-              { id: 'edit', label: 'Edit content', status: 'pending' },
-              { id: 'preview', label: 'Preview changes', status: 'pending' },
-              { id: 'save', label: 'Save document', status: 'pending' }
+              { id: 'upload', label: 'Upload PDF file' },
+              { id: 'parse', label: 'Parse PDF structure' },
+              { id: 'edit', label: 'Edit content' },
+              { id: 'preview', label: 'Preview changes' },
+              { id: 'save', label: 'Save document' }
             ]}
           />
         </div>

@@ -57,11 +57,11 @@ export default function PDFToExcelPage() {
             maxFiles={1}
             toolId="pdf-to-excel"
             processingSteps={[
-              { id: 'upload', label: 'Upload PDF file', status: 'pending' },
-              { id: 'analyze', label: 'Analyze data structure', status: 'pending' },
-              { id: 'extract', label: 'Extract tables', status: 'pending' },
-              { id: 'format', label: 'Format Excel file', status: 'pending' },
-              { id: 'complete', label: 'Complete', status: 'pending' }
+              { id: 'upload', label: 'Upload PDF file' },
+              { id: 'analyze', label: 'Analyze data structure' },
+              { id: 'extract', label: 'Extract tables' },
+              { id: 'format', label: 'Format Excel file' },
+              { id: 'complete', label: 'Complete' }
             ]}
           />
         </div>

@@ -54,11 +54,11 @@ export default function SplitPDFPage() {
             maxFiles={1}
             toolId="split-pdf"
             processingSteps={[
-              { id: 'upload', label: 'Upload PDF file', status: 'pending' },
-              { id: 'validate', label: 'Validate PDF structure', status: 'pending' },
-              { id: 'analyze', label: 'Analyze pages', status: 'pending' },
-              { id: 'split', label: 'Split pages', status: 'pending' },
-              { id: 'complete', label: 'Complete', status: 'pending' }
+              { id: 'upload', label: 'Upload PDF file' },
+              { id: 'validate', label: 'Validate PDF structure' },
+              { id: 'analyze', label: 'Analyze pages' },
+              { id: 'split', label: 'Split pages' },
+              { id: 'complete', label: 'Complete' }
             ]}
           />
         </div>

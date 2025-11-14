@@ -55,11 +55,11 @@ export default function JPGToPDFPage() {
             maxFiles={20}
             toolId="jpg-to-pdf"
             processingSteps={[
-              { id: 'upload', label: 'Upload images', status: 'pending' },
-              { id: 'process', label: 'Process images', status: 'pending' },
-              { id: 'arrange', label: 'Arrange layout', status: 'pending' },
-              { id: 'convert', label: 'Create PDF', status: 'pending' },
-              { id: 'complete', label: 'Complete', status: 'pending' }
+              { id: 'upload', label: 'Upload images' },
+              { id: 'process', label: 'Process images' },
+              { id: 'arrange', label: 'Arrange layout' },
+              { id: 'convert', label: 'Create PDF' },
+              { id: 'complete', label: 'Complete' }
             ]}
           />
         </div>
