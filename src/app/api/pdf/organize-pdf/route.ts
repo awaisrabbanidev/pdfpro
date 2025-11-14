@@ -53,10 +53,7 @@ export async function POST(request: NextRequest) {
               const pageIndex = op.page - 1; // Convert to 0-based index
               if (pageIndex >= 0 && pageIndex < pageCount) {
                 const page = pdfDoc.getPage(pageIndex);
-                page.setRotation({
-                  type: page.getRotation().type,
-                  degrees: op.degrees
-                });
+                page.setRotation(op.degrees);
               }
             }
             break;
