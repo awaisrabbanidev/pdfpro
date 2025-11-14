@@ -94,10 +94,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
             <div className="text-gray-400 text-sm mb-6">
               <p className="mb-2">Error ID: {this.state.digest}</p>
-              {this.state.errorInfo?.componentName && (
-                <p>Component: {this.state.errorInfo.componentName}</p>
-              )}
-            </div>
+                          </div>
 
             <button
               onClick={this.handleResetError}
