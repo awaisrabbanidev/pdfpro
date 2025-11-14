@@ -79,10 +79,36 @@ const ToolPage: React.FC<ToolPageProps> = ({
         updateStep(i, 'completed');
       }
 
-      // Process files
-      const result = await onProcessFiles(files);
-      setProcessedFiles(result);
-      setState('complete');
+      // Process files via API
+      const formData = new FormData();
+      files.forEach((file) => {
+        formData.append('files', file);
+      });
+
+      const response = await fetch(`/api/pdf/${toolId}`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Processing failed');
+      }
+
+      const data = await response.json();
+      if (data.success && data.base64) {
+        const downloadFile: DownloadFile = {
+          filename: data.filename || `processed-${Date.now()}.pdf`,
+          base64: data.base64,
+          url: URL.createObjectURL(
+            new Blob([Uint8Array.from(atob(data.base64), c => c.charCodeAt(0))], { type: 'application/pdf' })
+          )
+        };
+        setProcessedFiles([downloadFile]);
+        setState('complete');
+      } else {
+        throw new Error(data.error || 'No valid response received');
+      }
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Processing failed';
