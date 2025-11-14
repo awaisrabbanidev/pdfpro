@@ -198,7 +198,7 @@ export async function POST(request: NextRequest) {
       success: true,
       filename: `${file.name.replace('.pdf', '-redacted.pdf')}`,
       base64: base64,
-      message: `PDF redacted successfully with ${redactionSettings.areas ? JSON.parse(settings).areas.length : 0} redactions`
+      message: `PDF redacted successfully with ${redactionSettings?.areas?.length || 0} redactions`
     });
 
   } catch (error) {
