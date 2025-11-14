@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
         .toBuffer();
 
       // Create PDF
-      const { PDFDocument } = await import('pdf-lib');
+      const { PDFDocument, rgb } = await import('pdf-lib');
       const pdfDoc = await PDFDocument.create();
 
       // Get image dimensions

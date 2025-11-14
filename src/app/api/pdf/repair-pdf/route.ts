@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     await writeFile(inputPath, buffer);
 
     try {
-      const { PDFDocument } = await import('pdf-lib');
+      const { PDFDocument, rgb } = await import('pdf-lib');
 
       // Try to load and repair the PDF
       let pdfDoc;
@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
       console.error('PDF repair error:', conversionError);
 
       // If repair fails completely, create a new PDF with error information
-      const { PDFDocument } = await import('pdf-lib');
+      const { PDFDocument, rgb } = await import('pdf-lib');
       const errorPdfDoc = await PDFDocument.create();
       const errorPage = errorPdfDoc.addPage([595.28, 841.89]);
 

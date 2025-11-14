@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
       // Create a simple PDF conversion using pdf-lib
       // Note: This is a simplified implementation
       // In production, you might want to use a more sophisticated conversion library
-      const { PDFDocument } = await import('pdf-lib');
+      const { PDFDocument, rgb } = await import('pdf-lib');
 
       const pdfDoc = await PDFDocument.create();
       const page = pdfDoc.addPage([595.28, 841.89]); // A4 size
