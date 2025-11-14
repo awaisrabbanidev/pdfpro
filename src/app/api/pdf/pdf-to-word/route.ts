@@ -151,24 +151,23 @@ export async function POST(request: NextRequest) {
   try {
     await ensureDirectories();
 
-    const body: ConvertRequest = await request.json();
+    // Handle FormData from frontend
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
+    const preserveFormatting = formData.get('preserveFormatting') === 'true';
+    const includeImages = formData.get('includeImages') === 'true';
+    const ocrEnabled = formData.get('ocrEnabled') === 'true';
 
-    if (!body.file || !body.file.data) {
+    if (!file) {
       return NextResponse.json(
         { error: 'No file provided' },
         { status: 400 }
       );
     }
 
-    if (!body.options) {
-      return NextResponse.json(
-        { error: 'Conversion options are required' },
-        { status: 400 }
-      );
-    }
-
-    // Load and validate the PDF
-    const pdfBuffer = Buffer.from(body.file.data, 'base64');
+    // Get file as Buffer
+    const bytes = await file.arrayBuffer();
+    const pdfBuffer = Buffer.from(bytes);
     const originalSize = pdfBuffer.length;
 
     try {
