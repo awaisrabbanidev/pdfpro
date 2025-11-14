@@ -106,7 +106,7 @@ async function cropPDF(
         y: height - margins.top,
         width: width,
         height: margins.top,
-        color: { type: 'RGB', r: 1, g: 1, b: 1 }
+        color: { type: 'RGB', r: 1, g: 1, b: 1 } as any
       });
 
       // Bottom margin
@@ -115,7 +115,7 @@ async function cropPDF(
         y: 0,
         width: width,
         height: margins.bottom,
-        color: { type: 'RGB', r: 1, g: 1, b: 1 }
+        color: { type: 'RGB', r: 1, g: 1, b: 1 } as any
       });
 
       // Left margin
@@ -124,7 +124,7 @@ async function cropPDF(
         y: 0,
         width: margins.left,
         height: height,
-        color: { type: 'RGB', r: 1, g: 1, b: 1 }
+        color: { type: 'RGB', r: 1, g: 1, b: 1 } as any
       });
 
       // Right margin
@@ -133,7 +133,7 @@ async function cropPDF(
         y: 0,
         width: margins.right,
         height: height,
-        color: { type: 'RGB', r: 1, g: 1, b: 1 }
+        color: { type: 'RGB', r: 1, g: 1, b: 1 } as any
       });
 
       // Copy content from original page to new page
