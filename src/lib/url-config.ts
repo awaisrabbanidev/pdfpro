@@ -23,62 +23,41 @@ const VERCEL_PATTERNS = [
   'pdfpro.pro'
 ];
 
-export function getURLConfig(): URLConfig {
-  // Check if we're in browser or server environment
-  const isServer = typeof window === 'undefined';
-
-  // For server-side rendering, get hostname from environment or default
-  let hostname = '';
-  let protocol = 'https:';
-  let port = '';
-
-  if (isServer) {
-    // Server-side detection
-    hostname = process.env.VERCEL_URL
-      ? process.env.VERCEL_URL.replace(/^https?:\/\//, '')
-      : process.env.VERCEL_DOMAIN || PRODUCTION_DOMAIN;
-
-    protocol = process.env.VERCEL_ENV === 'development' ? 'http:' : 'https:';
-  } else {
-    // Client-side detection
-    hostname = window.location.hostname;
-    protocol = window.location.protocol;
-    port = window.location.port ? `:${window.location.port}` : '';
+// Simple, reliable base URL function
+export function getBaseUrl(): string {
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
   }
+
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL;
+  }
+
+  return "http://localhost:3000";
+}
+
+export function getURLConfig(): URLConfig {
+  const baseUrl = getBaseUrl();
+  const hostname = new URL(baseUrl).hostname;
 
   // Determine environment
   const isDevelopment = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('192.168.') || hostname.includes('172.');
   const isProduction = PRODUCTION_DOMAINS.includes(hostname);
-  const isVercelPreview = VERCEL_PATTERNS.some(pattern => hostname.includes(pattern)) && !isProduction;
+  const isVercelPreview = hostname.includes('vercel.app') && !isProduction;
 
   // Determine canonical domain (always use pdfpro.pro for production)
-  let canonicalDomain = hostname;
-  if (isProduction || isVercelPreview) {
-    canonicalDomain = PRODUCTION_DOMAIN; // Always use pdfpro.pro as canonical
-  }
+  const canonicalDomain = isProduction ? PRODUCTION_DOMAIN : hostname;
 
-  // Construct base URLs
-  let baseUrl: string;
-  let apiBaseUrl: string;
-
-  if (isDevelopment) {
-    // Development environment
-    const devPort = port || ':3000';
-    baseUrl = `${protocol}//${hostname}${devPort}`;
-    apiBaseUrl = `${protocol}//${hostname}${devPort}`;
-  } else if (isProduction) {
-    // Production environment - always use the current hostname
-    baseUrl = `${protocol}//${hostname}`;
-    apiBaseUrl = `${protocol}//${hostname}`;
-  } else if (isVercelPreview) {
-    // Vercel preview deployments
-    baseUrl = `${protocol}//${hostname}`;
-    apiBaseUrl = `${protocol}//${hostname}`;
-  } else {
-    // Fallback
-    baseUrl = `${protocol}//${hostname}`;
-    apiBaseUrl = `${protocol}//${hostname}`;
-  }
+  console.log('🔧 URL Config Generated:', {
+    hostname,
+    isDevelopment,
+    isProduction,
+    isVercelPreview,
+    canonicalDomain,
+    baseUrl,
+    apiBaseUrl: baseUrl,
+    environment: typeof window === 'undefined' ? 'server' : 'client'
+  });
 
   console.log('🔧 URL Config Generated:', {
     hostname,
