@@ -7,6 +7,7 @@ import FileUploader from './FileUploader';
 import ProcessingStatus, { ProcessingStep } from './ProcessingStatus';
 import ResultDownload, { DownloadFile } from './ResultDownload';
 import { PDFTool } from '@/lib/constants';
+import { getCanonicalUrl } from '@/lib/url-config';
 
 interface ToolPageProps {
   tool: PDFTool;
