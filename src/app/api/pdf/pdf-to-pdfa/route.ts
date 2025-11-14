@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     await writeFile(inputPath, buffer);
 
     try {
-      const { PDFDocument, PDFName, PDFString, PDFDictionary, PDFArray } = await import('pdf-lib');
+      const { PDFDocument } = await import('pdf-lib');
       const pdfDoc = await PDFDocument.load(buffer);
 
       // Set PDF/A compliance metadata
