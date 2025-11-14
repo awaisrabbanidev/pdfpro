@@ -137,7 +137,7 @@ async function cropPDF(
       });
 
       // Copy content from original page to new page
-      const { x, y, width: contentWidth, height: contentHeight } = originalPage.getSize();
+      const { width: contentWidth, height: contentHeight } = originalPage.getSize();
 
       // Embed the original page content
       // Note: pdf-lib has limitations with direct content copying
