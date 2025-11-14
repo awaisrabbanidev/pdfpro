@@ -220,41 +220,16 @@ export async function POST(request: NextRequest) {
       originalFilename
     );
 
-    // Generate conversion report
-    const conversionReport = {
-      originalFile: {
-        name: originalFilename,
-        size: originalSize,
-        pages: extractedData.pages || 1
-      },
-      convertedFile: {
-        name: result.filename,
-        size: result.size,
-        characters: extractedData.text.length,
-        words: extractedData.text.split(/\s+/).filter(word => word.length > 0).length
-      },
-      options: body.options,
-      extraction: {
-        hasText: extractedData.text.length > 0,
-        hasImages: body.options.includeImages,
-        ocrUsed: body.options.ocrEnabled
-      }
-    };
-
-    return NextResponse.json({
+      return NextResponse.json({
       success: true,
+      filename: result.filename,
+      base64: result.data.toString('base64'),
       message: 'PDF converted to Word successfully',
-      data: {
-        filename: result.filename,
-        originalSize,
-        convertedSize: result.size,
-        extractedCharacters: extractedData.text.length,
-        extractedWords: extractedData.text.split(/\s+/).filter(word => word.length > 0).length,
-        pagesProcessed: extractedData.pages || 1,
-        downloadUrl: `/api/download/${result.filename}`,
-        data: Buffer.from(result.data).toString('base64'),
-        conversionReport
-      }
+      originalSize,
+      convertedSize: result.size,
+      extractedCharacters: extractedData.text.length,
+      extractedWords: extractedData.text.split(/\s+/).filter(word => word.length > 0).length,
+      pagesProcessed: extractedData.pages || 1
     });
 
   } catch (error) {
