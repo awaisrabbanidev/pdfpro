@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     await writeFile(inputPath, buffer);
 
     try {
-      const { PDFDocument, rgb } = await import('pdf-lib');
+      const { PDFDocument, rgb, degrees } = await import('pdf-lib');
       const pdfDoc = await PDFDocument.load(buffer);
 
       const watermarkSettings: WatermarkSettings = JSON.parse(settings);
