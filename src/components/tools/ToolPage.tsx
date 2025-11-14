@@ -79,10 +79,15 @@ const ToolPage: React.FC<ToolPageProps> = ({
         updateStep(i, 'completed');
       }
 
-      // Process files via API
+      // Process files via API - use 'file' parameter for single file tools
       const formData = new FormData();
-      files.forEach((file) => {
-        formData.append('files', file);
+      files.forEach((file, index) => {
+        // Most API routes expect 'file' parameter, but some support multiple files
+        if (files.length === 1) {
+          formData.append('file', file);
+        } else {
+          formData.append(`files`, file);
+        }
       });
 
       const response = await fetch(`/api/pdf/${toolId}`, {
