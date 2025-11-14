@@ -48,32 +48,9 @@ export function getURLConfig(): URLConfig {
   // Determine canonical domain (always use pdfpro.pro for production)
   const canonicalDomain = isProduction ? PRODUCTION_DOMAIN : hostname;
 
-  console.log('🔧 URL Config Generated:', {
-    hostname,
-    isDevelopment,
-    isProduction,
-    isVercelPreview,
-    canonicalDomain,
-    baseUrl,
-    apiBaseUrl: baseUrl,
-    environment: typeof window === 'undefined' ? 'server' : 'client'
-  });
-
-  console.log('🔧 URL Config Generated:', {
-    hostname,
-    isDevelopment,
-    isProduction,
-    isVercelPreview,
-    canonicalDomain,
-    baseUrl,
-    apiBaseUrl,
-    environment: isServer ? 'server' : 'client',
-    hostingerSetup: 'CNAME for pdfpro.pro + A record for Hostinger'
-  });
-
   return {
     baseUrl,
-    apiBaseUrl,
+    apiBaseUrl: baseUrl,
     isProduction,
     isDevelopment,
     isVercelPreview,
