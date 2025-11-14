@@ -33,8 +33,10 @@ export async function POST(request: NextRequest) {
 
     await writeFile(inputPath, buffer);
 
+    // Initialize OCR text outside try block for access in response
+    let ocrText = '';
+
     try {
-      let ocrText = '';
 
       // Perform OCR if requested
       if (enableOCR) {
