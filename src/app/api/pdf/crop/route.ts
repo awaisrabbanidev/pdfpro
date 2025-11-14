@@ -152,6 +152,14 @@ async function cropPDF(
       }
     }
 
+    // Set metadata
+    croppedPdf.setTitle(`${originalFilename.replace('.pdf', '')}_cropped`);
+    croppedPdf.setSubject('PDF created by PDFPro.pro Crop Tool');
+    croppedPdf.setProducer('PDFPro.pro');
+    croppedPdf.setCreator('PDFPro.pro');
+    croppedPdf.setCreationDate(new Date());
+    croppedPdf.setModificationDate(new Date());
+
     // Save the cropped PDF
     const pdfBytes = await croppedPdf.save();
     const filename = `${originalFilename.replace('.pdf', '')}_cropped.pdf`;
@@ -166,7 +174,7 @@ async function cropPDF(
 
   } catch (error) {
     console.error('PDF crop error:', error);
-    throw new Error('Failed to crop PDF file');
+    throw new Error('Failed to crop PDF file: ' + (error instanceof Error ? error.message : String(error)));
   }
 }
 
