@@ -50,8 +50,6 @@ export async function POST(request: NextRequest) {
       const { PDFDocument, rgb } = await import('pdf-lib');
       const pdfDoc = await PDFDocument.load(buffer);
 
-      const redactionSettings: RedactionSettings = JSON.parse(settings);
-
       // Parse color (default to black)
       let redactionColor = rgb(0, 0, 0); // Black by default
       if (redactionSettings.color) {
