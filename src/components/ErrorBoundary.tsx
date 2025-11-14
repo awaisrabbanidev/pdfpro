@@ -59,7 +59,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   // Generate a deterministic digest from error information
   private generateDigest(error: Error, errorInfo: ErrorInfo): string {
     // Create a deterministic hash from error information
-    const errorString = `${error.name}:${error.message}:${errorInfo.componentStack}:${errorInfo.componentName}`;
+    const errorString = `${error.name}:${error.message}:${errorInfo.componentStack}`;
 
     // Simple hash function to create a deterministic digest
     let hash = 0;
