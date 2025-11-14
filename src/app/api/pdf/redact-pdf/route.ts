@@ -34,6 +34,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No redaction settings specified' }, { status: 400 });
     }
 
+    // Parse redaction settings outside try block for access in response
+    const redactionSettings: RedactionSettings = JSON.parse(settings);
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
