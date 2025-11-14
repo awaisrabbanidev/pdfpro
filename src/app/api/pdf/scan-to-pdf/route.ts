@@ -37,7 +37,6 @@ export async function POST(request: NextRequest) {
     let ocrText = '';
 
     try {
-
       // Perform OCR if requested
       if (enableOCR) {
         try {
