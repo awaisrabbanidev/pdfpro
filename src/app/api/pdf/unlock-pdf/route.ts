@@ -30,23 +30,58 @@ export async function POST(request: NextRequest) {
     await writeFile(inputPath, buffer);
 
     try {
-      const { PDFDocument } = await import('pdf-lib');
+      const { PDFDocument, rgb } = await import('pdf-lib');
 
-      // Try to load the PDF with the provided password
+      // Note: PDF password unlocking requires specialized libraries
+      // pdf-lib does not support password-protected PDFs
+      // This is a placeholder implementation
       let pdfDoc;
       try {
-        pdfDoc = await PDFDocument.load(buffer, {
-          password: password
-        });
-      } catch (passwordError) {
-        console.error('Password authentication failed:', passwordError);
-        throw new Error('Incorrect password. Please verify the password and try again.');
+        // Try to load without password (pdf-lib limitation)
+        pdfDoc = await PDFDocument.load(buffer);
+      } catch (loadError) {
+        console.error('PDF load failed:', loadError);
+        throw new Error('This PDF appears to be password protected. PDF unlocking requires specialized libraries that support password decryption.');
       }
 
-      // Check if the PDF was successfully loaded and decrypted
-      if (!pdfDoc) {
-        throw new Error('Failed to load PDF document');
-      }
+      // Create placeholder unlocked PDF with notice
+      const unlockedPdf = await PDFDocument.create();
+      const noticePage = unlockedPdf.addPage([595.28, 841.89]);
+
+      noticePage.drawText('PDF Unlock Notice', {
+        x: 50,
+        y: 800,
+        size: 20,
+        color: rgb(0, 0, 0),
+      });
+
+      noticePage.drawText('Original file: ' + file.name, {
+        x: 50,
+        y: 760,
+        size: 12,
+        color: rgb(0, 0, 0),
+      });
+
+      noticePage.drawText('Password provided: ' + '*'.repeat(password.length), {
+        x: 50,
+        y: 740,
+        size: 12,
+        color: rgb(0, 0, 0),
+      });
+
+      noticePage.drawText('Note: This is a placeholder implementation.', {
+        x: 50,
+        y: 700,
+        size: 10,
+        color: rgb(0.5, 0.5, 0.5),
+      });
+
+      noticePage.drawText('Full PDF unlocking requires specialized libraries.', {
+        x: 50,
+        y: 680,
+        size: 10,
+        color: rgb(0.5, 0.5, 0.5),
+      });
 
       // Create a new PDF without password protection
       const unprotectedPdf = await PDFDocument.create();
