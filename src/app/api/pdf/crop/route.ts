@@ -286,7 +286,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('PDF crop error:', error);
     return NextResponse.json(
-      { error: 'Failed to crop PDF file' },
+      { error: 'Failed to crop PDF file: ' + (error instanceof Error ? error.message : String(error)) },
       { status: 500 }
     );
   }
