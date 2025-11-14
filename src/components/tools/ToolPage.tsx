@@ -16,7 +16,7 @@ interface ToolPageProps {
   instructions: string[];
   acceptedFileTypes: string[];
   maxFiles?: number;
-  onProcessFiles: (files: File[]) => Promise<DownloadFile[]>;
+  toolId: string;
   processingSteps: Omit<ProcessingStep, 'status' | 'error'>[];
   className?: string;
 }
