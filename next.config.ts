@@ -7,10 +7,6 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true
   },
-  // Disable server-side features for static export
-  experimental: {
-    missingSuspenseWithCSRBailout: false
-  }
-};
+  };
 
 export default nextConfig;
