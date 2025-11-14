@@ -147,7 +147,7 @@ async function cropPDF(
           x: margins.left,
           y: height - margins.top - 20,
           size: 12,
-          color: { type: 'RGB', r: 0.5, g: 0.5, b: 0.5 }
+          color: { type: 'RGB', r: 0.5, g: 0.5, b: 0.5 } as any
         });
       }
     }
