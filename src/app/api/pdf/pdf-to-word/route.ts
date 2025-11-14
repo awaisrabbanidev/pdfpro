@@ -185,7 +185,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const originalFilename = body.file.name;
+    const originalFilename = file.name;
+
+    // Validate PDF
+    const pdfDoc = await PDFDocument.load(pdfBuffer);
+    if (pdfDoc.getPageCount() === 0) {
+      return NextResponse.json(
+        { error: 'PDF file has no pages' },
+        { status: 400 }
+      );
+    }
+
+    // Create options object
+    const options = {
+      preserveFormatting,
+      includeImages,
+      ocrEnabled
+    };
 
     // Analyze PDF content
     const extractedData = await analyzePDF(pdfBuffer);
@@ -200,7 +216,7 @@ export async function POST(request: NextRequest) {
     // Create Word document
     const result = await createWordDocument(
       extractedData,
-      body.options,
+      options,
       originalFilename
     );
 
