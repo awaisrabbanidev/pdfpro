@@ -1,5 +1,3 @@
-'use client';
-
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { PDF_TOOLS } from '@/lib/constants';
