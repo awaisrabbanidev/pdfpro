@@ -195,3 +195,8 @@ export const cleanupTempFile = async (filename: string) => {
 
 // Export directories for use in API routes
 export { DIRS };
+
+// Get directories object
+export function getDirectories() {
+  return DIRS;
+}
