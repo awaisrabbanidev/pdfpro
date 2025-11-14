@@ -189,9 +189,9 @@ function parseColor(color: string): any {
       r: parseInt(hex.slice(0, 2), 16) / 255,
       g: parseInt(hex.slice(2, 4), 16) / 255,
       b: parseInt(hex.slice(4, 6), 16) / 255,
-    };
+    } as any;
   }
-  return { type: 'RGB', r: 0, g: 0, b: 0 }; // Default black
+  return { type: 'RGB', r: 0, g: 0, b: 0 } as any; // Default black
 }
 
 export async function POST(request: NextRequest) {
