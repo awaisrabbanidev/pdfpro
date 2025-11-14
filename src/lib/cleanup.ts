@@ -56,6 +56,9 @@ async function cleanupDirectory(directory: string): Promise<{ deleted: number; e
 export async function cleanupOldFiles(): Promise<void> {
   console.log('🧹 Starting file cleanup process...');
 
+  // Ensure directories exist before cleanup
+  await ensureDirectories();
+
   try {
     const uploadResult = await cleanupDirectory(UPLOAD_DIR);
     const outputResult = await cleanupDirectory(OUTPUT_DIR);
