@@ -83,35 +83,7 @@ export async function POST(request: NextRequest) {
         color: rgb(0.5, 0.5, 0.5),
       });
 
-      // Create a new PDF without password protection
-      const unprotectedPdf = await PDFDocument.create();
-
-      // Copy all pages from the original PDF
-      const pageCount = pdfDoc.getPageCount();
-      for (let i = 0; i < pageCount; i++) {
-        const [page] = await unprotectedPdf.copyPages(pdfDoc, [i]);
-        unprotectedPdf.addPage(page);
-      }
-
-      // Copy metadata if available
-      try {
-        const title = pdfDoc.getTitle();
-        const author = pdfDoc.getAuthor();
-        const subject = pdfDoc.getSubject();
-        const creator = pdfDoc.getCreator();
-        const producer = pdfDoc.getProducer();
-
-        if (title) unprotectedPdf.setTitle(title);
-        if (author) unprotectedPdf.setAuthor(author);
-        if (subject) unprotectedPdf.setSubject(subject);
-        if (creator) unprotectedPdf.setCreator(creator);
-        if (producer) unprotectedPdf.setProducer(producer);
-      } catch (metadataError) {
-        console.warn('Failed to copy metadata:', metadataError);
-        // Continue without metadata
-      }
-
-      const pdfBytes = await unprotectedPdf.save();
+      const pdfBytes = await unlockedPdf.save();
       await writeFile(outputPath, pdfBytes);
 
     } catch (conversionError) {
