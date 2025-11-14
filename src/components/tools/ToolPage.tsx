@@ -97,12 +97,13 @@ const ToolPage: React.FC<ToolPageProps> = ({
 
       const data = await response.json();
       if (data.success && data.base64) {
+        const blob = new Blob([Uint8Array.from(atob(data.base64), c => c.charCodeAt(0))], { type: 'application/pdf' });
         const downloadFile: DownloadFile = {
-          filename: data.filename || `processed-${Date.now()}.pdf`,
-          base64: data.base64,
-          url: URL.createObjectURL(
-            new Blob([Uint8Array.from(atob(data.base64), c => c.charCodeAt(0))], { type: 'application/pdf' })
-          )
+          id: `file-${Date.now()}`,
+          name: data.filename || `processed-${Date.now()}.pdf`,
+          url: URL.createObjectURL(blob),
+          size: blob.size,
+          type: 'application/pdf'
         };
         setProcessedFiles([downloadFile]);
         setState('complete');
