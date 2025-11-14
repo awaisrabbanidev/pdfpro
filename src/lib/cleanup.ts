@@ -1,8 +1,8 @@
 import { readdir, unlink, stat } from 'fs/promises';
 import { join } from 'path';
 
-const UPLOAD_DIR = join(process.cwd(), 'uploads');
-const OUTPUT_DIR = join(process.cwd(), 'outputs');
+const UPLOAD_DIR = join('/tmp', 'uploads');
+const OUTPUT_DIR = join('/tmp', 'outputs');
 const MAX_AGE_MS = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
 
 // Clean up old files in a directory
