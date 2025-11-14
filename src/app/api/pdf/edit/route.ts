@@ -83,8 +83,6 @@ async function editPDF(
               y: operation.position.y,
               size: operation.style?.fontSize || 12,
               color: parseColor(operation.style?.color || '#000000'),
-              bold: operation.style?.bold || false,
-              italic: operation.style?.italic || false,
             });
           }
           break;
