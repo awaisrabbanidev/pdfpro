@@ -478,7 +478,7 @@ export default async function ToolPageRoute({ params }: ToolPageProps) {
         instructions={config.instructions}
         acceptedFileTypes={config.acceptedFileTypes}
         maxFiles={config.maxFiles}
-        onProcessFiles={config.onProcessFiles}
+        toolId={toolId}
         processingSteps={config.processingSteps}
       />
     </div>
