@@ -24,7 +24,7 @@ interface CropRequest {
 }
 
 const UPLOAD_DIR = join('/tmp', 'uploads');
-const OUTPUT_DIR = join(process.cwd(), 'outputs');
+const OUTPUT_DIR = join('/tmp', 'outputs');
 
 // Ensure directories exist
 async function ensureDirectories() {
