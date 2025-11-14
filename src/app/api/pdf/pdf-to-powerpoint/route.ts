@@ -18,7 +18,7 @@ interface PDFToPowerPointRequest {
   };
 }
 
-const UPLOAD_DIR = join(process.cwd(), 'uploads');
+const UPLOAD_DIR = join('/tmp', 'uploads');
 const OUTPUT_DIR = join(process.cwd(), 'outputs');
 
 // Ensure directories exist
