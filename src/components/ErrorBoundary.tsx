@@ -65,7 +65,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     let hash = 0;
     for (let i = 0; i < errorString.length; i++) {
       const char = errorString.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char) & 0xffffffff;
+      hash = ((hash << 5) - hash + char) & 0xffffffff;
     }
 
     return hash.toString(16).padStart(8, '0');
