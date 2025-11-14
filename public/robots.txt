@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Allow all crawlers to access all pages
+# Sitemap: https://pdfpro.pro/sitemap.xml
