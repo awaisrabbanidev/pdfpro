@@ -85,28 +85,66 @@ async function rotatePDF(
 }
 
 export async function POST(request: NextRequest) {
-  try {
   ensureTempDirs();
-    await ensureDirectories();
+  await ensureDirectories();
 
-    const body: RotatePDFRequest = await request.json();
+  try {
+    const contentType = request.headers.get('content-type');
+    let buffer: Buffer;
+    let originalFilename: string;
+    let rotationOptions: RotatePDFRequest['rotationOptions'];
 
-    if (!formData.get('file') as File || !formData.get('file') as File.data) {
-      return NextResponse.json(
-        { error: 'No file provided' },
-        { status: 400 }
-      );
-    }
+    if (contentType?.includes('application/json')) {
+      const body: RotatePDFRequest = await request.json();
 
-    if (!body.rotationOptions) {
-      return NextResponse.json(
-        { error: 'Rotation options are required' },
-        { status: 400 }
-      );
+      if (!body.file || !body.file.data) {
+        return NextResponse.json(
+          { error: 'No file provided' },
+          { status: 400 }
+        );
+      }
+
+      if (!body.rotationOptions) {
+        return NextResponse.json(
+          { error: 'Rotation options are required' },
+          { status: 400 }
+        );
+      }
+
+      buffer = Buffer.from(body.file.data, 'base64');
+      originalFilename = body.file.name;
+      rotationOptions = body.rotationOptions;
+    } else {
+      const formData = await request.formData();
+      const file = formData.get('file') as File;
+      const angleStr = formData.get('angle') as string;
+      const pagesStr = formData.get('pages') as string;
+
+      if (!file) {
+        return NextResponse.json(
+          { error: 'No file provided' },
+          { status: 400 }
+        );
+      }
+
+      if (!angleStr) {
+        return NextResponse.json(
+          { error: 'Rotation angle is required' },
+          { status: 400 }
+        );
+      }
+
+      const bytes = await file.arrayBuffer();
+      buffer = Buffer.from(bytes);
+      originalFilename = file.name;
+      rotationOptions = {
+        angle: parseInt(angleStr) as 90 | 180 | 270,
+        pages: pagesStr === 'all' ? 'all' : pagesStr ? pagesStr.split(',').map(p => parseInt(p.trim())) : 'all'
+      };
     }
 
     // Validate rotation angle
-    if (![90, 180, 270].includes(body.rotationOptions.angle)) {
+    if (![90, 180, 270].includes(rotationOptions.angle)) {
       return NextResponse.json(
         { error: 'Rotation angle must be 90, 180, or 270 degrees' },
         { status: 400 }
@@ -114,7 +152,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate file type
-    if (!formData.get('file') as File.name.toLowerCase().endsWith('.pdf')) {
+    if (!originalFilename.toLowerCase().endsWith('.pdf')) {
       return NextResponse.json(
         { error: 'Only PDF files are supported' },
         { status: 400 }
@@ -122,11 +160,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Load and validate the PDF
-    const buffer = Buffer.from(formData.get('file') as File.data, 'base64');
     let sourcePdf: PDFDocument;
-
     try {
-  ensureTempDirs();
       sourcePdf = await PDFDocument.load(buffer);
     } catch (error) {
       return NextResponse.json(
@@ -138,8 +173,8 @@ export async function POST(request: NextRequest) {
     const totalPages = sourcePdf.getPageCount();
 
     // Validate page selection
-    if (body.rotationOptions.pages !== 'all') {
-      const invalidPages = body.rotationOptions.pages.filter(pageNum => pageNum < 1 || pageNum > totalPages);
+    if (rotationOptions.pages !== 'all') {
+      const invalidPages = rotationOptions.pages.filter(pageNum => pageNum < 1 || pageNum > totalPages);
       if (invalidPages.length > 0) {
         return NextResponse.json(
           { error: `Invalid page numbers: ${invalidPages.join(', ')}. Document has ${totalPages} pages.` },
@@ -149,12 +184,11 @@ export async function POST(request: NextRequest) {
     }
 
     const originalSize = buffer.length;
-    const originalFilename = formData.get('file') as File.name;
 
     // Rotate the PDF
     const rotationResult = await rotatePDF(
       buffer,
-      body.rotationOptions,
+      rotationOptions,
       originalFilename
     );
 
