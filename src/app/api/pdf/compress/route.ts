@@ -205,7 +205,7 @@ export async function POST(request: NextRequest) {
     );
 
     // Set output name
-    const outputName = `${baseName}_compressed_${body.compressionLevel}.pdf`;
+    const outputName = `${baseName}_compressed_${compressionLevel}.pdf`;
 
     // Add metadata about compression
     pdfDoc.setTitle(outputName.replace('.pdf', ''));
