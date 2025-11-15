@@ -87,32 +87,80 @@ async function createPdfFromPages(
 }
 
 export async function POST(request: NextRequest) {
-  try {
   ensureTempDirs();
-    await ensureDirectories();
+  await ensureDirectories();
 
-    const body: SplitRequest = await request.json();
+  try {
+    const contentType = request.headers.get('content-type');
+    let buffer: Buffer;
+    let originalFilename: string;
+    let splitType: SplitRequest['splitType'];
+    let splitOption: SplitRequest['splitOption'];
 
-    if (!formData.get('file') as File || !formData.get('file') as File.data) {
-      return NextResponse.json(
-        { error: 'No file provided' },
-        { status: 400 }
-      );
-    }
+    if (contentType?.includes('application/json')) {
+      const body: SplitRequest = await request.json();
 
-    if (!body.splitType) {
-      return NextResponse.json(
-        { error: 'Split type is required' },
-        { status: 400 }
-      );
+      if (!body.file || !body.file.data) {
+        return NextResponse.json(
+          { error: 'No file provided' },
+          { status: 400 }
+        );
+      }
+
+      if (!body.splitType) {
+        return NextResponse.json(
+          { error: 'Split type is required' },
+          { status: 400 }
+        );
+      }
+
+      buffer = Buffer.from(body.file.data, 'base64');
+      originalFilename = body.file.name;
+      splitType = body.splitType;
+      splitOption = body.splitOption;
+    } else {
+      const formData = await request.formData();
+      const file = formData.get('file') as File;
+      const type = formData.get('splitType') as string;
+
+      if (!file) {
+        return NextResponse.json(
+          { error: 'No file provided' },
+          { status: 400 }
+        );
+      }
+
+      if (!type) {
+        return NextResponse.json(
+          { error: 'Split type is required' },
+          { status: 400 }
+        );
+      }
+
+      const bytes = await file.arrayBuffer();
+      buffer = Buffer.from(bytes);
+      originalFilename = file.name;
+      splitType = type as SplitRequest['splitType'];
+
+      // Parse split option based on type
+      if (splitType === 'range') {
+        const pages = formData.get('pages') as string;
+        const range = formData.get('range') as string;
+        splitOption = {
+          pages: pages ? pages.split(',').map(p => parseInt(p.trim())) : undefined,
+          range: range || undefined
+        };
+      } else if (splitType === 'every') {
+        const every = formData.get('every') as string;
+        splitOption = {
+          every: every ? parseInt(every) : undefined
+        };
+      }
     }
 
     // Load and validate the PDF
-    const buffer = Buffer.from(formData.get('file') as File.data, 'base64');
     let sourcePdf: PDFDocument;
-
     try {
-  ensureTempDirs();
       sourcePdf = await PDFDocument.load(buffer);
     } catch (error) {
       return NextResponse.json(
@@ -122,7 +170,7 @@ export async function POST(request: NextRequest) {
     }
 
     const totalPages = sourcePdf.getPageCount();
-    const baseName = formData.get('file') as File.name.replace('.pdf', '');
+    const baseName = originalFilename.replace('.pdf', '');
 
     if (totalPages === 0) {
       return NextResponse.json(
