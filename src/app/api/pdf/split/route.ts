@@ -210,7 +210,7 @@ export async function POST(request: NextRequest) {
       }
 
       case 'range': {
-        if (!body.splitOption?.pages && !body.splitOption?.range) {
+        if (!splitOption?.pages && !splitOption?.range) {
           return NextResponse.json(
             { error: 'Page selection is required for range split' },
             { status: 400 }
@@ -219,10 +219,10 @@ export async function POST(request: NextRequest) {
 
         let pageIndices: number[];
 
-        if (body.splitOption.range) {
-          pageIndices = parseRangeString(body.splitOption.range);
-        } else if (body.splitOption.pages) {
-          pageIndices = body.splitOption.pages.map(p => p - 1); // Convert to 0-based index
+        if (splitOption.range) {
+          pageIndices = parseRangeString(splitOption.range);
+        } else if (splitOption.pages) {
+          pageIndices = splitOption.pages.map(p => p - 1); // Convert to 0-based index
         } else {
           return NextResponse.json(
             { error: 'Invalid page selection' },
