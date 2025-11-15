@@ -47,7 +47,10 @@ export async function POST(request: NextRequest) {
       const { PDFDocument, rgb, degrees } = await import('pdf-lib');
       const pdfDoc = await PDFDocument.load(buffer);
 
-      const watermarkSettings: WatermarkSettings = JSON.parse(settings);
+      const watermarkSettings = safeJsonParse(settings, 'watermark-settings') as WatermarkSettings;
+    if (!watermarkSettings) {
+      return NextResponse.json({ error: 'Invalid watermark settings' }, { status: 400 });
+    }
       const pageCount = pdfDoc.getPageCount();
 
       let imageBytes: Uint8Array | undefined;
