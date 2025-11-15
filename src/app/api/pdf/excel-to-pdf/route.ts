@@ -129,9 +129,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      filename: `${file.name.replace('.xlsx', '.pdf')}`,
-      base64: base64,
-      message: 'Excel file converted to PDF successfully'
+      message: 'Excel file converted to PDF successfully',
+      filename: `${originalFilename.replace(/\.(xlsx|xls)$/, '.pdf')}`,
+      data: base64
     });
 
   } catch (error) {
