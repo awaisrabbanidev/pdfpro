@@ -1,9 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
+// app/api/pdf/pdf-to-word/route.ts
+import fs from "fs";
+import path from "path";
+import { safeJsonParse } from "@/lib/safe-json-parse";
+import { ensureTempDirs, OUTPUTS_DIR, UPLOADS_DIR } from "@/lib/temp-dirs";
 import { PDFDocument } from 'pdf-lib';
 import mammoth from 'mammoth';
-import { ensureTempDirs, safeJsonParse } from '@/lib/api-helpers';
+import { NextRequest, NextResponse } from 'next/server';
 
 // Simple UUID function
 const uuid = () => Math.random().toString(36).substring(2, 15);
