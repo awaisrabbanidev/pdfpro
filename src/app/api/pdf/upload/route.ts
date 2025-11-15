@@ -6,7 +6,7 @@ import { ensureTempDirs, UPLOADS_DIR } from "@/lib/temp-dirs";
 import { NextRequest, NextResponse } from "next/server";
 
 // Next.js App Router: disable body parser
-export const config = { api: { bodyParser: false } };
+export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
   // Ensure directories exist before any file operations
