@@ -12,11 +12,7 @@ export async function POST(req: NextRequest) {
   // Ensure directories exist before any file operations
   ensureTempDirs();
 
-  const form = new IncomingForm({
-    uploadDir: '/tmp/uploads',
-    keepExtensions: true,
-    maxFileSize: 20 * 1024 * 1024, // 20MB
-  });
+  const form = new IncomingForm({ uploadDir: UPLOADS_DIR, keepExtensions: true });
 
   return new Promise((resolve) => {
     form.parse(req as any, (err, fields, files) => {
