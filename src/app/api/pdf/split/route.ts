@@ -76,7 +76,7 @@ async function createPdfFromPages(
   const filename = `${baseName}_${suffix}.pdf`;
 
   // Save to file
-  const outputPath = join(OUTPUT_DIR, filename);
+  const outputPath = join(OUTPUTS_DIR, filename);
   await writeFile(outputPath, pdfBytes);
 
   return {
