@@ -17,50 +17,25 @@ export async function POST(req: NextRequest) {
   return new Promise((resolve) => {
     form.parse(req as any, (err, fields, files) => {
       if (err) {
-        console.error('form.parse error:', err);
-        return resolve(
-          NextResponse.json(
-            { error: 'upload_parse_error', detail: err.message },
-            { status: 500 }
-          )
-        );
+        console.error("form.parse error:", err);
+        return resolve(NextResponse.json(
+          { error: "upload_parse_error", detail: err.message },
+          { status: 500 }
+        ));
       }
-
-      try {
-        // Handle both single and multiple files
-        const savedFiles = Object.values(files)
-          .flat()
-          .map((file) => {
-            if (!file) return null;
-            return {
-              filepath: (file as any).filepath || (file as any).path,
-              originalFilename: (file as any).originalFilename || (file as any).name || null,
-              size: (file as any).size || null,
-            };
-          })
-          .filter(Boolean); // Remove null values
-
-        console.log(`✅ Successfully uploaded ${savedFiles.length} files to /tmp/uploads`);
-
-        return resolve(
-          NextResponse.json(
-            {
-              ok: true,
-              files: savedFiles,
-              message: `Successfully uploaded ${savedFiles.length} file(s)`
-            },
-            { status: 200 }
-          )
-        );
-      } catch (error) {
-        console.error('File processing error:', error);
-        return resolve(
-          NextResponse.json(
-            { error: 'file_processing_error', detail: error instanceof Error ? error.message : 'Unknown error' },
-            { status: 500 }
-          )
-        );
-      }
+      // files might be files.file or files.upload, inspect object
+      // return saved file paths so caller can call conversion API
+      const savedFiles = Object.values(files)
+        .flat()
+        .map((f) => {
+          if (!f) return null;
+          return {
+            filepath: (f as any).filepath || (f as any).path, // formidable v2 uses filepath
+            originalFilename: (f as any).originalFilename || (f as any).name || null,
+            size: (f as any).size || null,
+          };
+        })
+        .filter(Boolean); // Remove null values
     });
   });
 }
