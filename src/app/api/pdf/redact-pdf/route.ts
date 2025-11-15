@@ -1,3 +1,4 @@
+import { ensureTempDirs, safeJsonParse } from ""@/lib/api-helpers"";
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, readFile, unlink } from 'fs/promises';
 import { join } from 'path';
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Parse redaction settings outside try block for access in response
-    const redactionSettings: RedactionSettings = JSON.parse(settings);
+    const redactionSettings: RedactionSettings = safeJsonParse(settings, "settings");
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);

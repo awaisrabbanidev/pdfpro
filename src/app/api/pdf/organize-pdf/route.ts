@@ -1,3 +1,4 @@
+import { ensureTempDirs, safeJsonParse } from ""@/lib/api-helpers"";
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, readFile, unlink } from 'fs/promises';
 import { join } from 'path';
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
       const pdfDoc = await PDFDocument.load(buffer);
 
       // Parse operations
-      const pageOps: PageOperation[] = JSON.parse(operations);
+      const pageOps: PageOperation[] = safeJsonParse(operations, "settings");
       const pageCount = pdfDoc.getPageCount();
 
       // Apply page operations

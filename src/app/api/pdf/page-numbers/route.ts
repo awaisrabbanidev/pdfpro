@@ -1,3 +1,4 @@
+import { ensureTempDirs, safeJsonParse } from ""@/lib/api-helpers"";
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, readFile, unlink } from 'fs/promises';
 import { join } from 'path';
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
       const { PDFDocument, rgb } = await import('pdf-lib');
       const pdfDoc = await PDFDocument.load(buffer);
 
-      const pageNumberSettings: PageNumberSettings = JSON.parse(settings);
+      const pageNumberSettings: PageNumberSettings = safeJsonParse(settings, "settings");
       const pageCount = pdfDoc.getPageCount();
 
       // Define font

@@ -1,3 +1,4 @@
+import { ensureTempDirs, safeJsonParse } from ""@/lib/api-helpers"";
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, readFile, unlink } from 'fs/promises';
 import { join } from 'path';
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
       const { PDFDocument, rgb } = await import('pdf-lib');
       const pdfDoc = await PDFDocument.load(buffer);
 
-      const protectionSettings: ProtectionSettings = JSON.parse(settings);
+      const protectionSettings: ProtectionSettings = safeJsonParse(settings, "settings");
 
       // Validate password
       if (!protectionSettings.password || protectionSettings.password.length < 4) {
