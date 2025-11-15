@@ -249,7 +249,7 @@ export async function POST(request: NextRequest) {
 
     // Validate document can be read
     try {
-      const result = await mammoth.extractRawText({ buffer: docxBuffer });
+      const result = await mammoth.extractRawText({ buffer: buffer });
       if (!result.value || result.value.trim().length === 0) {
         return NextResponse.json(
           { error: 'Document contains no readable text' },
@@ -263,12 +263,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const originalFilename = body.file.name;
-
     // Convert to PDF
     const pdfResult = await convertWordToPDF(
-      docxBuffer,
-      body.options,
+      buffer,
+      options,
       originalFilename
     );
 
