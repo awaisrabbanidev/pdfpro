@@ -15,27 +15,47 @@ async function ensureDirectories() {
 }
 
 export async function POST(request: NextRequest) {
+  ensureTempDirs();
+  await ensureDirectories();
+
   try {
-    ensureDirectories();
-    const dirs = getDirectories();
+    const contentType = request.headers.get('content-type');
+    let buffer: Buffer;
+    let originalFilename: string;
 
-    const formData = await request.formData();
-    const file = formData.get('file') as File;
+    if (contentType?.includes('application/json')) {
+      const body = await request.json();
 
-    if (!file) {
-      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
+      if (!body.file || !body.file.data) {
+        return NextResponse.json(
+          { error: 'No file provided' },
+          { status: 400 }
+        );
+      }
+
+      buffer = Buffer.from(body.file.data, 'base64');
+      originalFilename = body.file.name;
+    } else {
+      const formData = await request.formData();
+      const file = formData.get('file') as File;
+
+      if (!file) {
+        return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
+      }
+
+      if (file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' &&
+          file.type !== 'application/vnd.ms-excel') {
+        return NextResponse.json({ error: 'Invalid file type. Please upload an Excel file.' }, { status: 400 });
+      }
+
+      const bytes = await file.arrayBuffer();
+      buffer = Buffer.from(bytes);
+      originalFilename = file.name;
     }
-
-    if (file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-      return NextResponse.json({ error: 'Invalid file type. Please upload an Excel file.' }, { status: 400 });
-    }
-
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
 
     const timestamp = Date.now();
-    const inputPath = join(dirs.UPLOADS, `${timestamp}-${file.name}`);
-    const outputPath = join(dirs.OUTPUTS, `${timestamp}-converted.pdf`);
+    const inputPath = join(UPLOADS_DIR, `${timestamp}-${originalFilename}`);
+    const outputPath = join(OUTPUTS_DIR, `${timestamp}-converted.pdf`);
 
     await writeFile(inputPath, buffer);
 
