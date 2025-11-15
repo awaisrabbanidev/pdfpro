@@ -1,9 +1,12 @@
-import { IncomingForm } from 'formidable';
-import { ensureTempDirs } from '@/lib/api-helpers';
-import { NextRequest, NextResponse } from 'next/server';
+// app/api/pdf/upload/route.ts
+import { IncomingForm } from "formidable";
+import fs from "fs";
+import path from "path";
+import { ensureTempDirs, UPLOADS_DIR } from "@/lib/temp-dirs";
+import { NextRequest, NextResponse } from "next/server";
 
-// Disable Next.js body parser to handle multipart/form-data
-export const runtime = 'nodejs';
+// Next.js App Router: disable body parser
+export const config = { api: { bodyParser: false } };
 
 export async function POST(req: NextRequest) {
   // Ensure directories exist before any file operations
