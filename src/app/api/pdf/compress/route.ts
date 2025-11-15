@@ -80,7 +80,6 @@ async function compressImages(
 // Remove unnecessary metadata
 function removeMetadata(pdfDoc: PDFDocument) {
   try {
-  ensureTempDirs();
     // Remove custom metadata entries
     pdfDoc.setTitle(pdfDoc.getTitle() || '');
     pdfDoc.setAuthor('');
