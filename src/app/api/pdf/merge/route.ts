@@ -20,6 +20,7 @@ const OUTPUT_DIR = join('/tmp', 'outputs');
 // Ensure directories exist
 async function ensureDirectories() {
   try {
+  ensureTempDirs();
     await mkdir(UPLOAD_DIR, { recursive: true });
     await mkdir(OUTPUT_DIR, { recursive: true });
   } catch (error) {
@@ -29,18 +30,19 @@ async function ensureDirectories() {
 
 export async function POST(request: NextRequest) {
   try {
+  ensureTempDirs();
     await ensureDirectories();
 
     const body: MergeRequest = await request.json();
 
-    if (!body.files || body.files.length === 0) {
+    if (!formData.get('file') as Files || formData.get('file') as Files.length === 0) {
       return NextResponse.json(
         { error: 'No files provided' },
         { status: 400 }
       );
     }
 
-    if (body.files.length > 20) {
+    if (formData.get('file') as Files.length > 20) {
       return NextResponse.json(
         { error: 'Maximum 20 files can be merged at once' },
         { status: 400 }
@@ -49,8 +51,9 @@ export async function POST(request: NextRequest) {
 
     // Validate and decode files
     const pdfDocs = [];
-    for (const file of body.files) {
+    for (const file of formData.get('file') as Files) {
       try {
+  ensureTempDirs();
         const buffer = Buffer.from(file.data, 'base64');
         const pdfDoc = await PDFDocument.load(buffer);
         pdfDocs.push({
@@ -152,7 +155,7 @@ export async function POST(request: NextRequest) {
         filename: outputName,
         size: pdfBytes.length,
         totalPages,
-        filesMerged: body.files.length,
+        filesMerged: formData.get('file') as Files.length,
         downloadUrl: `/api/download/${outputName}`,
         // Include base64 data for immediate preview
         data: Buffer.from(pdfBytes).toString('base64')

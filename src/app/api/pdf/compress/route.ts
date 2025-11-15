@@ -20,6 +20,7 @@ const OUTPUT_DIR = join('/tmp', 'outputs');
 // Ensure directories exist
 async function ensureDirectories() {
   try {
+  ensureTempDirs();
     await mkdir(UPLOAD_DIR, { recursive: true });
     await mkdir(OUTPUT_DIR, { recursive: true });
   } catch (error) {
@@ -82,6 +83,7 @@ async function compressImages(
 // Remove unnecessary metadata
 function removeMetadata(pdfDoc: PDFDocument) {
   try {
+  ensureTempDirs();
     // Remove custom metadata entries
     pdfDoc.setTitle(pdfDoc.getTitle() || '');
     pdfDoc.setAuthor('');
@@ -114,11 +116,12 @@ async function optimizePdf(pdfDoc: PDFDocument, settings: any) {
 
 export async function POST(request: NextRequest) {
   try {
+  ensureTempDirs();
     await ensureDirectories();
 
     const body: CompressRequest = await request.json();
 
-    if (!body.file || !body.file.data) {
+    if (!formData.get('file') as File || !formData.get('file') as File.data) {
       return NextResponse.json(
         { error: 'No file provided' },
         { status: 400 }
@@ -133,12 +136,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Load and validate the PDF
-    const buffer = Buffer.from(body.file.data, 'base64');
+    const buffer = Buffer.from(formData.get('file') as File.data, 'base64');
     const originalSize = buffer.length;
 
     let pdfDoc: PDFDocument;
 
     try {
+  ensureTempDirs();
       pdfDoc = await PDFDocument.load(buffer);
     } catch (error) {
       return NextResponse.json(
@@ -148,7 +152,7 @@ export async function POST(request: NextRequest) {
     }
 
     const totalPages = pdfDoc.getPageCount();
-    const baseName = body.file.name.replace('.pdf', '');
+    const baseName = formData.get('file') as File.name.replace('.pdf', '');
     const compressionSettings = getCompressionSettings(body.compressionLevel);
 
     // Analyze PDF structure

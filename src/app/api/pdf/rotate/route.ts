@@ -23,6 +23,7 @@ const OUTPUT_DIR = join('/tmp', 'outputs');
 // Ensure directories exist
 async function ensureDirectories() {
   try {
+  ensureTempDirs();
     await mkdir(UPLOAD_DIR, { recursive: true });
     await mkdir(OUTPUT_DIR, { recursive: true });
   } catch (error) {
@@ -37,6 +38,7 @@ async function rotatePDF(
   originalFilename: string
 ): Promise<{ filename: string; size: number; data: Buffer }> {
   try {
+  ensureTempDirs();
     const sourcePdf = await PDFDocument.load(pdfBuffer);
     const rotatedPdf = await PDFDocument.create();
 
@@ -88,11 +90,12 @@ async function rotatePDF(
 
 export async function POST(request: NextRequest) {
   try {
+  ensureTempDirs();
     await ensureDirectories();
 
     const body: RotatePDFRequest = await request.json();
 
-    if (!body.file || !body.file.data) {
+    if (!formData.get('file') as File || !formData.get('file') as File.data) {
       return NextResponse.json(
         { error: 'No file provided' },
         { status: 400 }
@@ -115,7 +118,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate file type
-    if (!body.file.name.toLowerCase().endsWith('.pdf')) {
+    if (!formData.get('file') as File.name.toLowerCase().endsWith('.pdf')) {
       return NextResponse.json(
         { error: 'Only PDF files are supported' },
         { status: 400 }
@@ -123,10 +126,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Load and validate the PDF
-    const buffer = Buffer.from(body.file.data, 'base64');
+    const buffer = Buffer.from(formData.get('file') as File.data, 'base64');
     let sourcePdf: PDFDocument;
 
     try {
+  ensureTempDirs();
       sourcePdf = await PDFDocument.load(buffer);
     } catch (error) {
       return NextResponse.json(
@@ -149,7 +153,7 @@ export async function POST(request: NextRequest) {
     }
 
     const originalSize = buffer.length;
-    const originalFilename = body.file.name;
+    const originalFilename = formData.get('file') as File.name;
 
     // Rotate the PDF
     const rotationResult = await rotatePDF(

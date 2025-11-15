@@ -25,6 +25,7 @@ const OUTPUT_DIR = join('/tmp', 'outputs');
 // Ensure directories exist
 async function ensureDirectories() {
   try {
+  ensureTempDirs();
     await mkdir(UPLOAD_DIR, { recursive: true });
     await mkdir(OUTPUT_DIR, { recursive: true });
   } catch (error) {
@@ -90,11 +91,12 @@ async function createPdfFromPages(
 
 export async function POST(request: NextRequest) {
   try {
+  ensureTempDirs();
     await ensureDirectories();
 
     const body: SplitRequest = await request.json();
 
-    if (!body.file || !body.file.data) {
+    if (!formData.get('file') as File || !formData.get('file') as File.data) {
       return NextResponse.json(
         { error: 'No file provided' },
         { status: 400 }
@@ -109,10 +111,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Load and validate the PDF
-    const buffer = Buffer.from(body.file.data, 'base64');
+    const buffer = Buffer.from(formData.get('file') as File.data, 'base64');
     let sourcePdf: PDFDocument;
 
     try {
+  ensureTempDirs();
       sourcePdf = await PDFDocument.load(buffer);
     } catch (error) {
       return NextResponse.json(
@@ -122,7 +125,7 @@ export async function POST(request: NextRequest) {
     }
 
     const totalPages = sourcePdf.getPageCount();
-    const baseName = body.file.name.replace('.pdf', '');
+    const baseName = formData.get('file') as File.name.replace('.pdf', '');
 
     if (totalPages === 0) {
       return NextResponse.json(
