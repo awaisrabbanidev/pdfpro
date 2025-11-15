@@ -69,7 +69,7 @@ async function rotatePDF(
 
     const pdfBytes = await rotatedPdf.save();
     const filename = outputName;
-    const outputPath = join(OUTPUT_DIR, filename);
+    const outputPath = join(OUTPUTS_DIR, filename);
     await writeFile(outputPath, Buffer.from(pdfBytes));
 
     return {
