@@ -170,37 +170,82 @@ async function convertWordToPDF(
 }
 
 export async function POST(request: NextRequest) {
+  ensureTempDirs();
+  await ensureDirectories();
+
   try {
-    await ensureDirectories();
+    const contentType = request.headers.get('content-type');
+    let buffer: Buffer;
+    let originalFilename: string;
+    let options: ConvertRequest['options'];
 
-    const body: ConvertRequest = await request.json();
+    if (contentType?.includes('application/json')) {
+      const body: ConvertRequest = await request.json();
 
-    if (!body.file || !body.file.data) {
-      return NextResponse.json(
-        { error: 'No file provided' },
-        { status: 400 }
-      );
+      if (!body.file || !body.file.data) {
+        return NextResponse.json(
+          { error: 'No file provided' },
+          { status: 400 }
+        );
+      }
+
+      if (!body.options) {
+        return NextResponse.json(
+          { error: 'Conversion options are required' },
+          { status: 400 }
+        );
+      }
+
+      // Validate file type
+      const filename = body.file.name.toLowerCase();
+      if (!filename.endsWith('.docx') && !filename.endsWith('.doc') && !filename.endsWith('.rtf')) {
+        return NextResponse.json(
+          { error: 'Only Word documents (.docx, .doc) and RTF files are supported' },
+          { status: 400 }
+        );
+      }
+
+      buffer = Buffer.from(body.file.data, 'base64');
+      originalFilename = body.file.name;
+      options = body.options;
+    } else {
+      const formData = await request.formData();
+      const file = formData.get('file') as File;
+      const pageSize = formData.get('pageSize') as string || 'A4';
+      const preserveFormatting = formData.get('preserveFormatting') as string === 'true';
+
+      if (!file) {
+        return NextResponse.json(
+          { error: 'No file provided' },
+          { status: 400 }
+        );
+      }
+
+      // Validate file type
+      const filename = file.name.toLowerCase();
+      if (!filename.endsWith('.docx') && !filename.endsWith('.doc') && !filename.endsWith('.rtf')) {
+        return NextResponse.json(
+          { error: 'Only Word documents (.docx, .doc) and RTF files are supported' },
+          { status: 400 }
+        );
+      }
+
+      const bytes = await file.arrayBuffer();
+      buffer = Buffer.from(bytes);
+      originalFilename = file.name;
+      options = {
+        preserveFormatting,
+        pageSize: pageSize as 'A4' | 'Letter' | 'Legal',
+        margins: {
+          top: 72,
+          bottom: 72,
+          left: 72,
+          right: 72
+        }
+      };
     }
 
-    if (!body.options) {
-      return NextResponse.json(
-        { error: 'Conversion options are required' },
-        { status: 400 }
-      );
-    }
-
-    // Validate file type
-    const filename = body.file.name.toLowerCase();
-    if (!filename.endsWith('.docx') && !filename.endsWith('.doc') && !filename.endsWith('.rtf')) {
-      return NextResponse.json(
-        { error: 'Only Word documents (.docx, .doc) and RTF files are supported' },
-        { status: 400 }
-      );
-    }
-
-    // Convert base64 to buffer
-    const docxBuffer = Buffer.from(body.file.data, 'base64');
-    const originalSize = docxBuffer.length;
+    const originalSize = buffer.length;
 
     // Validate document can be read
     try {
