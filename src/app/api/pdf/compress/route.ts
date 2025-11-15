@@ -111,34 +111,64 @@ async function optimizePdf(pdfDoc: PDFDocument, settings: any) {
 }
 
 export async function POST(request: NextRequest) {
-  try {
   ensureTempDirs();
-    await ensureDirectories();
+  await ensureDirectories();
 
-    const body: CompressRequest = await request.json();
+  try {
+    const contentType = request.headers.get('content-type');
+    let buffer: Buffer;
+    let originalFilename: string;
+    let compressionLevel: string;
 
-    if (!formData.get('file') as File || !formData.get('file') as File.data) {
-      return NextResponse.json(
-        { error: 'No file provided' },
-        { status: 400 }
-      );
+    if (contentType?.includes('application/json')) {
+      const body: CompressRequest = await request.json();
+
+      if (!body.file || !body.file.data) {
+        return NextResponse.json(
+          { error: 'No file provided' },
+          { status: 400 }
+        );
+      }
+
+      if (!body.compressionLevel) {
+        return NextResponse.json(
+          { error: 'Compression level is required' },
+          { status: 400 }
+        );
+      }
+
+      buffer = Buffer.from(body.file.data, 'base64');
+      originalFilename = body.file.name;
+      compressionLevel = body.compressionLevel;
+    } else {
+      const formData = await request.formData();
+      const file = formData.get('file') as File;
+      const level = formData.get('compressionLevel') as string;
+
+      if (!file) {
+        return NextResponse.json(
+          { error: 'No file provided' },
+          { status: 400 }
+        );
+      }
+
+      if (!level) {
+        return NextResponse.json(
+          { error: 'Compression level is required' },
+          { status: 400 }
+        );
+      }
+
+      const bytes = await file.arrayBuffer();
+      buffer = Buffer.from(bytes);
+      originalFilename = file.name;
+      compressionLevel = level;
     }
 
-    if (!body.compressionLevel) {
-      return NextResponse.json(
-        { error: 'Compression level is required' },
-        { status: 400 }
-      );
-    }
-
-    // Load and validate the PDF
-    const buffer = Buffer.from(formData.get('file') as File.data, 'base64');
     const originalSize = buffer.length;
-
     let pdfDoc: PDFDocument;
 
     try {
-  ensureTempDirs();
       pdfDoc = await PDFDocument.load(buffer);
     } catch (error) {
       return NextResponse.json(
@@ -148,8 +178,8 @@ export async function POST(request: NextRequest) {
     }
 
     const totalPages = pdfDoc.getPageCount();
-    const baseName = formData.get('file') as File.name.replace('.pdf', '');
-    const compressionSettings = getCompressionSettings(body.compressionLevel);
+    const baseName = originalFilename.replace('.pdf', '');
+    const compressionSettings = getCompressionSettings(compressionLevel);
 
     // Analyze PDF structure
     const pages = pdfDoc.getPages();
