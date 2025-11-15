@@ -260,7 +260,7 @@ export async function POST(request: NextRequest) {
       }
 
       case 'every': {
-        const every = body.splitOption?.every || 1;
+        const every = splitOption?.every || 1;
 
         if (every < 1 || every > totalPages) {
           return NextResponse.json(
