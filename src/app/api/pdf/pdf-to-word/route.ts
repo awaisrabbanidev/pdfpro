@@ -81,15 +81,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-  } catch (error) {
-    console.error('PDF to Word conversion error:', error);
-    return NextResponse.json(
-      { error: 'Failed to convert PDF to Word' },
-      { status: 500 }
-    );
-  }
-}
-
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
