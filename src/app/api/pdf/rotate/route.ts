@@ -203,26 +203,24 @@ export async function POST(request: NextRequest) {
         name: rotationResult.filename,
         size: rotationResult.size
       },
-      rotationOptions: body.rotationOptions,
+      rotationOptions,
       processing: {
-        pagesRotated: body.rotationOptions.pages === 'all' ? totalPages : body.rotationOptions.pages.length,
-        rotationAngle: body.rotationOptions.angle
+        pagesRotated: rotationOptions.pages === 'all' ? totalPages : rotationOptions.pages.length,
+        rotationAngle: rotationOptions.angle
       }
     };
 
     return NextResponse.json({
       success: true,
       message: 'PDF rotated successfully',
-      data: {
-        filename: rotationResult.filename,
-        originalSize,
-        rotatedSize: rotationResult.size,
-        pagesRotated: body.rotationOptions.pages === 'all' ? totalPages : body.rotationOptions.pages.length,
-        rotationAngle: body.rotationOptions.angle,
-        downloadUrl: `/api/download/${rotationResult.filename}`,
-        data: Buffer.from(rotationResult.data).toString('base64'),
-        rotationReport
-      }
+      filename: rotationResult.filename,
+      originalSize,
+      rotatedSize: rotationResult.size,
+      pagesRotated: rotationOptions.pages === 'all' ? totalPages : rotationOptions.pages.length,
+      rotationAngle: rotationOptions.angle,
+      downloadUrl: `/api/download/${rotationResult.filename}`,
+      data: Buffer.from(rotationResult.data).toString('base64'),
+      rotationReport
     });
 
   } catch (error) {
