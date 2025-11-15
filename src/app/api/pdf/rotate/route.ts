@@ -35,7 +35,6 @@ async function rotatePDF(
   originalFilename: string
 ): Promise<{ filename: string; size: number; data: Buffer }> {
   try {
-  ensureTempDirs();
     const sourcePdf = await PDFDocument.load(pdfBuffer);
     const rotatedPdf = await PDFDocument.create();
 
