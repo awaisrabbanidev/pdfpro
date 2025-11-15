@@ -36,6 +36,11 @@ export async function POST(req: NextRequest) {
           };
         })
         .filter(Boolean); // Remove null values
+
+      return resolve(NextResponse.json(
+        { ok: true, files: savedFiles },
+        { status: 200 }
+      ));
     });
   });
 }
