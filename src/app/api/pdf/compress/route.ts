@@ -225,7 +225,7 @@ export async function POST(request: NextRequest) {
     const compressionRatio = ((originalSize - compressedSize) / originalSize) * 100;
 
     // Save to file
-    const outputPath = join(OUTPUT_DIR, outputName);
+    const outputPath = join(OUTPUTS_DIR, outputName);
     await writeFile(outputPath, compressedBytes);
 
     // Generate compression report
@@ -253,16 +253,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'PDF compressed successfully',
-      data: {
-        filename: outputName,
-        originalSize,
-        compressedSize,
-        compressionRatio,
-        totalPages,
-        downloadUrl: `/api/download/${outputName}`,
-        data: Buffer.from(compressedBytes).toString('base64'),
-        compressionReport
-      }
+      filename: outputName,
+      originalSize,
+      compressedSize,
+      compressionRatio,
+      totalPages,
+      downloadUrl: `/api/download/${outputName}`,
+      data: Buffer.from(compressedBytes).toString('base64'),
+      compressionReport
     });
 
   } catch (error) {
