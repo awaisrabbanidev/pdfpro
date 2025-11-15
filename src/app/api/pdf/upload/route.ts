@@ -3,11 +3,7 @@ import { ensureTempDirs } from '@/lib/api-helpers';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Disable Next.js body parser to handle multipart/form-data
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
   // Ensure directories exist before any file operations
