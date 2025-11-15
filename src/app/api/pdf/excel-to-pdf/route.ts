@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, readFile, unlink } from 'fs/promises';
 import { join } from 'path';
-import { ensureDirectories, getDirectories } from '@/lib/api-config';
+import { ensureTempDirs, OUTPUTS_DIR, UPLOADS_DIR } from '@/lib/temp-dirs';
 import * as XLSX from 'xlsx';
+
+// Ensure directories exist
+async function ensureDirectories() {
+  try {
+    await mkdir(UPLOADS_DIR, { recursive: true });
+    await mkdir(OUTPUTS_DIR, { recursive: true });
+  } catch (error) {
+    // Directory might already exist
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
