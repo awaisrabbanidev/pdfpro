@@ -150,7 +150,8 @@ async function createWordDocument(
 
 export async function POST(request: NextRequest) {
   try {
-    await ensureDirectories();
+    // Ensure directories exist before any file operations
+    ensureTempDirs();
 
     // Handle FormData from frontend
     const formData = await request.formData();
