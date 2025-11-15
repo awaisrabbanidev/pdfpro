@@ -275,16 +275,16 @@ export async function POST(request: NextRequest) {
       originalFile: {
         name: originalFilename,
         size: originalSize,
-        type: filename.endsWith('.docx') ? 'DOCX' : filename.endsWith('.doc') ? 'DOC' : 'RTF'
+        type: originalFilename.toLowerCase().endsWith('.docx') ? 'DOCX' : originalFilename.toLowerCase().endsWith('.doc') ? 'DOC' : 'RTF'
       },
       convertedFile: {
         name: pdfResult.filename,
         size: pdfResult.size
       },
-      options: body.options,
+      options,
       conversion: {
-        preserveFormatting: body.options.preserveFormatting,
-        pageSize: body.options.pageSize,
+        preserveFormatting: options.preserveFormatting,
+        pageSize: options.pageSize,
         compressionRatio: ((originalSize - pdfResult.size) / originalSize * 100).toFixed(1)
       }
     };
@@ -292,15 +292,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Word document converted to PDF successfully',
-      data: {
-        filename: pdfResult.filename,
-        originalSize,
-        convertedSize: pdfResult.size,
-        compressionRatio: ((originalSize - pdfResult.size) / originalSize * 100).toFixed(1),
-        downloadUrl: `/api/download/${pdfResult.filename}`,
-        data: Buffer.from(pdfResult.data).toString('base64'),
-        conversionReport
-      }
+      filename: pdfResult.filename,
+      originalSize,
+      convertedSize: pdfResult.size,
+      compressionRatio: ((originalSize - pdfResult.size) / originalSize * 100).toFixed(1),
+      downloadUrl: `/api/download/${pdfResult.filename}`,
+      data: Buffer.from(pdfResult.data).toString('base64'),
+      conversionReport
     });
 
   } catch (error) {
