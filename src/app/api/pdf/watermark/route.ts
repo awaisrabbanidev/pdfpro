@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, readFile, unlink } from 'fs/promises';
 import { join } from 'path';
 import { ensureDirectories, getDirectories } from '@/lib/api-config';
+import { safeJsonParse } from '@/lib/api-helpers';
 
 interface WatermarkSettings {
   type: 'text' | 'image';
