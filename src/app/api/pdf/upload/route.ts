@@ -1,5 +1,4 @@
 // app/api/pdf/upload/route.ts
-import { IncomingForm } from "formidable";
 import fs from "fs";
 import path from "path";
 import { ensureTempDirs, UPLOADS_DIR } from "@/lib/temp-dirs";
@@ -11,6 +10,9 @@ export const runtime = 'nodejs';
 export async function POST(req: NextRequest): Promise<NextResponse> {
   // Ensure directories exist before any file operations
   ensureTempDirs();
+
+  // Dynamic import for formidable to avoid bundling issues
+  const { IncomingForm } = await import('formidable');
 
   const form = new IncomingForm({ uploadDir: UPLOADS_DIR, keepExtensions: true });
 
