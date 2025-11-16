@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
   try {
     const contentType = request.headers.get('content-type');
     let files: Array<{ name: string; data: string }>;
-    let outputName?: string;
+    let outputName: string | undefined;
 
     if (contentType?.includes('application/json')) {
       const body: MergeRequest = await request.json();
