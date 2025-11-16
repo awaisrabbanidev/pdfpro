@@ -154,7 +154,7 @@ async function convertWordToPDF(
     const pdfBytes = await pdfDoc.save();
 
     // Save to file
-    const outputPath = join(OUTPUT_DIR, outputName);
+    const outputPath = join(OUTPUTS_DIR, outputName);
     await writeFile(outputPath, Buffer.from(pdfBytes));
 
     return {
