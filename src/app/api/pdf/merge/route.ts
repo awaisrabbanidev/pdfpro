@@ -26,31 +26,68 @@ async function ensureDirectories() {
 }
 
 export async function POST(request: NextRequest) {
-  try {
   ensureTempDirs();
-    await ensureDirectories();
+  await ensureDirectories();
 
-    const body: MergeRequest = await request.json();
+  try {
+    const contentType = request.headers.get('content-type');
+    let files: Array<{ name: string; data: string }>;
+    let outputName?: string;
 
-    if (!formData.get('file') as Files || formData.get('file') as Files.length === 0) {
-      return NextResponse.json(
-        { error: 'No files provided' },
-        { status: 400 }
-      );
-    }
+    if (contentType?.includes('application/json')) {
+      const body: MergeRequest = await request.json();
 
-    if (formData.get('file') as Files.length > 20) {
-      return NextResponse.json(
-        { error: 'Maximum 20 files can be merged at once' },
-        { status: 400 }
-      );
+      if (!body.files || body.files.length === 0) {
+        return NextResponse.json(
+          { error: 'No files provided' },
+          { status: 400 }
+        );
+      }
+
+      if (body.files.length > 20) {
+        return NextResponse.json(
+          { error: 'Maximum 20 files can be merged at once' },
+          { status: 400 }
+        );
+      }
+
+      files = body.files;
+      outputName = body.outputName;
+    } else {
+      const formData = await request.formData();
+      const uploadedFiles = formData.getAll('files') as File[];
+
+      if (!uploadedFiles || uploadedFiles.length === 0) {
+        return NextResponse.json(
+          { error: 'No files provided' },
+          { status: 400 }
+        );
+      }
+
+      if (uploadedFiles.length > 20) {
+        return NextResponse.json(
+          { error: 'Maximum 20 files can be merged at once' },
+          { status: 400 }
+        );
+      }
+
+      files = [];
+      for (const file of uploadedFiles) {
+        const bytes = await file.arrayBuffer();
+        const base64 = Buffer.from(bytes).toString('base64');
+        files.push({
+          name: file.name,
+          data: base64
+        });
+      }
+
+      outputName = formData.get('outputName') as string;
     }
 
     // Validate and decode files
     const pdfDocs = [];
-    for (const file of formData.get('file') as Files) {
+    for (const file of files) {
       try {
-  ensureTempDirs();
         const buffer = Buffer.from(file.data, 'base64');
         const pdfDoc = await PDFDocument.load(buffer);
         pdfDocs.push({
