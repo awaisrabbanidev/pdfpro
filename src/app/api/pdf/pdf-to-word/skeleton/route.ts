@@ -33,7 +33,10 @@ export async function POST(req: NextRequest) {
     return new Response(JSON.stringify({ ok: true, outputPath }), { status: 200 });
   } catch (err) {
     console.error("PDF to Word conversion error:", err);
-    return new Response(JSON.stringify({ error: "conversion_error", detail: err.message }), { status: 500 });
+    return new Response(JSON.stringify({
+      error: "conversion_error",
+      detail: err instanceof Error ? err.message : 'Unknown error'
+    }), { status: 500 });
   }
 }
 
