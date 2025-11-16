@@ -1,9 +1,9 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import { PDF_TOOLS } from '@/lib/constants';
-import { getCanonicalUrl } from '@/lib/url-config';
-import ToolPage from '@/components/tools/ToolPage';
-import ErrorBoundary from '@/components/ErrorBoundary';
+import { PDF_TOOLS } from '../../lib/constants';
+import { getCanonicalUrl } from '../../lib/url-config';
+import ToolPage from '../../components/tools/ToolPage';
+import ErrorBoundary from '../../components/ErrorBoundary';
 
 export const dynamic = 'force-dynamic';
 
