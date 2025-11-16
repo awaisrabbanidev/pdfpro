@@ -176,23 +176,38 @@ async function addDrawingSignature(
 
   // Parse drawing data (format: "x1,y1;x2,y2;x3,y3...")
   const points = drawingData.split(';').map((point: string) => {
-    const [x, y] = point.split(',').map(Number);
+    if (!point || !point.includes(',')) return null;
+    const coords = point.split(',');
+    if (coords.length !== 2) return null;
+
+    const x = Number(coords[0]);
+    const y = Number(coords[1]);
+
+    if (isNaN(x) || isNaN(y)) return null;
     return { x, y };
-  }).filter((point: any) => !isNaN(point.x) && !isNaN(point.y));
+  }).filter((point: any): point is { x: number; y: number } => point !== null);
 
   if (points.length < 2) {
-    throw new Error('Invalid drawing data');
+    throw new Error('Invalid drawing data - need at least 2 points');
   }
 
   // Scale drawing to fit the signature area
-  const drawingWidth = Math.max(...points.map(p => p.x)) - Math.min(...points.map(p => p.x));
-  const drawingHeight = Math.max(...points.map(p => p.y)) - Math.min(...points.map(p => p.y));
+  const xValues = points.map(p => p.x);
+  const yValues = points.map(p => p.y);
+  const drawingWidth = Math.max(...xValues) - Math.min(...xValues);
+  const drawingHeight = Math.max(...yValues) - Math.min(...yValues);
+
+  // Prevent division by zero
+  if (drawingWidth === 0 || drawingHeight === 0) {
+    throw new Error('Invalid drawing data - points must have different coordinates');
+  }
+
   const scaleX = position.width / drawingWidth;
   const scaleY = position.height / drawingHeight;
   const scale = Math.min(scaleX, scaleY);
 
-  const minX = Math.min(...points.map(p => p.x));
-  const minY = Math.min(...points.map(p => p.y));
+  const minX = Math.min(...xValues);
+  const minY = Math.min(...yValues);
 
   // Draw signature lines
   for (let i = 0; i < points.length - 1; i++) {
@@ -365,7 +380,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('PDF signing error:', error);
     return NextResponse.json(
-      { error: 'Failed to sign PDF file' },
+      { error: 'Failed to sign PDF file: ' + (error instanceof Error ? error.message : String(error)) },
       { status: 500 }
     );
   }

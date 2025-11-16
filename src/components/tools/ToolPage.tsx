@@ -41,6 +41,535 @@ const ToolPage: React.FC<ToolPageProps> = ({
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
+  // Helper function to make API calls with timeout and error handling
+  const makeApiCall = async (url: string, options: RequestInit): Promise<Response> => {
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: AbortSignal.timeout(59000) // 59 second timeout (less than 60s Vercel limit)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => 'Unknown error');
+        console.error(`API Error (${response.status}):`, errorText);
+        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      }
+
+      return response;
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('Request timeout after 59 seconds. Please try again with a smaller file.');
+      }
+      throw error;
+    }
+  };
+
+  // Processing function moved to client side
+  const processFiles = async (files: File[]): Promise<DownloadFile[]> => {
+    try {
+      // Solution 2: File Size Validation (Vercel limit is 4.5MB)
+      const MAX_FILE_SIZE = 4.5 * 1024 * 1024; // 4.5MB in bytes
+      const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+
+      for (const file of files) {
+        if (file.size > MAX_FILE_SIZE) {
+          throw new Error(`File "${file.name}" is too large. Maximum file size is 4.5MB. File size: ${(file.size / 1024 / 1024).toFixed(1)}MB`);
+        }
+      }
+
+      if (totalSize > MAX_FILE_SIZE) {
+        throw new Error(`Total file size is too large. Maximum total size is 4.5MB. Total size: ${(totalSize / 1024 / 1024).toFixed(1)}MB`);
+      }
+
+      let response;
+      // Dynamic API URL detection for all domain variants (www, non-www, development)
+      const baseUrl = typeof window !== 'undefined'
+        ? (window.location.hostname === 'localhost' || window.location.hostname === '172.19.3.10')
+          ? 'http://localhost:3001'
+          : `${window.location.protocol}//${window.location.hostname}`
+        : 'https://www.pdfpro.pro';
+
+      console.log('🔍 API Debug Info:', {
+        NODE_ENV: process.env.NODE_ENV,
+        baseUrl,
+        windowOrigin: typeof window !== 'undefined' ? window.location.origin : 'N/A',
+        currentHostname: typeof window !== 'undefined' ? window.location.hostname : 'N/A',
+        fileSizeValidation: `✅ File sizes validated (Max: 4.5MB each, Total: ${(totalSize / 1024 / 1024).toFixed(1)}MB)`
+      });
+
+      // Convert files to base64
+      const filesAsBase64 = await Promise.all(
+        files.map(async (file) => {
+          const arrayBuffer = await file.arrayBuffer();
+          const base64 = Buffer.from(arrayBuffer).toString('base64');
+          return {
+            name: file.name,
+            data: base64
+          };
+        })
+      );
+
+      switch (toolId) {
+        case 'merge-pdf':
+          console.log('🚀 Making API call to:', `${baseUrl}/api/pdf/merge`);
+          response = await makeApiCall(`${baseUrl}/api/pdf/merge`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              files: filesAsBase64,
+              outputName: `merged_${Date.now()}.pdf`
+            })
+          });
+          console.log('📥 API Response status:', response.status);
+          break;
+
+        case 'split-pdf':
+          response = await makeApiCall(`${baseUrl}/api/pdf/split`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              splitType: 'single'
+            })
+          });
+          break;
+
+        case 'compress-pdf':
+          response = await makeApiCall(`${baseUrl}/api/pdf/compress`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              compressionLevel: 'medium'
+            })
+          });
+          break;
+
+        case 'pdf-to-word':
+          response = await makeApiCall(`${baseUrl}/api/pdf/pdf-to-word`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                preserveFormatting: true,
+                includeImages: false,
+                ocrEnabled: false
+              }
+            })
+          });
+          break;
+
+        case 'word-to-pdf':
+          response = await makeApiCall(`${baseUrl}/api/pdf/word-to-pdf`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                preserveFormatting: true,
+                pageSize: 'A4',
+                margins: { top: 72, bottom: 72, left: 72, right: 72 }
+              }
+            })
+          });
+          break;
+
+        case 'ocr-pdf':
+          response = await makeApiCall(`${baseUrl}/api/pdf/ocr`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                language: 'en',
+                outputFormat: 'pdf',
+                preserveLayout: true
+              }
+            })
+          });
+          break;
+
+        case 'crop-pdf':
+          response = await makeApiCall(`${baseUrl}/api/pdf/crop`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              cropOptions: {
+                pages: 'all',
+                margins: { top: 10, bottom: 10, left: 10, right: 10 },
+                units: 'mm'
+              }
+            })
+          });
+          break;
+
+        case 'compare-pdf':
+          if (files.length !== 2) {
+            throw new Error('Compare tool requires exactly 2 files');
+          }
+          response = await makeApiCall(`${baseUrl}/api/pdf/compare`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              files: filesAsBase64,
+              options: {
+                compareMode: 'text',
+                outputFormat: 'html',
+                showDifferences: true
+              }
+            })
+          });
+          break;
+
+        // NEW API INTEGRATIONS
+        case 'pdf-to-powerpoint':
+          response = await makeApiCall(`${baseUrl}/api/pdf/pdf-to-powerpoint`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                preserveLayout: true,
+                includeImages: false,
+                slideLayout: 'auto'
+              }
+            })
+          });
+          break;
+
+        case 'pdf-to-excel':
+          response = await makeApiCall(`${baseUrl}/api/pdf/pdf-to-excel`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                extractTables: true,
+                includeFormatting: true,
+                sheetLayout: 'auto'
+              }
+            })
+          });
+          break;
+
+        case 'powerpoint-to-pdf':
+          response = await makeApiCall(`${baseUrl}/api/pdf/powerpoint-to-pdf`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                preserveAnimations: false,
+                includeNotes: false,
+                pageSize: 'A4',
+                quality: 'medium'
+              }
+            })
+          });
+          break;
+
+        case 'excel-to-pdf':
+          response = await makeApiCall(`${baseUrl}/api/pdf/excel-to-pdf`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                preserveFormatting: true,
+                pageSize: 'A4',
+                orientation: 'portrait',
+                includeGridlines: true
+              }
+            })
+          });
+          break;
+
+        case 'pdf-to-jpg':
+          response = await makeApiCall(`${baseUrl}/api/pdf/pdf-to-jpg`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                pageRange: 'all',
+                quality: 'medium',
+                format: 'jpg',
+                dpi: 150
+              }
+            })
+          });
+          break;
+
+        case 'jpg-to-pdf':
+          response = await makeApiCall(`${baseUrl}/api/pdf/jpg-to-pdf`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              files: filesAsBase64,
+              options: {
+                pageSize: 'A4',
+                orientation: 'portrait',
+                margins: { top: 20, bottom: 20, left: 20, right: 20 },
+                imageLayout: 'fit'
+              }
+            })
+          });
+          break;
+
+        case 'rotate-pdf':
+          response = await makeApiCall(`${baseUrl}/api/pdf/rotate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              rotation: {
+                angle: 90,
+                pages: 'all'
+              }
+            })
+          });
+          break;
+
+        case 'protect-pdf':
+          response = await makeApiCall(`${baseUrl}/api/pdf/protect`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              protection: {
+                password: 'protected',
+                permissions: {
+                  printing: true,
+                  copying: false,
+                  modifying: false,
+                  annotating: false
+                }
+              }
+            })
+          });
+          break;
+
+        case 'watermark':
+          response = await makeApiCall(`${baseUrl}/api/pdf/watermark`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              watermark: {
+                type: 'text',
+                content: 'PDFPro.pro',
+                position: 'diagonal',
+                opacity: 0.3,
+                color: '#cccccc'
+              }
+            })
+          });
+          break;
+
+        case 'html-to-pdf':
+          response = await makeApiCall(`${baseUrl}/api/pdf/html-to-pdf`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                pageSize: 'A4',
+                orientation: 'portrait',
+                margins: { top: 20, bottom: 20, left: 20, right: 20 },
+                header: true,
+                footer: true
+              }
+            })
+          });
+          break;
+
+        case 'sign-pdf':
+          response = await makeApiCall(`${baseUrl}/api/pdf/sign`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              signature: {
+                text: 'Digitally Signed',
+                position: { x: 100, y: 100 },
+                style: 'text'
+              }
+            })
+          });
+          break;
+
+        case 'unlock-pdf':
+          response = await makeApiCall(`${baseUrl}/api/pdf/unlock`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              password: 'unlock'
+            })
+          });
+          break;
+
+        case 'page-numbers':
+          response = await makeApiCall(`${baseUrl}/api/pdf/page-numbers`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                position: 'bottom-center',
+                format: '1 of N',
+                startNumber: 1,
+                fontSize: 10,
+                color: '#000000',
+                margin: 20
+              }
+            })
+          });
+          break;
+
+        case 'organize-pdf':
+          response = await makeApiCall(`${baseUrl}/api/pdf/organize`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              operations: [
+                { type: 'move', sourcePage: 1, targetPage: 3 }
+              ]
+            })
+          });
+          break;
+
+        case 'edit-pdf':
+          response = await makeApiCall(`${baseUrl}/api/pdf/edit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              edits: [
+                { type: 'text', page: 1, x: 100, y: 100, content: 'Edited Text', fontSize: 12 }
+              ]
+            })
+          });
+          break;
+
+        case 'repair-pdf':
+          response = await makeApiCall(`${baseUrl}/api/pdf/repair`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                attemptRecovery: true,
+                reconstructStructure: true,
+                removeCorruptedObjects: true
+              }
+            })
+          });
+          break;
+
+        case 'redact-pdf':
+          response = await makeApiCall(`${baseUrl}/api/pdf/redact`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              redactions: [
+                { text: 'CONFIDENTIAL', type: 'text', pages: 'all', style: 'blackout' }
+              ]
+            })
+          });
+          break;
+
+        case 'pdf-to-pdfa':
+          response = await makeApiCall(`${baseUrl}/api/pdf/pdf-to-pdfa`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                conformance: 'A1b',
+                preserveColor: true,
+                embedFonts: true
+              }
+            })
+          });
+          break;
+
+        case 'scan-to-pdf':
+          response = await makeApiCall(`${baseUrl}/api/pdf/scan-to-pdf`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: filesAsBase64[0],
+              options: {
+                enhancement: 'auto',
+                ocrEnabled: true,
+                compression: 'medium',
+                pageSize: 'A4'
+              }
+            })
+          });
+          break;
+
+        default:
+          throw new Error(`Tool ${toolId} is not yet implemented`);
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Processing failed with status ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      // Handle different response formats
+      if (toolId === 'merge-pdf') {
+        return [{
+          id: result.data.filename,
+          name: result.data.filename,
+          url: result.data.downloadUrl,
+          size: result.data.size,
+          type: 'application/pdf',
+          data: result.data.data
+        }];
+      } else if (toolId === 'split-pdf') {
+        return result.data.files.map((file: any) => ({
+          id: file.filename,
+          name: file.filename,
+          url: file.downloadUrl,
+          size: file.size,
+          type: 'application/pdf',
+          data: file.data
+        }));
+      } else if (toolId === 'compare-pdf') {
+        return [{
+          id: result.data.filename,
+          name: result.data.filename,
+          url: result.data.downloadUrl,
+          size: result.data.size,
+          type: result.data.filename.endsWith('.html') ? 'text/html' : 'application/pdf',
+          data: result.data.data
+        }];
+      } else {
+        return [{
+          id: result.data.filename,
+          name: result.data.filename,
+          url: result.data.downloadUrl,
+          size: result.data.convertedSize || result.data.size,
+          type: toolId.includes('word') ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/pdf',
+          data: result.data.data
+        }];
+      }
+
+    } catch (error) {
+      console.error('Processing error:', error);
+      throw error;
+    }
+  };
+
   const handleFilesChange = (newFiles: File[]) => {
     setFiles(newFiles);
     setError(null);

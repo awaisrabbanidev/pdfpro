@@ -310,7 +310,7 @@ export async function POST(request: NextRequest) {
       originalFilename2
     );
 
-    // Generate comparison report data
+    // Generate comparison report object for response
     const comparisonReport = {
       files: {
         file1: {
