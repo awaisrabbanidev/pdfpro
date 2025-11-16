@@ -1,50 +1,44 @@
-// app/api/pdf/upload/route.ts
-import fs from "fs";
-import path from "path";
-import { ensureTempDirs, UPLOADS_DIR } from "@/lib/temp-dirs";
+// src/app/api/pdf/upload/route.ts
 import { NextRequest, NextResponse } from "next/server";
+import { mkdir, writeFile } from "fs/promises";
+import { ensureTempDirs, UPLOADS_DIR } from "@/lib/temp-dirs";
 
-// Next.js App Router: disable body parser
-export const runtime = 'nodejs';
+export const runtime = "nodejs"; // ensures not deployed to edge
 
-export async function POST(req: NextRequest): Promise<NextResponse> {
-  // Ensure directories exist before any file operations
-  ensureTempDirs();
+export async function POST(req: NextRequest) {
+  try {
+    ensureTempDirs();
+    await mkdir(UPLOADS_DIR, { recursive: true });
 
-  // Dynamic import for formidable to avoid bundling issues
-  const { IncomingForm } = await import('formidable');
+    // Read file from form-data
+    const data = await req.formData();
+    const file = data.get("file") as File;
 
-  const form = new IncomingForm({ uploadDir: UPLOADS_DIR, keepExtensions: true });
+    if (!file) {
+      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+    }
 
-  return new Promise<NextResponse>((resolve) => {
-    form.parse(req as any, (err, fields, files) => {
-      if (err) {
-        console.error("form.parse error:", err);
-        return resolve(NextResponse.json(
-          { error: "upload_parse_error", detail: err.message },
-          { status: 500 }
-        ));
-      }
-      // files might be files.file or files.upload, inspect object
-      // return saved file paths so caller can call conversion API
-      const savedFiles = Object.values(files)
-        .flat()
-        .map((f) => {
-          if (!f) return null;
-          return {
-            filepath: (f as any).filepath || (f as any).path, // formidable v2 uses filepath
-            originalFilename: (f as any).originalFilename || (f as any).name || null,
-            size: (f as any).size || null,
-          };
-        })
-        .filter(Boolean); // Remove null values
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
 
-      return resolve(NextResponse.json(
-        { ok: true, files: savedFiles },
-        { status: 200 }
-      ));
+    // Generate unique filename to avoid conflicts
+    const timestamp = Date.now();
+    const uniqueFilename = `${timestamp}-${file.name}`;
+    const filePath = `${UPLOADS_DIR}/${uniqueFilename}`;
+
+    await writeFile(filePath, buffer);
+
+    return NextResponse.json({
+      success: true,
+      filePath,
+      filename: uniqueFilename,
+      originalFilename: file.name,
+      size: buffer.length
     });
-  });
+  } catch (err) {
+    console.error("Upload error:", err);
+    return NextResponse.json({ error: String(err) }, { status: 500 });
+  }
 }
 
 export async function OPTIONS() {
