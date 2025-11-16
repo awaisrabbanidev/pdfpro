@@ -1,73 +1,172 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { writeFile, mkdir } from 'fs/promises';
+import { join } from 'path';
 import { PDFDocument } from 'pdf-lib';
+
+// Simple UUID function
+const uuid = () => Math.random().toString(36).substring(2, 15);
 
 interface EditPDFRequest {
   file: {
     name: string;
     data: string; // Base64 encoded
   };
-  edits: Array<{
-    type: 'text' | 'image' | 'annotation';
-    page: number;
-    x: number;
-    y: number;
-    content: string;
-    fontSize?: number;
-    color?: string;
-  }>;
+  editOptions: {
+    action: 'text' | 'image' | 'annotation' | 'form';
+    operations: EditOperation[];
+  };
 }
 
+interface EditOperation {
+  type: 'add-text' | 'replace-text' | 'add-image' | 'highlight' | 'underline' | 'strikeout';
+  page: number;
+  position?: {
+    x: number;
+    y: number;
+  };
+  content?: string;
+  style?: {
+    fontSize?: number;
+    fontFamily?: string;
+    color?: string;
+    bold?: boolean;
+    italic?: boolean;
+  };
+  imageData?: string; // Base64 encoded image
+  area?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+}
 
+const UPLOAD_DIR = join('/tmp', 'uploads');
+const OUTPUT_DIR = join('/tmp', 'outputs');
+
+// Ensure directories exist
+async function ensureDirectories() {
+  try {
+    await mkdir(UPLOAD_DIR, { recursive: true });
+    await mkdir(OUTPUT_DIR, { recursive: true });
+  } catch (error) {
+    // Directory might already exist
+  }
+}
+
+// Edit PDF function
 async function editPDF(
   pdfBuffer: Buffer,
-  edits: EditPDFRequest['edits'],
+  editOptions: EditPDFRequest['editOptions'],
   originalFilename: string
 ): Promise<{ filename: string; size: number; data: Buffer }> {
   try {
     const pdfDoc = await PDFDocument.load(pdfBuffer);
     const pageCount = pdfDoc.getPageCount();
 
-    // Group edits by page
-    const pageEdits = edits.reduce((acc, edit) => {
-      const pageNum = edit.page - 1;
-      if (pageNum >= 0 && pageNum < pageCount) {
-        if (!acc[pageNum]) acc[pageNum] = [];
-        acc[pageNum].push(edit);
+    // Process each edit operation
+    for (const operation of editOptions.operations) {
+      const pageIndex = operation.page - 1; // Convert to 0-based index
+
+      if (pageIndex < 0 || pageIndex >= pageCount) {
+        console.warn(`Invalid page number: ${operation.page}. Skipping operation.`);
+        continue;
       }
-      return acc;
-    }, {} as Record<number, typeof edits>);
 
-    // Apply edits to each page
-    Object.entries(pageEdits).forEach(([pageNum, pageEdits]) => {
-      const page = pdfDoc.getPage(parseInt(pageNum));
-      const { height } = page.getSize();
+      const page = pdfDoc.getPages()[pageIndex];
 
-      pageEdits.forEach(edit => {
-        if (edit.type === 'text') {
-          const fontSize = edit.fontSize || 12;
-          const y = height - edit.y; // Convert to PDF coordinate system
+      switch (operation.type) {
+        case 'add-text':
+          if (operation.content && operation.position) {
+            page.drawText(operation.content, {
+              x: operation.position.x,
+              y: operation.position.y,
+              size: operation.style?.fontSize || 12,
+              color: parseColor(operation.style?.color || '#000000'),
+            });
+          }
+          break;
 
-          page.drawText(edit.content, {
-            x: edit.x,
-            y: y,
-            size: fontSize,
-            color: { type: 'RGB', r: 0, g: 0, b: 0 } as any
-          });
-        }
-      });
-    });
+        case 'highlight':
+          if (operation.area) {
+            page.drawRectangle({
+              x: operation.area.x,
+              y: operation.area.y,
+              width: operation.area.width,
+              height: operation.area.height,
+              color: { type: 'RGB', r: 1, g: 1, b: 0 } as any, // Yellow highlight
+              opacity: 0.3,
+            });
+          }
+          break;
+
+        case 'underline':
+          if (operation.area) {
+            page.drawLine({
+              start: { x: operation.area.x, y: operation.area.y },
+              end: { x: operation.area.x + operation.area.width, y: operation.area.y },
+              thickness: 1,
+              color: parseColor('#000000'),
+            });
+          }
+          break;
+
+        case 'strikeout':
+          if (operation.area) {
+            const midY = operation.area.y + operation.area.height / 2;
+            page.drawLine({
+              start: { x: operation.area.x, y: midY },
+              end: { x: operation.area.x + operation.area.width, y: midY },
+              thickness: 1,
+              color: parseColor('#000000'),
+            });
+          }
+          break;
+
+        case 'add-image':
+          if (operation.imageData) {
+            try {
+              const imageBytes = Buffer.from(operation.imageData.split(',')[1], 'base64');
+              let image;
+
+              if (operation.imageData.includes('image/png')) {
+                image = await pdfDoc.embedPng(imageBytes);
+              } else if (operation.imageData.includes('image/jpeg')) {
+                image = await pdfDoc.embedJpg(imageBytes);
+              }
+
+              if (image && operation.area) {
+                page.drawImage(image, {
+                  x: operation.area.x,
+                  y: operation.area.y,
+                  width: operation.area.width,
+                  height: operation.area.height,
+                });
+              }
+            } catch (error) {
+              console.warn(`Failed to embed image: ${error}`);
+            }
+          }
+          break;
+
+        default:
+          console.warn(`Unsupported operation type: ${operation.type}`);
+      }
+    }
 
     // Set metadata
-    const filename = `${originalFilename.replace('.pdf', '')}_edited.pdf`;
-    pdfDoc.setTitle(filename.replace('.pdf', ''));
+    const outputName = `${originalFilename.replace('.pdf', '')}_edited.pdf`;
+    pdfDoc.setTitle(outputName.replace('.pdf', ''));
     pdfDoc.setSubject('PDF edited by PDFPro.pro');
     pdfDoc.setProducer('PDFPro.pro');
     pdfDoc.setCreator('PDFPro.pro');
-    pdfDoc.setKeywords(['edited', 'modified']);
     pdfDoc.setCreationDate(new Date());
     pdfDoc.setModificationDate(new Date());
 
     const pdfBytes = await pdfDoc.save();
+    const filename = outputName;
+    const outputPath = join(OUTPUT_DIR, filename);
+    await writeFile(outputPath, Buffer.from(pdfBytes));
 
     return {
       filename,
@@ -77,13 +176,27 @@ async function editPDF(
 
   } catch (error) {
     console.error('PDF edit error:', error);
-    throw new Error('Failed to edit PDF');
+    throw new Error('Failed to edit PDF file: ' + (error instanceof Error ? error.message : String(error)));
   }
+}
+
+// Parse color string to RGB values
+function parseColor(color: string): any {
+  if (color.startsWith('#')) {
+    const hex = color.slice(1);
+    return {
+      type: 'RGB',
+      r: parseInt(hex.slice(0, 2), 16) / 255,
+      g: parseInt(hex.slice(2, 4), 16) / 255,
+      b: parseInt(hex.slice(4, 6), 16) / 255,
+    } as any;
+  }
+  return { type: 'RGB', r: 0, g: 0, b: 0 } as any; // Default black
 }
 
 export async function POST(request: NextRequest) {
   try {
-    // No need to create directories - we return data directly
+    await ensureDirectories();
 
     const body: EditPDFRequest = await request.json();
 
@@ -94,24 +207,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!body.edits || body.edits.length === 0) {
+    if (!body.editOptions) {
       return NextResponse.json(
-        { error: 'At least one edit is required' },
+        { error: 'Edit options are required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate file type
+    if (!body.file.name.toLowerCase().endsWith('.pdf')) {
+      return NextResponse.json(
+        { error: 'Only PDF files are supported' },
+        { status: 400 }
+      );
+    }
+
+    // Validate edit operations
+    if (!body.editOptions.operations || body.editOptions.operations.length === 0) {
+      return NextResponse.json(
+        { error: 'At least one edit operation is required' },
         { status: 400 }
       );
     }
 
     // Load and validate the PDF
     const buffer = Buffer.from(body.file.data, 'base64');
+    let sourcePdf: PDFDocument;
 
     try {
-      const pdfDoc = await PDFDocument.load(buffer);
-      if (pdfDoc.getPageCount() === 0) {
-        return NextResponse.json(
-          { error: 'PDF file has no pages' },
-          { status: 400 }
-        );
-      }
+      sourcePdf = await PDFDocument.load(buffer);
     } catch (error) {
       return NextResponse.json(
         { error: 'Invalid PDF file' },
@@ -122,33 +246,41 @@ export async function POST(request: NextRequest) {
     const originalSize = buffer.length;
     const originalFilename = body.file.name;
 
-    // Apply edits
-    const editResult = await editPDF(buffer, body.edits, originalFilename);
+    // Edit the PDF
+    const editResult = await editPDF(
+      buffer,
+      body.editOptions,
+      originalFilename
+    );
 
     // Generate edit report
     const editReport = {
       originalFile: {
         name: originalFilename,
-        size: originalSize
+        size: originalSize,
+        pages: sourcePdf.getPageCount()
       },
-      edits: body.edits,
+      editedFile: {
+        name: editResult.filename,
+        size: editResult.size
+      },
+      editOptions: body.editOptions,
       processing: {
-        totalEdits: body.edits.length,
-        pagesEdited: [...new Set(body.edits.map(e => e.page))].length,
-        editTypes: [...new Set(body.edits.map(e => e.type))]
+        operationsPerformed: body.editOptions.operations.length,
+        editType: body.editOptions.action
       }
     };
 
     return NextResponse.json({
       success: true,
-      message: 'PDF edits applied successfully',
+      message: 'PDF edited successfully',
       data: {
         filename: editResult.filename,
         originalSize,
         editedSize: editResult.size,
-        editsApplied: body.edits.length,
-        downloadUrl: `data:application/pdf;base64,${editResult.data.toString('base64')}`,
-        data: editResult.data.toString('base64'),
+        operationsPerformed: body.editOptions.operations.length,
+        downloadUrl: `/api/download/${editResult.filename}`,
+        data: Buffer.from(editResult.data).toString('base64'),
         editReport
       }
     });
@@ -156,7 +288,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('PDF edit error:', error);
     return NextResponse.json(
-      { error: 'Failed to edit PDF' },
+      { error: 'Failed to edit PDF file: ' + (error instanceof Error ? error.message : String(error)) },
       { status: 500 }
     );
   }

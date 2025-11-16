@@ -1,15 +1,27 @@
-import { readdir, unlink, stat } from 'fs/promises';
+import { readdir, unlink, stat, mkdir } from 'fs/promises';
 import { join } from 'path';
 
-const UPLOAD_DIR = join(process.cwd(), 'uploads');
-const OUTPUT_DIR = join(process.cwd(), 'outputs');
+const UPLOAD_DIR = join('/tmp', 'uploads');
+const OUTPUT_DIR = join('/tmp', 'outputs');
 const MAX_AGE_MS = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
+
+// Ensure directories exist before cleanup
+async function ensureDirectories(): Promise<void> {
+  try {
+    await mkdir(UPLOAD_DIR, { recursive: true });
+    await mkdir(OUTPUT_DIR, { recursive: true });
+  } catch (error) {
+    // Directories might already exist
+  }
+}
 
 // Clean up old files in a directory
 async function cleanupDirectory(directory: string): Promise<{ deleted: number; errors: string[] }> {
   const result = { deleted: 0, errors: [] as string[] };
 
   try {
+    // Ensure directory exists before reading
+    await mkdir(directory, { recursive: true });
     const files = await readdir(directory);
 
     for (const file of files) {
@@ -43,6 +55,9 @@ async function cleanupDirectory(directory: string): Promise<{ deleted: number; e
 // Main cleanup function
 export async function cleanupOldFiles(): Promise<void> {
   console.log('🧹 Starting file cleanup process...');
+
+  // Ensure directories exist before cleanup
+  await ensureDirectories();
 
   try {
     const uploadResult = await cleanupDirectory(UPLOAD_DIR);

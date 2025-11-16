@@ -7,6 +7,7 @@ import FileUploader from './FileUploader';
 import ProcessingStatus, { ProcessingStep } from './ProcessingStatus';
 import ResultDownload, { DownloadFile } from './ResultDownload';
 import { PDFTool } from '@/lib/constants';
+import { getCanonicalUrl } from '@/lib/url-config';
 
 interface ToolPageProps {
   tool: PDFTool;
@@ -607,10 +608,42 @@ const ToolPage: React.FC<ToolPageProps> = ({
         updateStep(i, 'completed');
       }
 
-      // Process files
-      const result = await processFiles(files);
-      setProcessedFiles(result);
-      setState('complete');
+      // Process files via API - use 'file' parameter for single file tools
+      const formData = new FormData();
+      files.forEach((file, index) => {
+        // Most API routes expect 'file' parameter, but some support multiple files
+        if (files.length === 1) {
+          formData.append('file', file);
+        } else {
+          formData.append(`files`, file);
+        }
+      });
+
+      const response = await fetch(`/api/pdf/${toolId}`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Processing failed');
+      }
+
+      const data = await response.json();
+      if (data.success && data.base64) {
+        const blob = new Blob([Uint8Array.from(atob(data.base64), c => c.charCodeAt(0))], { type: 'application/pdf' });
+        const downloadFile: DownloadFile = {
+          id: `file-${Date.now()}`,
+          name: data.filename || `processed-${Date.now()}.pdf`,
+          url: URL.createObjectURL(blob),
+          size: blob.size,
+          type: 'application/pdf'
+        };
+        setProcessedFiles([downloadFile]);
+        setState('complete');
+      } else {
+        throw new Error(data.error || 'No valid response received');
+      }
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Processing failed';

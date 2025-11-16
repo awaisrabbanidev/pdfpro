@@ -3,6 +3,7 @@ import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { PDFDocument } from 'pdf-lib';
 import mammoth from 'mammoth';
+import { ensureTempDirs, OUTPUTS_DIR, UPLOADS_DIR } from '@/lib/temp-dirs';
 
 // Simple UUID function
 const uuid = () => Math.random().toString(36).substring(2, 15);
@@ -24,14 +25,11 @@ interface ConvertRequest {
   };
 }
 
-const UPLOAD_DIR = join('/tmp', 'uploads');
-const OUTPUT_DIR = join('/tmp', 'outputs');
-
 // Ensure directories exist
 async function ensureDirectories() {
   try {
-    await mkdir(UPLOAD_DIR, { recursive: true });
-    await mkdir(OUTPUT_DIR, { recursive: true });
+    await mkdir(UPLOADS_DIR, { recursive: true });
+    await mkdir(OUTPUTS_DIR, { recursive: true });
   } catch (error) {
     // Directory might already exist
   }
@@ -156,7 +154,7 @@ async function convertWordToPDF(
     const pdfBytes = await pdfDoc.save();
 
     // Save to file
-    const outputPath = join(OUTPUT_DIR, outputName);
+    const outputPath = join(OUTPUTS_DIR, outputName);
     await writeFile(outputPath, Buffer.from(pdfBytes));
 
     return {
@@ -172,41 +170,86 @@ async function convertWordToPDF(
 }
 
 export async function POST(request: NextRequest) {
+  ensureTempDirs();
+  await ensureDirectories();
+
   try {
-    await ensureDirectories();
+    const contentType = request.headers.get('content-type');
+    let buffer: Buffer;
+    let originalFilename: string;
+    let options: ConvertRequest['options'];
 
-    const body: ConvertRequest = await request.json();
+    if (contentType?.includes('application/json')) {
+      const body: ConvertRequest = await request.json();
 
-    if (!body.file || !body.file.data) {
-      return NextResponse.json(
-        { error: 'No file provided' },
-        { status: 400 }
-      );
+      if (!body.file || !body.file.data) {
+        return NextResponse.json(
+          { error: 'No file provided' },
+          { status: 400 }
+        );
+      }
+
+      if (!body.options) {
+        return NextResponse.json(
+          { error: 'Conversion options are required' },
+          { status: 400 }
+        );
+      }
+
+      // Validate file type
+      const filename = body.file.name.toLowerCase();
+      if (!filename.endsWith('.docx') && !filename.endsWith('.doc') && !filename.endsWith('.rtf')) {
+        return NextResponse.json(
+          { error: 'Only Word documents (.docx, .doc) and RTF files are supported' },
+          { status: 400 }
+        );
+      }
+
+      buffer = Buffer.from(body.file.data, 'base64');
+      originalFilename = body.file.name;
+      options = body.options;
+    } else {
+      const formData = await request.formData();
+      const file = formData.get('file') as File;
+      const pageSize = formData.get('pageSize') as string || 'A4';
+      const preserveFormatting = formData.get('preserveFormatting') as string === 'true';
+
+      if (!file) {
+        return NextResponse.json(
+          { error: 'No file provided' },
+          { status: 400 }
+        );
+      }
+
+      // Validate file type
+      const filename = file.name.toLowerCase();
+      if (!filename.endsWith('.docx') && !filename.endsWith('.doc') && !filename.endsWith('.rtf')) {
+        return NextResponse.json(
+          { error: 'Only Word documents (.docx, .doc) and RTF files are supported' },
+          { status: 400 }
+        );
+      }
+
+      const bytes = await file.arrayBuffer();
+      buffer = Buffer.from(bytes);
+      originalFilename = file.name;
+      options = {
+        preserveFormatting,
+        pageSize: pageSize as 'A4' | 'Letter' | 'Legal',
+        margins: {
+          top: 72,
+          bottom: 72,
+          left: 72,
+          right: 72
+        }
+      };
     }
 
-    if (!body.options) {
-      return NextResponse.json(
-        { error: 'Conversion options are required' },
-        { status: 400 }
-      );
-    }
-
-    // Validate file type
-    const filename = body.file.name.toLowerCase();
-    if (!filename.endsWith('.docx') && !filename.endsWith('.doc') && !filename.endsWith('.rtf')) {
-      return NextResponse.json(
-        { error: 'Only Word documents (.docx, .doc) and RTF files are supported' },
-        { status: 400 }
-      );
-    }
-
-    // Convert base64 to buffer
-    const docxBuffer = Buffer.from(body.file.data, 'base64');
-    const originalSize = docxBuffer.length;
+    const originalSize = buffer.length;
 
     // Validate document can be read
     try {
-      const result = await mammoth.extractRawText({ buffer: docxBuffer });
+      const result = await mammoth.extractRawText({ buffer: buffer });
       if (!result.value || result.value.trim().length === 0) {
         return NextResponse.json(
           { error: 'Document contains no readable text' },
@@ -220,12 +263,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const originalFilename = body.file.name;
-
     // Convert to PDF
     const pdfResult = await convertWordToPDF(
-      docxBuffer,
-      body.options,
+      buffer,
+      options,
       originalFilename
     );
 
@@ -234,16 +275,16 @@ export async function POST(request: NextRequest) {
       originalFile: {
         name: originalFilename,
         size: originalSize,
-        type: filename.endsWith('.docx') ? 'DOCX' : filename.endsWith('.doc') ? 'DOC' : 'RTF'
+        type: originalFilename.toLowerCase().endsWith('.docx') ? 'DOCX' : originalFilename.toLowerCase().endsWith('.doc') ? 'DOC' : 'RTF'
       },
       convertedFile: {
         name: pdfResult.filename,
         size: pdfResult.size
       },
-      options: body.options,
+      options,
       conversion: {
-        preserveFormatting: body.options.preserveFormatting,
-        pageSize: body.options.pageSize,
+        preserveFormatting: options.preserveFormatting,
+        pageSize: options.pageSize,
         compressionRatio: ((originalSize - pdfResult.size) / originalSize * 100).toFixed(1)
       }
     };
@@ -251,15 +292,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Word document converted to PDF successfully',
-      data: {
-        filename: pdfResult.filename,
-        originalSize,
-        convertedSize: pdfResult.size,
-        compressionRatio: ((originalSize - pdfResult.size) / originalSize * 100).toFixed(1),
-        downloadUrl: `/api/download/${pdfResult.filename}`,
-        data: Buffer.from(pdfResult.data).toString('base64'),
-        conversionReport
-      }
+      filename: pdfResult.filename,
+      originalSize,
+      convertedSize: pdfResult.size,
+      compressionRatio: ((originalSize - pdfResult.size) / originalSize * 100).toFixed(1),
+      downloadUrl: `/api/download/${pdfResult.filename}`,
+      data: Buffer.from(pdfResult.data).toString('base64'),
+      conversionReport
     });
 
   } catch (error) {

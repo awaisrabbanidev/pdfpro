@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PDFDocument, PDFName, PDFDict } from 'pdf-lib';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
+import { ensureTempDirs, OUTPUTS_DIR, UPLOADS_DIR } from '@/lib/temp-dirs';
 
 // Simple UUID function
 const uuid = () => Math.random().toString(36).substring(2, 15);
@@ -14,14 +15,11 @@ interface CompressRequest {
   compressionLevel: 'low' | 'medium' | 'high';
 }
 
-const UPLOAD_DIR = join('/tmp', 'uploads');
-const OUTPUT_DIR = join('/tmp', 'outputs');
-
 // Ensure directories exist
 async function ensureDirectories() {
   try {
-    await mkdir(UPLOAD_DIR, { recursive: true });
-    await mkdir(OUTPUT_DIR, { recursive: true });
+    await mkdir(UPLOADS_DIR, { recursive: true });
+    await mkdir(OUTPUTS_DIR, { recursive: true });
   } catch (error) {
     // Directory might already exist
   }
@@ -113,29 +111,61 @@ async function optimizePdf(pdfDoc: PDFDocument, settings: any) {
 }
 
 export async function POST(request: NextRequest) {
+  ensureTempDirs();
+  await ensureDirectories();
+
   try {
-    await ensureDirectories();
+    const contentType = request.headers.get('content-type');
+    let buffer: Buffer;
+    let originalFilename: string;
+    let compressionLevel: string;
 
-    const body: CompressRequest = await request.json();
+    if (contentType?.includes('application/json')) {
+      const body: CompressRequest = await request.json();
 
-    if (!body.file || !body.file.data) {
-      return NextResponse.json(
-        { error: 'No file provided' },
-        { status: 400 }
-      );
+      if (!body.file || !body.file.data) {
+        return NextResponse.json(
+          { error: 'No file provided' },
+          { status: 400 }
+        );
+      }
+
+      if (!body.compressionLevel) {
+        return NextResponse.json(
+          { error: 'Compression level is required' },
+          { status: 400 }
+        );
+      }
+
+      buffer = Buffer.from(body.file.data, 'base64');
+      originalFilename = body.file.name;
+      compressionLevel = body.compressionLevel;
+    } else {
+      const formData = await request.formData();
+      const file = formData.get('file') as File;
+      const level = formData.get('compressionLevel') as string;
+
+      if (!file) {
+        return NextResponse.json(
+          { error: 'No file provided' },
+          { status: 400 }
+        );
+      }
+
+      if (!level) {
+        return NextResponse.json(
+          { error: 'Compression level is required' },
+          { status: 400 }
+        );
+      }
+
+      const bytes = await file.arrayBuffer();
+      buffer = Buffer.from(bytes);
+      originalFilename = file.name;
+      compressionLevel = level;
     }
 
-    if (!body.compressionLevel) {
-      return NextResponse.json(
-        { error: 'Compression level is required' },
-        { status: 400 }
-      );
-    }
-
-    // Load and validate the PDF
-    const buffer = Buffer.from(body.file.data, 'base64');
     const originalSize = buffer.length;
-
     let pdfDoc: PDFDocument;
 
     try {
@@ -148,8 +178,8 @@ export async function POST(request: NextRequest) {
     }
 
     const totalPages = pdfDoc.getPageCount();
-    const baseName = body.file.name.replace('.pdf', '');
-    const compressionSettings = getCompressionSettings(body.compressionLevel);
+    const baseName = originalFilename.replace('.pdf', '');
+    const compressionSettings = getCompressionSettings(compressionLevel);
 
     // Analyze PDF structure
     const pages = pdfDoc.getPages();
@@ -175,7 +205,7 @@ export async function POST(request: NextRequest) {
     );
 
     // Set output name
-    const outputName = `${baseName}_compressed_${body.compressionLevel}.pdf`;
+    const outputName = `${baseName}_compressed_${compressionLevel}.pdf`;
 
     // Add metadata about compression
     pdfDoc.setTitle(outputName.replace('.pdf', ''));
@@ -195,7 +225,7 @@ export async function POST(request: NextRequest) {
     const compressionRatio = ((originalSize - compressedSize) / originalSize) * 100;
 
     // Save to file
-    const outputPath = join(OUTPUT_DIR, outputName);
+    const outputPath = join(OUTPUTS_DIR, outputName);
     await writeFile(outputPath, compressedBytes);
 
     // Generate compression report
@@ -223,16 +253,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'PDF compressed successfully',
-      data: {
-        filename: outputName,
-        originalSize,
-        compressedSize,
-        compressionRatio,
-        totalPages,
-        downloadUrl: `/api/download/${outputName}`,
-        data: Buffer.from(compressedBytes).toString('base64'),
-        compressionReport
-      }
+      filename: outputName,
+      originalSize,
+      compressedSize,
+      compressionRatio,
+      totalPages,
+      downloadUrl: `/api/download/${outputName}`,
+      data: Buffer.from(compressedBytes).toString('base64'),
+      compressionReport
     });
 
   } catch (error) {

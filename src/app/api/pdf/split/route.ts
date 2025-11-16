@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PDFDocument, PDFPage } from 'pdf-lib';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
+import { ensureTempDirs, OUTPUTS_DIR, UPLOADS_DIR } from '@/lib/temp-dirs';
 
 // Simple UUID function
 const uuid = () => Math.random().toString(36).substring(2, 15);
@@ -19,14 +20,11 @@ interface SplitRequest {
   };
 }
 
-const UPLOAD_DIR = join('/tmp', 'uploads');
-const OUTPUT_DIR = join('/tmp', 'outputs');
-
 // Ensure directories exist
 async function ensureDirectories() {
   try {
-    await mkdir(UPLOAD_DIR, { recursive: true });
-    await mkdir(OUTPUT_DIR, { recursive: true });
+    await mkdir(UPLOADS_DIR, { recursive: true });
+    await mkdir(OUTPUTS_DIR, { recursive: true });
   } catch (error) {
     // Directory might already exist
   }
@@ -78,7 +76,7 @@ async function createPdfFromPages(
   const filename = `${baseName}_${suffix}.pdf`;
 
   // Save to file
-  const outputPath = join(OUTPUT_DIR, filename);
+  const outputPath = join(OUTPUTS_DIR, filename);
   await writeFile(outputPath, pdfBytes);
 
   return {
@@ -89,29 +87,79 @@ async function createPdfFromPages(
 }
 
 export async function POST(request: NextRequest) {
+  ensureTempDirs();
+  await ensureDirectories();
+
   try {
-    await ensureDirectories();
+    const contentType = request.headers.get('content-type');
+    let buffer: Buffer;
+    let originalFilename: string;
+    let splitType: SplitRequest['splitType'];
+    let splitOption: SplitRequest['splitOption'];
 
-    const body: SplitRequest = await request.json();
+    if (contentType?.includes('application/json')) {
+      const body: SplitRequest = await request.json();
 
-    if (!body.file || !body.file.data) {
-      return NextResponse.json(
-        { error: 'No file provided' },
-        { status: 400 }
-      );
-    }
+      if (!body.file || !body.file.data) {
+        return NextResponse.json(
+          { error: 'No file provided' },
+          { status: 400 }
+        );
+      }
 
-    if (!body.splitType) {
-      return NextResponse.json(
-        { error: 'Split type is required' },
-        { status: 400 }
-      );
+      if (!body.splitType) {
+        return NextResponse.json(
+          { error: 'Split type is required' },
+          { status: 400 }
+        );
+      }
+
+      buffer = Buffer.from(body.file.data, 'base64');
+      originalFilename = body.file.name;
+      splitType = body.splitType;
+      splitOption = body.splitOption;
+    } else {
+      const formData = await request.formData();
+      const file = formData.get('file') as File;
+      const type = formData.get('splitType') as string;
+
+      if (!file) {
+        return NextResponse.json(
+          { error: 'No file provided' },
+          { status: 400 }
+        );
+      }
+
+      if (!type) {
+        return NextResponse.json(
+          { error: 'Split type is required' },
+          { status: 400 }
+        );
+      }
+
+      const bytes = await file.arrayBuffer();
+      buffer = Buffer.from(bytes);
+      originalFilename = file.name;
+      splitType = type as SplitRequest['splitType'];
+
+      // Parse split option based on type
+      if (splitType === 'range') {
+        const pages = formData.get('pages') as string;
+        const range = formData.get('range') as string;
+        splitOption = {
+          pages: pages ? pages.split(',').map(p => parseInt(p.trim())) : undefined,
+          range: range || undefined
+        };
+      } else if (splitType === 'every') {
+        const every = formData.get('every') as string;
+        splitOption = {
+          every: every ? parseInt(every) : undefined
+        };
+      }
     }
 
     // Load and validate the PDF
-    const buffer = Buffer.from(body.file.data, 'base64');
     let sourcePdf: PDFDocument;
-
     try {
       sourcePdf = await PDFDocument.load(buffer);
     } catch (error) {
@@ -122,7 +170,7 @@ export async function POST(request: NextRequest) {
     }
 
     const totalPages = sourcePdf.getPageCount();
-    const baseName = body.file.name.replace('.pdf', '');
+    const baseName = originalFilename.replace('.pdf', '');
 
     if (totalPages === 0) {
       return NextResponse.json(
@@ -139,7 +187,7 @@ export async function POST(request: NextRequest) {
       downloadUrl: string;
     }> = [];
 
-    switch (body.splitType) {
+    switch (splitType) {
       case 'single': {
         // Split into individual pages
         for (let i = 0; i < totalPages; i++) {
@@ -162,7 +210,7 @@ export async function POST(request: NextRequest) {
       }
 
       case 'range': {
-        if (!body.splitOption?.pages && !body.splitOption?.range) {
+        if (!splitOption?.pages && !splitOption?.range) {
           return NextResponse.json(
             { error: 'Page selection is required for range split' },
             { status: 400 }
@@ -171,10 +219,10 @@ export async function POST(request: NextRequest) {
 
         let pageIndices: number[];
 
-        if (body.splitOption.range) {
-          pageIndices = parseRangeString(body.splitOption.range);
-        } else if (body.splitOption.pages) {
-          pageIndices = body.splitOption.pages.map(p => p - 1); // Convert to 0-based index
+        if (splitOption.range) {
+          pageIndices = parseRangeString(splitOption.range);
+        } else if (splitOption.pages) {
+          pageIndices = splitOption.pages.map(p => p - 1); // Convert to 0-based index
         } else {
           return NextResponse.json(
             { error: 'Invalid page selection' },
@@ -212,7 +260,7 @@ export async function POST(request: NextRequest) {
       }
 
       case 'every': {
-        const every = body.splitOption?.every || 1;
+        const every = splitOption?.every || 1;
 
         if (every < 1 || every > totalPages) {
           return NextResponse.json(

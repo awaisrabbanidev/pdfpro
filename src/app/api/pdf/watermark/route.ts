@@ -1,212 +1,215 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
+import { writeFile, readFile, unlink } from 'fs/promises';
 import { join } from 'path';
-import { PDFDocument, rgb } from 'pdf-lib';
+import { ensureDirectories, getDirectories } from '@/lib/api-config';
+import { safeJsonParse } from '@/lib/api-helpers';
 
-interface WatermarkRequest {
-  file: {
-    name: string;
-    data: string; // Base64 encoded
-  };
-  watermark: {
-    type: 'text' | 'image';
-    content: string;
-    position: 'center' | 'corner' | 'diagonal' | 'repeat';
-    opacity: number;
-    fontSize?: number;
-    color?: string;
-  };
-}
-
-const UPLOAD_DIR = join('/tmp', 'uploads');
-const OUTPUT_DIR = join('/tmp', 'outputs');
-
-async function ensureDirectories() {
-  try {
-    await mkdir(UPLOAD_DIR, { recursive: true });
-    await mkdir(OUTPUT_DIR, { recursive: true });
-  } catch (error) {
-    // Directory might already exist
-  }
-}
-
-async function addWatermark(
-  pdfBuffer: Buffer,
-  watermark: WatermarkRequest['watermark'],
-  originalFilename: string
-): Promise<{ filename: string; size: number; data: Buffer }> {
-  try {
-    const pdfDoc = await PDFDocument.load(pdfBuffer);
-    const pageCount = pdfDoc.getPageCount();
-
-    // Add watermark to each page
-    for (let i = 0; i < pageCount; i++) {
-      const page = pdfDoc.getPage(i);
-      const { width, height } = page.getSize();
-
-      if (watermark.type === 'text') {
-        const fontSize = watermark.fontSize || 48;
-        const opacity = watermark.opacity || 0.3;
-
-        // Parse color
-        let color = { type: 'RGB', r: 200, g: 200, b: 200 } as any;
-        if (watermark.color) {
-          const hex = watermark.color.replace('#', '');
-          color = {
-            type: 'RGB',
-            r: parseInt(hex.substring(0, 2), 16),
-            g: parseInt(hex.substring(2, 4), 16),
-            b: parseInt(hex.substring(4, 6), 16)
-          } as any;
-        }
-
-        switch (watermark.position) {
-          case 'center':
-            page.drawText(watermark.content, {
-              x: width / 2 - (watermark.content.length * fontSize) / 4,
-              y: height / 2,
-              size: fontSize,
-              color,
-              opacity
-            });
-            break;
-          case 'diagonal':
-            // Simulate diagonal watermark by positioning text diagonally
-            const diagonalX = width / 4;
-            const diagonalY = height * 0.6;
-            page.drawText(watermark.content, {
-              x: diagonalX,
-              y: diagonalY,
-              size: fontSize,
-              color,
-              opacity
-            });
-            break;
-          case 'corner':
-            page.drawText(watermark.content, {
-              x: 50,
-              y: 50,
-              size: fontSize,
-              color,
-              opacity
-            });
-            break;
-          case 'repeat':
-            for (let x = 0; x < width; x += 200) {
-              for (let y = 0; y < height; y += 100) {
-                page.drawText(watermark.content, {
-                  x,
-                  y,
-                  size: fontSize / 2,
-                  color,
-                  opacity: opacity / 2
-                });
-              }
-            }
-            break;
-        }
-      }
-    }
-
-    // Set metadata
-    const filename = `${originalFilename.replace('.pdf', '')}_watermarked.pdf`;
-    pdfDoc.setTitle(filename.replace('.pdf', ''));
-    pdfDoc.setSubject('PDF watermarked by PDFPro.pro');
-    pdfDoc.setProducer('PDFPro.pro');
-    pdfDoc.setCreator('PDFPro.pro');
-    pdfDoc.setKeywords(['watermark', 'protected']);
-    pdfDoc.setCreationDate(new Date());
-    pdfDoc.setModificationDate(new Date());
-
-    const pdfBytes = await pdfDoc.save();
-    const outputPath = join(OUTPUT_DIR, filename);
-    await writeFile(outputPath, Buffer.from(pdfBytes));
-
-    return {
-      filename,
-      size: pdfBytes.length,
-      data: Buffer.from(pdfBytes)
-    };
-
-  } catch (error) {
-    console.error('PDF watermark error:', error);
-    throw new Error('Failed to add watermark to PDF');
-  }
+interface WatermarkSettings {
+  type: 'text' | 'image';
+  content: string;
+  opacity: number;
+  rotation: number;
+  fontSize?: number;
+  color?: string;
+  position: 'center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  scale: number;
+  pages: 'all' | number[];
 }
 
 export async function POST(request: NextRequest) {
   try {
-    await ensureDirectories();
+    ensureDirectories();
+    const dirs = getDirectories();
 
-    const body: WatermarkRequest = await request.json();
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
+    const settings = formData.get('settings') as string;
+    const imageFile = formData.get('imageFile') as File;
 
-    if (!body.file || !body.file.data) {
-      return NextResponse.json(
-        { error: 'No file provided' },
-        { status: 400 }
-      );
+    if (!file) {
+      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
 
-    if (!body.watermark || !body.watermark.content) {
-      return NextResponse.json(
-        { error: 'Watermark content is required' },
-        { status: 400 }
-      );
+    if (!settings) {
+      return NextResponse.json({ error: 'No watermark settings specified' }, { status: 400 });
     }
 
-    // Load and validate the PDF
-    const buffer = Buffer.from(body.file.data, 'base64');
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    const timestamp = Date.now();
+    const inputPath = join(dirs.UPLOADS, `${timestamp}-${file.name}`);
+    const outputPath = join(dirs.OUTPUTS, `${timestamp}-watermarked.pdf`);
+
+    await writeFile(inputPath, buffer);
 
     try {
+      const { PDFDocument, rgb, degrees } = await import('pdf-lib');
       const pdfDoc = await PDFDocument.load(buffer);
-      if (pdfDoc.getPageCount() === 0) {
-        return NextResponse.json(
-          { error: 'PDF file has no pages' },
-          { status: 400 }
-        );
+
+      const watermarkSettings = safeJsonParse(settings, 'watermark-settings') as WatermarkSettings;
+      if (!watermarkSettings) {
+        return NextResponse.json({ error: 'Invalid watermark settings' }, { status: 400 });
       }
-    } catch (error) {
-      return NextResponse.json(
-        { error: 'Invalid PDF file' },
-        { status: 400 }
-      );
+
+      const pageCount = pdfDoc.getPageCount();
+
+      let imageBytes: Uint8Array | undefined;
+      if (watermarkSettings.type === 'image' && imageFile) {
+        const imgBuffer = Buffer.from(await imageFile.arrayBuffer());
+        imageBytes = new Uint8Array(imgBuffer);
+      }
+
+      // Determine which pages to apply watermark to
+      const pagesToWatermark = watermarkSettings.pages === 'all'
+        ? Array.from({ length: pageCount }, (_, i) => i)
+        : watermarkSettings.pages.map(page => page - 1); // Convert to 0-based index
+
+      for (const pageIndex of pagesToWatermark) {
+        if (pageIndex < 0 || pageIndex >= pageCount) continue;
+
+        const page = pdfDoc.getPage(pageIndex);
+        const { width, height } = page.getSize();
+
+        if (watermarkSettings.type === 'text') {
+          const font = await pdfDoc.embedFont('Helvetica');
+          const fontSize = watermarkSettings.fontSize || 24;
+
+          // Calculate text position
+          let x = width / 2;
+          let y = height / 2;
+
+          switch (watermarkSettings.position) {
+            case 'top-left':
+              x = width * 0.2;
+              y = height * 0.8;
+              break;
+            case 'top-right':
+              x = width * 0.8;
+              y = height * 0.8;
+              break;
+            case 'bottom-left':
+              x = width * 0.2;
+              y = height * 0.2;
+              break;
+            case 'bottom-right':
+              x = width * 0.8;
+              y = height * 0.2;
+              break;
+            case 'center':
+            default:
+              x = width / 2;
+              y = height / 2;
+              break;
+          }
+
+          // Parse color
+          let color;
+          if (watermarkSettings.color) {
+            const hex = watermarkSettings.color.replace('#', '');
+            color = rgb(
+              parseInt(hex.substr(0, 2), 16) / 255,
+              parseInt(hex.substr(2, 2), 16) / 255,
+              parseInt(hex.substr(4, 2), 16) / 255
+            );
+          } else {
+            color = rgb(0.5, 0.5, 0.5); // Default gray
+          }
+
+          // Draw text with rotation
+          page.drawText(watermarkSettings.content, {
+            x: x,
+            y: y,
+            size: fontSize * watermarkSettings.scale,
+            font: font,
+            color: color,
+            opacity: watermarkSettings.opacity,
+            rotate: degrees(watermarkSettings.rotation)
+          });
+
+        } else if (watermarkSettings.type === 'image' && imageBytes) {
+          // Embed image
+          let watermarkImage;
+          if (imageFile.type === 'image/png') {
+            watermarkImage = await pdfDoc.embedPng(imageBytes);
+          } else {
+            watermarkImage = await pdfDoc.embedJpg(imageBytes);
+          }
+
+          const imgWidth = watermarkImage.width * watermarkSettings.scale;
+          const imgHeight = watermarkImage.height * watermarkSettings.scale;
+
+          // Calculate image position
+          let x = (width - imgWidth) / 2;
+          let y = (height - imgHeight) / 2;
+
+          switch (watermarkSettings.position) {
+            case 'top-left':
+              x = 50;
+              y = height - imgHeight - 50;
+              break;
+            case 'top-right':
+              x = width - imgWidth - 50;
+              y = height - imgHeight - 50;
+              break;
+            case 'bottom-left':
+              x = 50;
+              y = 50;
+              break;
+            case 'bottom-right':
+              x = width - imgWidth - 50;
+              y = 50;
+              break;
+            case 'center':
+            default:
+              x = (width - imgWidth) / 2;
+              y = (height - imgHeight) / 2;
+              break;
+          }
+
+          // Draw image with rotation and opacity
+          page.drawImage(watermarkImage, {
+            x: x,
+            y: y,
+            width: imgWidth,
+            height: imgHeight,
+            opacity: watermarkSettings.opacity,
+            rotate: degrees(watermarkSettings.rotation)
+          });
+        }
+      }
+
+      const pdfBytes = await pdfDoc.save();
+      await writeFile(outputPath, pdfBytes);
+
+    } catch (conversionError) {
+      console.error('Watermark error:', conversionError);
+      throw new Error('Failed to add watermark');
+    } finally {
+      // Clean up input file
+      try {
+        await unlink(inputPath);
+      } catch (error) {
+        console.error('Failed to clean up input file:', error);
+      }
     }
 
-    const originalSize = buffer.length;
-    const originalFilename = body.file.name;
-
-    // Add watermark
-    const watermarkResult = await addWatermark(buffer, body.watermark, originalFilename);
+    // Read the output file for base64 encoding
+    const outputBuffer = await readFile(outputPath);
+    const base64 = outputBuffer.toString('base64');
 
     return NextResponse.json({
       success: true,
-      message: 'Watermark added successfully',
-      data: {
-        filename: watermarkResult.filename,
-        originalSize,
-        watermarkedSize: watermarkResult.size,
-        watermarkType: body.watermark.type,
-        downloadUrl: `/api/download/${watermarkResult.filename}`,
-        data: Buffer.from(watermarkResult.data).toString('base64')
-      }
+      filename: `${file.name.replace('.pdf', '-watermarked.pdf')}`,
+      base64: base64,
+      message: 'Watermark added successfully'
     });
 
   } catch (error) {
-    console.error('PDF watermark error:', error);
+    console.error('Watermark error:', error);
     return NextResponse.json(
-      { error: 'Failed to add watermark to PDF' },
+      { error: 'Failed to add watermark' },
       { status: 500 }
     );
   }
-}
-
-export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
-  });
 }

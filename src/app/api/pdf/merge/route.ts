@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PDFDocument } from 'pdf-lib';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
+import { ensureTempDirs, OUTPUTS_DIR, UPLOADS_DIR } from '@/lib/temp-dirs';
 
 // Simple UUID function
 const uuid = () => Math.random().toString(36).substring(2, 15);
@@ -14,42 +15,78 @@ interface MergeRequest {
   outputName?: string;
 }
 
-const UPLOAD_DIR = join('/tmp', 'uploads');
-const OUTPUT_DIR = join('/tmp', 'outputs');
-
 // Ensure directories exist
 async function ensureDirectories() {
   try {
-    await mkdir(UPLOAD_DIR, { recursive: true });
-    await mkdir(OUTPUT_DIR, { recursive: true });
+    await mkdir(UPLOADS_DIR, { recursive: true });
+    await mkdir(OUTPUTS_DIR, { recursive: true });
   } catch (error) {
     // Directory might already exist
   }
 }
 
 export async function POST(request: NextRequest) {
+  ensureTempDirs();
+  await ensureDirectories();
+
   try {
-    await ensureDirectories();
+    const contentType = request.headers.get('content-type');
+    let files: Array<{ name: string; data: string }>;
+    let outputName: string | undefined;
 
-    const body: MergeRequest = await request.json();
+    if (contentType?.includes('application/json')) {
+      const body: MergeRequest = await request.json();
 
-    if (!body.files || body.files.length === 0) {
-      return NextResponse.json(
-        { error: 'No files provided' },
-        { status: 400 }
-      );
-    }
+      if (!body.files || body.files.length === 0) {
+        return NextResponse.json(
+          { error: 'No files provided' },
+          { status: 400 }
+        );
+      }
 
-    if (body.files.length > 20) {
-      return NextResponse.json(
-        { error: 'Maximum 20 files can be merged at once' },
-        { status: 400 }
-      );
+      if (body.files.length > 20) {
+        return NextResponse.json(
+          { error: 'Maximum 20 files can be merged at once' },
+          { status: 400 }
+        );
+      }
+
+      files = body.files;
+      outputName = body.outputName;
+    } else {
+      const formData = await request.formData();
+      const uploadedFiles = formData.getAll('files') as File[];
+
+      if (!uploadedFiles || uploadedFiles.length === 0) {
+        return NextResponse.json(
+          { error: 'No files provided' },
+          { status: 400 }
+        );
+      }
+
+      if (uploadedFiles.length > 20) {
+        return NextResponse.json(
+          { error: 'Maximum 20 files can be merged at once' },
+          { status: 400 }
+        );
+      }
+
+      files = [];
+      for (const file of uploadedFiles) {
+        const bytes = await file.arrayBuffer();
+        const base64 = Buffer.from(bytes).toString('base64');
+        files.push({
+          name: file.name,
+          data: base64
+        });
+      }
+
+      outputName = formData.get('outputName') as string;
     }
 
     // Validate and decode files
     const pdfDocs = [];
-    for (const file of body.files) {
+    for (const file of files) {
       try {
         const buffer = Buffer.from(file.data, 'base64');
         const pdfDoc = await PDFDocument.load(buffer);
@@ -84,8 +121,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Add metadata
-    const outputName = body.outputName || `merged_${uuid()}.pdf`;
-    mergedPdf.setTitle(outputName.replace('.pdf', ''));
+    const finalOutputName = outputName || `merged_${uuid()}.pdf`;
+    mergedPdf.setTitle(finalOutputName.replace('.pdf', ''));
     mergedPdf.setSubject('PDF created by PDFPro.pro Merge Tool');
     mergedPdf.setProducer('PDFPro.pro');
     mergedPdf.setCreator('PDFPro.pro');
@@ -141,22 +178,20 @@ export async function POST(request: NextRequest) {
     const pdfBytes = await mergedPdf.save();
 
     // Save the merged PDF
-    const outputPath = join(OUTPUT_DIR, outputName);
+    const outputPath = join(OUTPUTS_DIR, finalOutputName);
     await writeFile(outputPath, pdfBytes);
 
     // Return success response with file info
     return NextResponse.json({
       success: true,
       message: 'PDFs merged successfully',
-      data: {
-        filename: outputName,
-        size: pdfBytes.length,
-        totalPages,
-        filesMerged: body.files.length,
-        downloadUrl: `/api/download/${outputName}`,
-        // Include base64 data for immediate preview
-        data: Buffer.from(pdfBytes).toString('base64')
-      }
+      filename: finalOutputName,
+      size: pdfBytes.length,
+      totalPages,
+      filesMerged: files.length,
+      downloadUrl: `/api/download/${finalOutputName}`,
+      // Include base64 data for immediate preview
+      data: Buffer.from(pdfBytes).toString('base64')
     });
 
   } catch (error) {

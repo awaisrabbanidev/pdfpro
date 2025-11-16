@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
-import { PDFDocument, rgb } from 'pdf-lib';
+import { PDFDocument } from 'pdf-lib';
 
 // Simple UUID function
 const uuid = () => Math.random().toString(36).substring(2, 15);
@@ -12,10 +12,10 @@ interface PDFToJPGRequest {
     data: string; // Base64 encoded
   };
   options: {
-    pageRange: 'all' | string;
-    quality: 'high' | 'medium' | 'low';
-    format: 'jpg' | 'png';
     dpi: number;
+    quality: number;
+    format: 'jpg' | 'png';
+    pages: 'all' | number[];
   };
 }
 
@@ -32,100 +32,62 @@ async function ensureDirectories() {
   }
 }
 
-// Convert PDF pages to images
-async function convertPDFToImages(
+// Convert PDF to images
+async function convertPDFToJPG(
   pdfBuffer: Buffer,
   options: PDFToJPGRequest['options'],
   originalFilename: string
-): Promise<{ files: Array<{ filename: string; size: number; data: Buffer; page: number }> }> {
+): Promise<{ filename: string; size: number; data: Buffer; pages: number }> {
   try {
-    // Load PDF
-    const pdfDoc = await PDFDocument.load(pdfBuffer);
-    const pageCount = pdfDoc.getPageCount();
+    const sourcePdf = await PDFDocument.load(pdfBuffer);
+    const totalPages = sourcePdf.getPageCount();
 
-    // Parse page range
-    let pagesToConvert: number[] = [];
-    if (options.pageRange === 'all') {
-      pagesToConvert = Array.from({ length: pageCount }, (_, i) => i + 1);
-    } else {
-      // Parse page range like "1-3,5,7-9"
-      const ranges = options.pageRange.split(',');
-      for (const range of ranges) {
-        const trimmedRange = range.trim();
-        if (trimmedRange.includes('-')) {
-          const [start, end] = trimmedRange.split('-').map(n => parseInt(n.trim()));
-          for (let i = start; i <= end; i++) {
-            if (i > 0 && i <= pageCount) pagesToConvert.push(i);
-          }
-        } else {
-          const page = parseInt(trimmedRange);
-          if (page > 0 && page <= pageCount) pagesToConvert.push(page);
-        }
+    // Determine which pages to convert
+    const pageIndices = options.pages === 'all'
+      ? sourcePdf.getPageIndices()
+      : options.pages.map(pageNum => pageNum - 1); // Convert to 0-based index
+
+    const images: Buffer[] = [];
+
+    // Convert each page to an image
+    for (const index of pageIndices) {
+      if (index < 0 || index >= totalPages) {
+        continue; // Skip invalid page numbers
       }
+
+      // Note: pdf-lib doesn't have direct PDF to image conversion
+      // This is a placeholder implementation that creates a simplified representation
+      // In a real implementation, you would use a library like sharp or puppeteer
+
+      // For now, we'll create a simple text-based representation as a placeholder
+      const page = sourcePdf.getPages()[index];
+      const { width, height } = page.getSize();
+
+      // Create a simple text representation (this would be replaced with actual image conversion)
+      const imageText = `Page ${index + 1} converted to ${options.format.toUpperCase()}\nSize: ${width}x${height} points\nDPI: ${options.dpi}\nQuality: ${options.quality}%`;
+
+      // Create a simple image placeholder (in real implementation, this would be actual image data)
+      const imageBuffer = Buffer.from(imageText, 'utf-8');
+      images.push(imageBuffer);
     }
 
-    // Convert each page to image (simulated - in real implementation would use canvas or pdf2pic)
-    const convertedFiles = [];
-    const extension = options.format;
+    // Combine all images into a single response
+    const combinedData = Buffer.concat(images);
+    const filename = `${originalFilename.replace('.pdf', '')}_images.zip`;
+    const outputPath = join(OUTPUT_DIR, filename);
+    await writeFile(outputPath, combinedData);
 
-    for (const pageNumber of pagesToConvert) {
-      // In a real implementation, you would:
-      // 1. Render the PDF page to canvas
-      // 2. Convert canvas to image buffer
-      // 3. Apply compression and quality settings
-
-      // For simulation, create a simple image file placeholder
-      const imageData = createSimulatedImageData(pageNumber, pageCount, options);
-      const filename = `${originalFilename.replace('.pdf', '')}_page_${pageNumber}.${extension}`;
-
-      convertedFiles.push({
-        filename,
-        size: imageData.length,
-        data: imageData,
-        page: pageNumber
-      });
-    }
-
-    return { files: convertedFiles };
+    return {
+      filename,
+      size: combinedData.length,
+      data: combinedData,
+      pages: images.length
+    };
 
   } catch (error) {
-    console.error('PDF to image conversion error:', error);
-    throw new Error('Failed to convert PDF to images');
+    console.error('PDF to JPG conversion error:', error);
+    throw new Error('Failed to convert PDF to images: ' + (error instanceof Error ? error.message : String(error)));
   }
-}
-
-// Create simulated image data (in real implementation would be actual image bytes)
-function createSimulatedImageData(pageNumber: number, totalPages: number, options: PDFToJPGRequest['options']): Buffer {
-  // This is a placeholder for actual image conversion
-  // In a real implementation, you'd use libraries like:
-  // - pdf2pic (Node.js)
-  // - Canvas API
-  // - Sharp for image processing
-
-  const qualitySettings = {
-    high: 0.9,
-    medium: 0.7,
-    low: 0.5
-  };
-
-  const quality = qualitySettings[options.quality] || 0.7;
-  const estimatedSize = Math.floor(100000 * quality); // Estimated image size
-
-  // Create a simple image header for JPEG/PNG (simulated)
-  const imageHeader = options.format === 'jpg'
-    ? Buffer.from([0xFF, 0xD8, 0xFF, 0xE0]) // JPEG header
-    : Buffer.from([0x89, 0x50, 0x4E, 0x47]); // PNG header
-
-  // Simulated image data
-  const imageData = Buffer.alloc(estimatedSize);
-  imageHeader.copy(imageData);
-
-  // Add some metadata to the image data
-  const metadata = `Page ${pageNumber} of ${totalPages}, Quality: ${options.quality}, DPI: ${options.dpi}`;
-  const metadataBuffer = Buffer.from(metadata, 'utf-8');
-  metadataBuffer.copy(imageData, imageHeader.length);
-
-  return imageData;
 }
 
 export async function POST(request: NextRequest) {
@@ -148,17 +110,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate file type
+    if (!body.file.name.toLowerCase().endsWith('.pdf')) {
+      return NextResponse.json(
+        { error: 'Only PDF files are supported' },
+        { status: 400 }
+      );
+    }
+
+    // Validate options
+    if (body.options.dpi < 72 || body.options.dpi > 300) {
+      return NextResponse.json(
+        { error: 'DPI must be between 72 and 300' },
+        { status: 400 }
+      );
+    }
+
+    if (body.options.quality < 1 || body.options.quality > 100) {
+      return NextResponse.json(
+        { error: 'Quality must be between 1 and 100' },
+        { status: 400 }
+      );
+    }
+
+    if (!['jpg', 'png'].includes(body.options.format)) {
+      return NextResponse.json(
+        { error: 'Format must be jpg or png' },
+        { status: 400 }
+      );
+    }
+
     // Load and validate the PDF
     const buffer = Buffer.from(body.file.data, 'base64');
+    let sourcePdf: PDFDocument;
 
     try {
-      const pdfDoc = await PDFDocument.load(buffer);
-      if (pdfDoc.getPageCount() === 0) {
-        return NextResponse.json(
-          { error: 'PDF file has no pages' },
-          { status: 400 }
-        );
-      }
+      sourcePdf = await PDFDocument.load(buffer);
     } catch (error) {
       return NextResponse.json(
         { error: 'Invalid PDF file' },
@@ -166,57 +153,71 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const totalPages = sourcePdf.getPageCount();
+
+    // Validate page selection
+    if (body.options.pages !== 'all') {
+      const invalidPages = body.options.pages.filter(pageNum => pageNum < 1 || pageNum > totalPages);
+      if (invalidPages.length > 0) {
+        return NextResponse.json(
+          { error: `Invalid page numbers: ${invalidPages.join(', ')}. Document has ${totalPages} pages.` },
+          { status: 400 }
+        );
+      }
+    }
+
     const originalSize = buffer.length;
     const originalFilename = body.file.name;
 
     // Convert PDF to images
-    const conversionResult = await convertPDFToImages(
+    const conversionResult = await convertPDFToJPG(
       buffer,
       body.options,
       originalFilename
     );
 
-    // Create ZIP file for multiple images if needed
-    const filesToReturn = conversionResult.files.map(file => ({
-      ...file,
-      url: `/api/download/${file.filename}`,
-      base64Data: file.data.toString('base64')
-    }));
-
     // Generate conversion report
     const conversionReport = {
       originalFile: {
         name: originalFilename,
-        size: originalSize
+        size: originalSize,
+        pages: totalPages
+      },
+      convertedFile: {
+        name: conversionResult.filename,
+        size: conversionResult.size,
+        format: body.options.format,
+        imagesGenerated: conversionResult.pages
       },
       options: body.options,
       processing: {
-        pagesConverted: conversionResult.files.length,
-        format: body.options.format,
-        quality: body.options.quality,
         dpi: body.options.dpi,
-        totalOutputSize: conversionResult.files.reduce((sum, file) => sum + file.size, 0)
+        quality: body.options.quality,
+        pagesConverted: conversionResult.pages
       }
     };
 
     return NextResponse.json({
       success: true,
-      message: `PDF converted to ${body.options.format.toUpperCase()} successfully`,
+      message: 'PDF converted to images successfully',
       data: {
-        files: filesToReturn,
-        pagesConverted: conversionResult.files.length,
-        totalFiles: conversionResult.files.length,
-        downloadUrl: conversionResult.files.length === 1
-          ? `/api/download/${conversionResult.files[0].filename}`
-          : null,
+        filename: conversionResult.filename,
+        originalSize,
+        convertedSize: conversionResult.size,
+        imagesGenerated: conversionResult.pages,
+        format: body.options.format,
+        dpi: body.options.dpi,
+        quality: body.options.quality,
+        downloadUrl: `/api/download/${conversionResult.filename}`,
+        data: Buffer.from(conversionResult.data).toString('base64'),
         conversionReport
       }
     });
 
   } catch (error) {
-    console.error('PDF to image conversion error:', error);
+    console.error('PDF to JPG conversion error:', error);
     return NextResponse.json(
-      { error: 'Failed to convert PDF to images' },
+      { error: 'Failed to convert PDF to images: ' + (error instanceof Error ? error.message : String(error)) },
       { status: 500 }
     );
   }
