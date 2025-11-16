@@ -7,11 +7,11 @@ import { SEO_CONFIG } from "@/lib/constants";
 import { PopUnderAd, SocialBarAd } from "@/components/ads/AdComponents";
 
 // Initialize cleanup system (server-side only)
-if (typeof window === 'undefined') {
-  import('@/lib/cleanup').then(({ scheduleCleanup }) => {
-    scheduleCleanup();
-  }).catch(console.error);
-}
+//if (typeof window === 'undefined') {
+  //import('@/lib/cleanup').then(({ scheduleCleanup }) => {
+    //scheduleCleanup();
+  //}).catch(console.error);
+//}
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
