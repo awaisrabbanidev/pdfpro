@@ -187,7 +187,7 @@ export async function POST(request: NextRequest) {
       downloadUrl: string;
     }> = [];
 
-    switch (body.splitType) {
+    switch (splitType) {
       case 'single': {
         // Split into individual pages
         for (let i = 0; i < totalPages; i++) {
