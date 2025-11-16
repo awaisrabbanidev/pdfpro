@@ -178,22 +178,20 @@ export async function POST(request: NextRequest) {
     const pdfBytes = await mergedPdf.save();
 
     // Save the merged PDF
-    const outputPath = join(OUTPUT_DIR, outputName);
+    const outputPath = join(OUTPUTS_DIR, finalOutputName);
     await writeFile(outputPath, pdfBytes);
 
     // Return success response with file info
     return NextResponse.json({
       success: true,
       message: 'PDFs merged successfully',
-      data: {
-        filename: outputName,
-        size: pdfBytes.length,
-        totalPages,
-        filesMerged: formData.get('file') as Files.length,
-        downloadUrl: `/api/download/${outputName}`,
-        // Include base64 data for immediate preview
-        data: Buffer.from(pdfBytes).toString('base64')
-      }
+      filename: finalOutputName,
+      size: pdfBytes.length,
+      totalPages,
+      filesMerged: files.length,
+      downloadUrl: `/api/download/${finalOutputName}`,
+      // Include base64 data for immediate preview
+      data: Buffer.from(pdfBytes).toString('base64')
     });
 
   } catch (error) {
