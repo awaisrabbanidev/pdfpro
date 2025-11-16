@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
 
     // Add metadata
     const finalOutputName = outputName || `merged_${uuid()}.pdf`;
-    mergedPdf.setTitle(outputName.replace('.pdf', ''));
+    mergedPdf.setTitle(finalOutputName.replace('.pdf', ''));
     mergedPdf.setSubject('PDF created by PDFPro.pro Merge Tool');
     mergedPdf.setProducer('PDFPro.pro');
     mergedPdf.setCreator('PDFPro.pro');
