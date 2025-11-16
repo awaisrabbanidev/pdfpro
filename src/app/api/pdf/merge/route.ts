@@ -15,15 +15,11 @@ interface MergeRequest {
   outputName?: string;
 }
 
-const UPLOAD_DIR = join('/tmp', 'uploads');
-const OUTPUT_DIR = join('/tmp', 'outputs');
-
 // Ensure directories exist
 async function ensureDirectories() {
   try {
-  ensureTempDirs();
-    await mkdir(UPLOAD_DIR, { recursive: true });
-    await mkdir(OUTPUT_DIR, { recursive: true });
+    await mkdir(UPLOADS_DIR, { recursive: true });
+    await mkdir(OUTPUTS_DIR, { recursive: true });
   } catch (error) {
     // Directory might already exist
   }
