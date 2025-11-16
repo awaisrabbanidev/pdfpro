@@ -8,13 +8,13 @@ import { NextRequest, NextResponse } from "next/server";
 // Next.js App Router: disable body parser
 export const runtime = 'nodejs';
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   // Ensure directories exist before any file operations
   ensureTempDirs();
 
   const form = new IncomingForm({ uploadDir: UPLOADS_DIR, keepExtensions: true });
 
-  return new Promise((resolve) => {
+  return new Promise<NextResponse>((resolve) => {
     form.parse(req as any, (err, fields, files) => {
       if (err) {
         console.error("form.parse error:", err);
