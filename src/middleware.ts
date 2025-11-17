@@ -1,10 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export function middleware(request: NextRequest) {
+  const { pathname, searchParams } = request.nextUrl;
+
+  // Skip middleware for Next internals and RSC fetches to avoid interfering with client/server requests
+  // - Next internal assets and runtime under /_next
+  // - RSC client fetches include the _rsc query param
+  // - static files, favicon, and public folder paths should be skipped
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/static') ||
+    pathname === '/favicon.ico' ||
+    pathname.startsWith('/public') ||
+    searchParams.has('_rsc')
+  ) {
+    return NextResponse.next();
+  }
+
   const response = NextResponse.next();
 
   // CORS headers for API routes
-  if (request.nextUrl.pathname.startsWith('/api/')) {
+  if (pathname.startsWith('/api/')) {
     response.headers.set('Access-Control-Allow-Origin', '*');
     response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -18,13 +34,11 @@ export function middleware(request: NextRequest) {
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 
-  // Content Security Policy
-  response.headers.set(
-    'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';"
-  );
+  // NOTE: Do not set Content-Security-Policy here if you have it defined in vercel.json.
+  // Setting it here will override the vercel.json header at runtime.
+  // If you must set CSP in middleware, merge the allowed domains from vercel.json into this value.
 
-  // Rate limiting headers
+  // Rate limiting headers (optional)
   response.headers.set('X-RateLimit-Limit', '100');
   response.headers.set('X-RateLimit-Remaining', '99');
   response.headers.set('X-RateLimit-Reset', new Date(Date.now() + 3600000).toISOString());
