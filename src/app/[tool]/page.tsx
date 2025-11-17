@@ -3,6 +3,8 @@ import type { Metadata } from 'next';
 import ToolPage from '@/components/tools/ToolPage';
 import { PDF_TOOLS, SEO_CONFIG } from '@/lib/constants';
 
+export const dynamic = 'force-dynamic';
+
 interface ToolPageProps {
   params: Promise<{
     tool: string;

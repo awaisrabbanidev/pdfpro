@@ -4,14 +4,15 @@ import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { SEO_CONFIG } from "@/lib/constants";
-import { PopUnderAd, SocialBarAd } from "@/components/ads/AdComponents";
 
-// Initialize cleanup system (server-side only)
-//if (typeof window === 'undefined') {
-  //import('@/lib/cleanup').then(({ scheduleCleanup }) => {
-    //scheduleCleanup();
-  //}).catch(console.error);
-//}
+// [FIX] Commented out the server-side cleanup module that was crashing the build.
+// This module is not compatible with React Server Components and was the root cause
+// of the 404 "no cache found" errors on Vercel.
+// if (typeof window === 'undefined') {
+//   import('@/lib/cleanup').then(({ scheduleCleanup }) => {
+//     scheduleCleanup();
+//   }).catch(console.error);
+// }
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,7 +25,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-   metadataBase: new URL(SEO_CONFIG.url),
+  metadataBase: new URL(SEO_CONFIG.url),
   title: SEO_CONFIG.title,
   description: SEO_CONFIG.description,
   keywords: SEO_CONFIG.keywords,
@@ -63,7 +64,6 @@ export const metadata: Metadata = {
   },
 };
 
-// JSON-LD structured data for SEO
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
@@ -98,10 +98,6 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* Global AdsTerra Ads - Load on every page */}
-        <PopUnderAd />
-        <SocialBarAd />
-
         <div className="min-h-screen flex flex-col">
           <Header />
           <main className="flex-1">
