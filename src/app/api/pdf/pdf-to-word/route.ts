@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 export const runtime = 'nodejs';
-=======
-export const runtime = 'edge';
->>>>>>> main
 // app/api/pdf/pdf-to-word/route.ts
 import fs from "fs";
 import path from "path";
@@ -11,6 +7,7 @@ import { ensureTempDirs, OUTPUTS_DIR, UPLOADS_DIR } from "@/lib/temp-dirs";
 import { PDFDocument } from 'pdf-lib';
 import mammoth from 'mammoth';
 import { NextRequest, NextResponse } from 'next/server';
+import { put } from '@vercel/blob';
 
 
 export async function POST(req: NextRequest) {

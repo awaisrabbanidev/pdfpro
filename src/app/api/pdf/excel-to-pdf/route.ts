@@ -1,14 +1,10 @@
-<<<<<<< HEAD
 export const runtime = 'nodejs';
-=======
-export const runtime = 'edge';
->>>>>>> main
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, readFile, unlink, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { ensureTempDirs, OUTPUTS_DIR, UPLOADS_DIR } from '@/lib/temp-dirs';
 import * as XLSX from 'xlsx';
-
+import { put } from '@vercel/blob';
 // Ensure directories exist
 async function ensureDirectories() {
   try {

@@ -1,14 +1,10 @@
-<<<<<<< HEAD
 export const runtime = 'nodejs';
-=======
-export const runtime = 'edge';
->>>>>>> main
 import { ensureTempDirs, safeJsonParse } from '@/lib/api-helpers';
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, readFile, unlink } from 'fs/promises';
 import { join } from 'path';
 import { ensureDirectories, getDirectories } from '@/lib/api-config';
-
+import { put } from '@vercel/blob';
 interface PageNumberSettings {
   position: 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
   format: '1' | 'Page 1' | '1 of N' | 'Page 1 of N';

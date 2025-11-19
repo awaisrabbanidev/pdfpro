@@ -1,16 +1,12 @@
 import type { Metadata } from "next";
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
-import { GeistSans } from 'geist/font/sans';
-import { GeistMono } from 'geist/font/mono';
-
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { SEO_CONFIG } from "@/lib/constants";
 
-export const dynamic = 'force-dynamic'
-
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SEO_CONFIG.url),
@@ -47,8 +43,8 @@ export const metadata: Metadata = {
     canonical: SEO_CONFIG.url,
   },
   other: {
-    "theme-color": "#F72585", // Updated theme color
-    "msapplication-TileColor": "#0D1117", // Updated background
+    "theme-color": "#F72585",
+    "msapplication-TileColor": "#0D1117",
   },
 };
 
