@@ -1,12 +1,9 @@
-<<<<<<< HEAD
 export const runtime = 'nodejs';
-=======
-export const runtime = 'edge';
->>>>>>> main
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, readFile, unlink } from 'fs/promises';
 import { join } from 'path';
 import { ensureDirectories, getDirectories } from '@/lib/api-config';
+import { put } from '@vercel/blob';
 
 export async function POST(request: NextRequest) {
   try {
