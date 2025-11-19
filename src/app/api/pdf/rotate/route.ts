@@ -1,14 +1,10 @@
-<<<<<<< HEAD
 export const runtime = 'nodejs';
-=======
-export const runtime = 'edge';
->>>>>>> main
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { PDFDocument, degrees } from 'pdf-lib';
 import { ensureTempDirs, OUTPUTS_DIR, UPLOADS_DIR } from '@/lib/temp-dirs';
-
+import { put } from '@vercel/blob';
 // Simple UUID function
 const uuid = () => Math.random().toString(36).substring(2, 15);
 
