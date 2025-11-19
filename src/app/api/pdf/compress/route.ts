@@ -150,7 +150,7 @@ export async function POST(request: NextRequest) {
     const compressionRatio = ((originalSize - compressedSize) / originalSize) * 100;
 
     // Upload to Vercel Blob
-    const blob = await put(outputName, compressedBytes, {
+    const blob = await put(outputName, Buffer.from(compressedBytes), {
       access: 'public',
       contentType: 'application/pdf',
       addRandomSuffix: false,
