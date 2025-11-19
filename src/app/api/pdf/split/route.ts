@@ -58,7 +58,7 @@ async function createPdfFromPages(
   const pdfBytes = await newPdf.save();
   const filename = `${baseName}_${suffix}.pdf`;
 
-  const blob = await put(filename, pdfBytes, {
+  const blob = await put(filename, Buffer.from(pdfBytes), {
     access: 'public',
     contentType: 'application/pdf',
     addRandomSuffix: false,
