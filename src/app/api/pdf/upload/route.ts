@@ -1,7 +1,11 @@
 import { put } from '@vercel/blob';
 import { NextRequest, NextResponse } from 'next/server';
 
+<<<<<<< HEAD
+export const runtime = 'nodejs'; // Can use edge runtime now
+=======
 export const runtime = 'edge'; // Can use edge runtime now
+>>>>>>> main
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {

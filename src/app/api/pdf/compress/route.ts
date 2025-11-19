@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PDFDocument } from 'pdf-lib';
 import { put } from '@vercel/blob';
 
+<<<<<<< HEAD
+export const runtime = 'nodejs';
+=======
 export const runtime = 'edge';
+>>>>>>> main
 
 interface CompressRequest {
   file: {
@@ -48,7 +52,11 @@ function getCompressionSettings(level: string) {
 }
 
 // ... (helper functions like compressImages, removeMetadata, optimizePdf are unchanged)
+<<<<<<< HEAD
+async function compressImages(
+=======
 sync function compressImages(
+>>>>>>> main
   pdfDoc: PDFDocument,
   imageQuality: number
 ): Promise<{ originalSize: number; compressedSize: number }> {
@@ -150,7 +158,11 @@ export async function POST(request: NextRequest) {
     const compressionRatio = ((originalSize - compressedSize) / originalSize) * 100;
 
     // Upload to Vercel Blob
+<<<<<<< HEAD
+    const blob = await put(outputName, Buffer.from(compressedBytes), {
+=======
     const blob = await put(outputName, compressedBytes, {
+>>>>>>> main
       access: 'public',
       contentType: 'application/pdf',
       addRandomSuffix: false,

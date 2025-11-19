@@ -1,25 +1,16 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #000000;
-  --foreground: #e6e6e6;
-  --accent: #22c55e;
-  --accent-hover: #16a34a;
-  --border: #333333;
-  --card-bg: #0a0a0a;
-  --text-secondary: #a3a3a3;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-accent: var(--accent);
-  --color-accent-hover: var(--accent-hover);
-  --color-border: var(--border);
-  --color-card-bg: var(--card-bg);
-  --color-text-secondary: var(--text-secondary);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --background: #0D1117;
+  --foreground: #C9D1D9;
+  --accent: #F72585;
+  --accent-hover: #B5179E;
+  --accent-secondary: #4CC9F0;
+  --border: #30363D;
+  --card-bg: #161B22;
+  --text-secondary: #8B949E;
 }
 
 body {
@@ -68,14 +59,13 @@ button {
   background: var(--accent);
 }
 
-/* Green glow effect for buttons and interactive elements */
-.glow-green {
-  box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
-  transition: box-shadow 0.3s ease;
+.glow-futuristic {
+  box-shadow: 0 0 10px rgba(247, 37, 133, 0.3), 0 0 20px rgba(76, 201, 240, 0.2);
+  transition: box-shadow 0.3s ease-in-out;
 }
 
-.glow-green:hover {
-  box-shadow: 0 0 30px rgba(34, 197, 94, 0.5);
+.glow-futuristic:hover {
+  box-shadow: 0 0 20px rgba(247, 37, 133, 0.5), 0 0 40px rgba(76, 201, 240, 0.3);
 }
 
 /* Card hover effects */
@@ -86,14 +76,14 @@ button {
 
 .card-hover:hover {
   transform: translateY(-4px);
-  border-color: var(--accent);
-  box-shadow: 0 10px 40px rgba(34, 197, 94, 0.2);
+  border-color: var(--accent-secondary);
+  box-shadow: 0 10px 30px rgba(247, 37, 133, 0.2), 0 0 20px rgba(76, 201, 240, 0.1);
 }
 
 /* Loading animation */
 .loading-spinner {
   border: 2px solid var(--border);
-  border-top: 2px solid var(--accent);
+  border-top: 2px solid var(--accent-secondary);
   border-radius: 50%;
   width: 20px;
   height: 20px;
@@ -118,8 +108,8 @@ button {
 
 .dropzone:hover,
 .dropzone.active {
-  border-color: var(--accent);
-  background-color: rgba(34, 197, 94, 0.1);
+  border-color: var(--accent-secondary);
+  background-color: rgba(76, 201, 240, 0.1);
 }
 
 /* Ad placeholder styling */

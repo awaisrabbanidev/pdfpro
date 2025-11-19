@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PDFDocument } from 'pdf-lib';
 import { put } from '@vercel/blob';
 
+<<<<<<< HEAD
+export const runtime = 'nodejs';
+=======
 export const runtime = 'edge';
+>>>>>>> main
 
 // Simple UUID function
 const uuid = () => Math.random().toString(36).substring(2, 15);
@@ -78,7 +82,11 @@ export async function POST(request: NextRequest) {
 
     const pdfBytes = await mergedPdf.save();
 
+<<<<<<< HEAD
+    const blob = await put(finalOutputName, Buffer.from(pdfBytes), {
+=======
     const blob = await put(finalOutputName, pdfBytes, {
+>>>>>>> main
       access: 'public',
       contentType: 'application/pdf',
       addRandomSuffix: false,

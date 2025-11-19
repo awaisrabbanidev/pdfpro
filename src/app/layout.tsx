@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
+<<<<<<< HEAD
+import { GeistSans } from 'geist/font/sans';
+import { GeistMono } from 'geist/font/mono';
+=======
 export const dynamic = 'force-dynamic';
 import { Geist, Geist_Mono } from "next/font/google";
+>>>>>>> main
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { SEO_CONFIG } from "@/lib/constants";
 
 export const dynamic = 'force-dynamic'
+<<<<<<< HEAD
+=======
 
 // [FIX] Commented out the server-side cleanup module that was crashing the build.
 // This module is not compatible with React Server Components and was the root cause
@@ -26,6 +33,7 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+>>>>>>> main
 
 export const metadata: Metadata = {
   metadataBase: new URL(SEO_CONFIG.url),
@@ -86,7 +94,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <head>
         <script
           type="application/ld+json"
@@ -94,13 +102,9 @@ export default function RootLayout({
         />
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className="antialiased">
         <div className="min-h-screen flex flex-col">
           <Header />
           <main className="flex-1">

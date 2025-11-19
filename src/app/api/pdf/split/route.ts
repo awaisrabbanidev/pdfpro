@@ -3,7 +3,11 @@ import { PDFDocument } from 'pdf-lib';
 import { put } from '@vercel/blob';
 import type { PutBlobResult } from '@vercel/blob';
 
+<<<<<<< HEAD
+export const runtime = 'nodejs';
+=======
 export const runtime = 'edge';
+>>>>>>> main
 
 interface SplitRequest {
   file: {
@@ -58,7 +62,11 @@ async function createPdfFromPages(
   const pdfBytes = await newPdf.save();
   const filename = `${baseName}_${suffix}.pdf`;
 
+<<<<<<< HEAD
+  const blob = await put(filename, Buffer.from(pdfBytes), {
+=======
   const blob = await put(filename, pdfBytes, {
+>>>>>>> main
     access: 'public',
     contentType: 'application/pdf',
     addRandomSuffix: false,
@@ -83,7 +91,11 @@ export async function POST(request: NextRequest) {
       if (!body.splitType) {
         return NextResponse.json({ error: 'Split type is required' }, { status: 400 });
       }
+<<<<<<< HEAD
+      buffer = Buffer.from(body.file.data, 'base64').buffer;
+=======
       buffer = Buffer.from(body.file.data, 'base64');
+>>>>>>> main
       originalFilename = body.file.name;
       splitType = body.splitType;
       splitOption = body.splitOption;
