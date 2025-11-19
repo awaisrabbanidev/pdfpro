@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { GeistSans as Geist, GeistMono as Geist_Mono } from 'geist/font';
+import { GeistSans } from 'geist/font/sans';
+import { GeistMono } from 'geist/font/mono';
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
