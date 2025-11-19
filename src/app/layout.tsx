@@ -17,15 +17,6 @@ export const dynamic = 'force-dynamic'
 //   }).catch(console.error);
 // }
 
-const geistSans = GeistSans({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = GeistMono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(SEO_CONFIG.url),
