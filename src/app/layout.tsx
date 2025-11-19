@@ -1,12 +1,39 @@
 import type { Metadata } from "next";
+<<<<<<< HEAD
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
+=======
+export const dynamic = 'force-dynamic';
+import { Geist, Geist_Mono } from "next/font/google";
+>>>>>>> main
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { SEO_CONFIG } from "@/lib/constants";
 
 export const dynamic = 'force-dynamic'
+<<<<<<< HEAD
+=======
+
+// [FIX] Commented out the server-side cleanup module that was crashing the build.
+// This module is not compatible with React Server Components and was the root cause
+// of the 404 "no cache found" errors on Vercel.
+// if (typeof window === 'undefined') {
+//   import('@/lib/cleanup').then(({ scheduleCleanup }) => {
+//     scheduleCleanup();
+//   }).catch(console.error);
+// }
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+>>>>>>> main
 
 export const metadata: Metadata = {
   metadataBase: new URL(SEO_CONFIG.url),
