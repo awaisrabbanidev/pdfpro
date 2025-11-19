@@ -3,7 +3,7 @@ import { PDFDocument } from 'pdf-lib';
 import { put } from '@vercel/blob';
 import type { PutBlobResult } from '@vercel/blob';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 interface SplitRequest {
   file: {

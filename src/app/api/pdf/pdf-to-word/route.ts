@@ -1,4 +1,4 @@
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 // app/api/pdf/pdf-to-word/route.ts
 import fs from "fs";
 import path from "path";
