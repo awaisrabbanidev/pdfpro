@@ -17,6 +17,8 @@ async function addRuntimeConfig(dir) {
         console.log(`Updated runtime config in ${fullPath}`);
       } else {
         content = `export const runtime = 'nodejs';\n${content}`;
+        await fs.promises.writeFile(fullPath, content);
+        console.log(`Added runtime config to ${fullPath}`);
       }
     }
   }
