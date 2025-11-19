@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic'
 //   }).catch(console.error);
 // }
 
-const geistSans = Geist({
+const geistSans = GeistSans({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
