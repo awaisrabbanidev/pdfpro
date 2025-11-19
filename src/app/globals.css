@@ -108,8 +108,8 @@ button {
 
 .dropzone:hover,
 .dropzone.active {
-  border-color: var(--accent);
-  background-color: rgba(34, 197, 94, 0.1);
+  border-color: var(--accent-secondary);
+  background-color: rgba(76, 201, 240, 0.1);
 }
 
 /* Ad placeholder styling */
