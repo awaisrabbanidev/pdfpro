@@ -6,6 +6,8 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { SEO_CONFIG } from "@/lib/constants";
 
+export const dynamic = 'force-dynamic'
+
 // [FIX] Commented out the server-side cleanup module that was crashing the build.
 // This module is not compatible with React Server Components and was the root cause
 // of the 404 "no cache found" errors on Vercel.
