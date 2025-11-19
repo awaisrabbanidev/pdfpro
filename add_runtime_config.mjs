@@ -13,6 +13,8 @@ async function addRuntimeConfig(dir) {
       let content = await fs.promises.readFile(fullPath, 'utf8');
       if (content.includes('export const runtime')) {
         content = content.replace(/export const runtime = '.*';/, "export const runtime = 'nodejs';");
+        await fs.promises.writeFile(fullPath, content);
+        console.log(`Updated runtime config in ${fullPath}`);
       } else {
         content = `export const runtime = 'nodejs';\n${content}`;
       }
