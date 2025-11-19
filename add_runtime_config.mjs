@@ -12,7 +12,7 @@ async function addRuntimeConfig(dir) {
     } else if (entry.name === 'route.ts') {
       let content = await fs.promises.readFile(fullPath, 'utf8');
       if (!content.includes('export const runtime')) {
-        content = `export const runtime = 'edge';\n${content}`;
+        content = `export const runtime = 'nodejs';\n${content}`;
         await fs.promises.writeFile(fullPath, content);
         console.log(`Added runtime config to ${fullPath}`);
       }
