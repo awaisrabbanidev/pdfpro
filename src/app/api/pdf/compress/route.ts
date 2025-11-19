@@ -48,7 +48,7 @@ function getCompressionSettings(level: string) {
 }
 
 // ... (helper functions like compressImages, removeMetadata, optimizePdf are unchanged)
-sync function compressImages(
+async function compressImages(
   pdfDoc: PDFDocument,
   imageQuality: number
 ): Promise<{ originalSize: number; compressedSize: number }> {
