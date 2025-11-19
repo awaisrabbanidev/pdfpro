@@ -1,5 +1,7 @@
 import { PDF_TOOLS, SEO_CONFIG } from '@/lib/constants';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const baseUrl = SEO_CONFIG.url;
   const currentDate = new Date().toISOString();
