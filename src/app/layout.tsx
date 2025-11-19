@@ -17,7 +17,6 @@ export const dynamic = 'force-dynamic'
 //   }).catch(console.error);
 // }
 
-
 export const metadata: Metadata = {
   metadataBase: new URL(SEO_CONFIG.url),
   title: SEO_CONFIG.title,
