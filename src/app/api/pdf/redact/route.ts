@@ -1,13 +1,9 @@
-<<<<<<< HEAD
 export const runtime = 'nodejs';
-=======
-export const runtime = 'edge';
->>>>>>> main
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { PDFDocument } from 'pdf-lib';
-
+import { put } from '@vercel/blob';
 interface RedactPDFRequest {
   file: {
     name: string;
