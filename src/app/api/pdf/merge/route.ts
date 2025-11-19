@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
 
     const pdfBytes = await mergedPdf.save();
 
-    const blob = await put(finalOutputName, pdfBytes, {
+    const blob = await put(finalOutputName, Buffer.from(pdfBytes), {
       access: 'public',
       contentType: 'application/pdf',
       addRandomSuffix: false,
