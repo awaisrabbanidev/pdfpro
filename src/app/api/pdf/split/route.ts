@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
       if (!body.splitType) {
         return NextResponse.json({ error: 'Split type is required' }, { status: 400 });
       }
-      buffer = Buffer.from(body.file.data, 'base64');
+      buffer = Buffer.from(body.file.data, 'base64').buffer;
       originalFilename = body.file.name;
       splitType = body.splitType;
       splitOption = body.splitOption;
