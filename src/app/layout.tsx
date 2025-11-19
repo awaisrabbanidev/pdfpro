@@ -1,39 +1,12 @@
 import type { Metadata } from "next";
-<<<<<<< HEAD
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
-=======
-export const dynamic = 'force-dynamic';
-import { Geist, Geist_Mono } from "next/font/google";
->>>>>>> main
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { SEO_CONFIG } from "@/lib/constants";
 
 export const dynamic = 'force-dynamic'
-<<<<<<< HEAD
-=======
-
-// [FIX] Commented out the server-side cleanup module that was crashing the build.
-// This module is not compatible with React Server Components and was the root cause
-// of the 404 "no cache found" errors on Vercel.
-// if (typeof window === 'undefined') {
-//   import('@/lib/cleanup').then(({ scheduleCleanup }) => {
-//     scheduleCleanup();
-//   }).catch(console.error);
-// }
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
->>>>>>> main
 
 export const metadata: Metadata = {
   metadataBase: new URL(SEO_CONFIG.url),
@@ -70,8 +43,8 @@ export const metadata: Metadata = {
     canonical: SEO_CONFIG.url,
   },
   other: {
-    "theme-color": "#22c55e",
-    "msapplication-TileColor": "#000000",
+    "theme-color": "#F72585", // Updated theme color
+    "msapplication-TileColor": "#0D1117", // Updated background
   },
 };
 
@@ -100,7 +73,6 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
