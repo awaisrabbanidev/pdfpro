@@ -83,7 +83,7 @@ button {
 /* Loading animation */
 .loading-spinner {
   border: 2px solid var(--border);
-  border-top: 2px solid var(--accent);
+  border-top: 2px solid var(--accent-secondary);
   border-radius: 50%;
   width: 20px;
   height: 20px;
