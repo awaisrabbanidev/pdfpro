@@ -1,43 +1,34 @@
-// src/app/api/pdf/upload/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import { mkdir, writeFile } from "fs/promises";
-import { ensureTempDirs, UPLOADS_DIR } from "@/lib/temp-dirs";
+import { put } from '@vercel/blob';
+import { NextRequest, NextResponse } from 'next/server';
 
-export const runtime = "nodejs"; // ensures not deployed to edge
+export const runtime = 'edge'; // Can use edge runtime now
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    ensureTempDirs();
-    await mkdir(UPLOADS_DIR, { recursive: true });
-
-    // Read file from form-data
-    const data = await req.formData();
-    const file = data.get("file") as File;
+    const data = await request.formData();
+    const file = data.get('file') as File;
 
     if (!file) {
-      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    const uniqueFilename = `${Date.now()}-${file.name}`;
 
-    // Generate unique filename to avoid conflicts
-    const timestamp = Date.now();
-    const uniqueFilename = `${timestamp}-${file.name}`;
-    const filePath = `${UPLOADS_DIR}/${uniqueFilename}`;
-
-    await writeFile(filePath, buffer);
+    const blob = await put(uniqueFilename, file, {
+      access: 'public',
+      addRandomSuffix: false, // Keep our unique name
+    });
 
     return NextResponse.json({
       success: true,
-      filePath,
-      filename: uniqueFilename,
+      ...blob, // Includes url, pathname, contentType, contentDisposition
       originalFilename: file.name,
-      size: buffer.length
+      size: file.size,
     });
   } catch (err) {
-    console.error("Upload error:", err);
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+    console.error('Upload error:', err);
+    const message = err instanceof Error ? err.message : 'An unknown error occurred';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
