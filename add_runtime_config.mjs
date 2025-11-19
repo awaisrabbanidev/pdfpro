@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const apiDir = path.join(process.cwd(), 'pdfpro/src/app/api');
+const apiDir = path.join(process.cwd(), 'src/app/api');
 
 async function addRuntimeConfig(dir) {
   const entries = await fs.promises.readdir(dir, { withFileTypes: true });
