@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { PDFDocument } from 'pdf-lib';
+import { put } from '@vercel/blob';
 
 // Simple UUID function
 const uuid = () => Math.random().toString(36).substring(2, 15);
