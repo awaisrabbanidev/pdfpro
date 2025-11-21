@@ -3,20 +3,20 @@
 @tailwind utilities;
 
 :root {
-  --background: #0D1117;
-  --foreground: #C9D1D9;
-  --accent: #F72585;
-  --accent-hover: #B5179E;
-  --accent-secondary: #4CC9F0;
-  --border: #30363D;
-  --card-bg: #161B22;
-  --text-secondary: #8B949E;
+  --background: #000000;
+  --foreground: #FFFFFF;
+  --accent: #007AFF;
+  --accent-hover: #0056b3;
+  --accent-secondary: #34C759;
+  --border: rgba(255, 255, 255, 0.1);
+  --card-bg: rgba(255, 255, 255, 0.05);
+  --text-secondary: #8A8A8E;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   margin: 0;
   padding: 0;
   line-height: 1.6;
@@ -47,7 +47,7 @@ button {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--card-bg);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -59,60 +59,94 @@ button {
   background: var(--accent);
 }
 
-.glow-futuristic {
-  box-shadow: 0 0 10px rgba(247, 37, 133, 0.3), 0 0 20px rgba(76, 201, 240, 0.2);
-  transition: box-shadow 0.3s ease-in-out;
-}
-
-.glow-futuristic:hover {
-  box-shadow: 0 0 20px rgba(247, 37, 133, 0.5), 0 0 40px rgba(76, 201, 240, 0.3);
-}
-
-/* Card hover effects */
-.card-hover {
-  transition: all 0.3s ease;
+.glass-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 20px;
   border: 1px solid var(--border);
-}
-
-.card-hover:hover {
-  transform: translateY(-4px);
-  border-color: var(--accent-secondary);
-  box-shadow: 0 10px 30px rgba(247, 37, 133, 0.2), 0 0 20px rgba(76, 201, 240, 0.1);
-}
-
-/* Loading animation */
-.loading-spinner {
-  border: 2px solid var(--border);
-  border-top: 2px solid var(--accent-secondary);
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Toast notifications */
-.toast-container {
-  z-index: 9999;
-}
-
-/* File upload dropzone */
-.dropzone {
-  border: 2px dashed var(--border);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
 
-.dropzone:hover,
-.dropzone.active {
-  border-color: var(--accent-secondary);
-  background-color: rgba(76, 201, 240, 0.1);
+.glass-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Ad placeholder styling */
+.glow-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.glow-effect::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(0, 122, 255, 0.1), transparent 40%);
+  transform: translate(-50%, -50%);
+  animation: glow-animation 10s linear infinite;
+}
+
+@keyframes glow-animation {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+.siri-wave {
+  width: 100%;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.siri-wave > div {
+  width: 4px;
+  height: 100%;
+  margin: 0 2px;
+  border-radius: 2px;
+  background-color: var(--accent);
+  animation: siri-wave-animation 1.2s infinite ease-in-out;
+}
+
+.siri-wave > div:nth-child(1) {
+  animation-delay: -1.1s;
+}
+
+.siri-wave > div:nth-child(2) {
+  animation-delay: -1.0s;
+}
+
+.siri-wave > div:nth-child(3) {
+  animation-delay: -0.9s;
+}
+
+.siri-wave > div:nth-child(4) {
+  animation-delay: -0.8s;
+}
+
+.siri-wave > div:nth-child(5) {
+  animation-delay: -0.7s;
+}
+
+@keyframes siri-wave-animation {
+  0%, 40%, 100% {
+    transform: scaleY(0.05);
+  }
+  20% {
+    transform: scaleY(1.0);
+  }
+}
+
 .ad-placeholder {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -122,4 +156,5 @@ button {
   color: var(--text-secondary);
   font-size: 0.875rem;
   text-align: center;
+  border-radius: 12px;
 }
