@@ -1,62 +1,62 @@
 import type { Metadata } from "next";
-import { GeistSans } from 'geist/font/sans';
-import { GeistMono } from 'geist/font/mono';
+import { Inter } from 'next/font/google';
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { SEO_CONFIG } from "@/lib/constants";
 
-export const dynamic = 'force-dynamic';
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SEO_CONFIG.url),
-  title: SEO_CONFIG.title,
-  description: SEO_CONFIG.description,
-  keywords: SEO_CONFIG.keywords,
-  authors: [{ name: SEO_CONFIG.siteName }],
-  creator: SEO_CONFIG.siteName,
-  publisher: SEO_CONFIG.siteName,
+  title: "PDFPro.pro - The All-in-One PDF Toolkit",
+  description: "Merge, split, compress, convert, and edit your PDF files with ease. 27 powerful and free tools to manage your PDFs online. Secure, private, and fast.",
+  keywords: [
+    "PDF", "PDF tools", "merge PDF", "split PDF", "compress PDF", "convert PDF",
+    "PDF to Word", "PDF to JPG", "edit PDF", "online PDF editor", "free PDF tools",
+    "PDF converter", "unlock PDF", "protect PDF", "rotate PDF", "add page numbers"
+  ],
+  authors: [{ name: "PDFPro.pro" }],
+  creator: "PDFPro.pro",
+  publisher: "PDFPro.pro",
   robots: "index, follow",
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: SEO_CONFIG.url,
-    title: SEO_CONFIG.title,
-    description: SEO_CONFIG.description,
-    siteName: SEO_CONFIG.siteName,
+    url: "https://www.pdfpro.pro",
+    title: "PDFPro.pro - The All-in-One PDF Toolkit",
+    description: "Merge, split, compress, convert, and edit your PDF files with ease. 27 powerful and free tools to manage your PDFs online.",
+    siteName: "PDFPro.pro",
     images: [
       {
-        url: SEO_CONFIG.ogImage,
+        url: "https://www.pdfpro.pro/og-image.png", // Replace with your actual OG image URL
         width: 1200,
         height: 630,
-        alt: SEO_CONFIG.title,
+        alt: "PDFPro.pro - The All-in-One PDF Toolkit",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: SEO_CONFIG.title,
-    description: SEO_CONFIG.description,
-    images: [SEO_CONFIG.ogImage],
+    title: "PDFPro.pro - The All-in-One PDF Toolkit",
+    description: "Merge, split, compress, convert, and edit your PDF files with ease. 27 powerful and free tools to manage your PDFs online.",
+    images: ["https://www.pdfpro.pro/twitter-image.png"], // Replace with your actual Twitter image URL
   },
   alternates: {
-    canonical: SEO_CONFIG.url,
+    canonical: "https://www.pdfpro.pro",
   },
   other: {
-    "theme-color": "#F72585",
-    "msapplication-TileColor": "#0D1117",
+    "theme-color": "#e53e3e",
+    "msapplication-TileColor": "#e53e3e",
   },
 };
 
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: SEO_CONFIG.siteName,
-  description: SEO_CONFIG.description,
-  url: SEO_CONFIG.url,
+  name: "PDFPro.pro",
+  url: "https://www.pdfpro.pro",
   potentialAction: {
     "@type": "SearchAction",
-    target: `${SEO_CONFIG.url}/search?q={search_term_string}`,
+    target: "https://www.pdfpro.pro/search?q={search_term_string}",
     "query-input": "required name=search_term_string",
   },
 };
@@ -67,16 +67,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+    <html lang="en" className={inter.className}>
       <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="manifest" href="/site.webmanifest" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
-      <body className="antialiased">
+      <body className="bg-gray-50 text-gray-800 antialiased">
         <div className="min-h-screen flex flex-col">
           <Header />
           <main className="flex-1">
