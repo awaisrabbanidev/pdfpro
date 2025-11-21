@@ -3,158 +3,58 @@
 @tailwind utilities;
 
 :root {
-  --background: #000000;
-  --foreground: #FFFFFF;
-  --accent: #007AFF;
-  --accent-hover: #0056b3;
-  --accent-secondary: #34C759;
-  --border: rgba(255, 255, 255, 0.1);
-  --card-bg: rgba(255, 255, 255, 0.05);
-  --text-secondary: #8A8A8E;
+  --background: #f8f9fa;
+  --foreground: #212529;
+  --primary: #e53e3e;
+  --primary-hover: #c53030;
+  --secondary: #495057;
+  --border: #dee2e6;
+  --card-bg: #ffffff;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  margin: 0;
-  padding: 0;
-  line-height: 1.6;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
+</details> <details> <summary>Click to view code for <code>pdfpro/src/app/page.tsx</code></summary>
+'use client';
 
-* {
-  box-sizing: border-box;
-}
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import AdToolCard from '@/components/ui/AdToolCard';
+import { PDF_TOOLS, TOOL_CATEGORIES } from '@/lib/constants';
 
-a {
-  color: var(--accent);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
+export default function Home() {
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
-a:hover {
-  color: var(--accent-hover);
-}
+  const filteredTools = selectedCategory === 'all'
+    ? PDF_TOOLS
+    : PDF_TOOLS.filter(tool => tool.category === selectedCategory);
 
-button {
-  font-family: inherit;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--accent);
-}
-
-.glass-card {
-  background: var(--card-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 20px;
-  border: 1px solid var(--border);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.glass-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.glow-effect {
-  position: relative;
-  overflow: hidden;
-}
-
-.glow-effect::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(0, 122, 255, 0.1), transparent 40%);
-  transform: translate(-50%, -50%);
-  animation: glow-animation 10s linear infinite;
-}
-
-@keyframes glow-animation {
-  0% {
-    transform: translate(-50%, -50%) rotate(0deg);
-  }
-  100% {
-    transform: translate(-50%, -50%) rotate(360deg);
-  }
-}
-
-.siri-wave {
-  width: 100%;
-  height: 100px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.siri-wave > div {
-  width: 4px;
-  height: 100%;
-  margin: 0 2px;
-  border-radius: 2px;
-  background-color: var(--accent);
-  animation: siri-wave-animation 1.2s infinite ease-in-out;
-}
-
-.siri-wave > div:nth-child(1) {
-  animation-delay: -1.1s;
-}
-
-.siri-wave > div:nth-child(2) {
-  animation-delay: -1.0s;
-}
-
-.siri-wave > div:nth-child(3) {
-  animation-delay: -0.9s;
-}
-
-.siri-wave > div:nth-child(4) {
-  animation-delay: -0.8s;
-}
-
-.siri-wave > div:nth-child(5) {
-  animation-delay: -0.7s;
-}
-
-@keyframes siri-wave-animation {
-  0%, 40%, 100% {
-    transform: scaleY(0.05);
-  }
-  20% {
-    transform: scaleY(1.0);
-  }
-}
-
-.ad-placeholder {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  text-align: center;
-  border-radius: 12px;
+  return (
+    <div className="w-full">
+      <section className="py-20 md:py-28 px-4 text-center bg-white">
+        <div className="max-w-4xl mx-auto">
+          <motion.h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-gray-800" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+            The All-in-One PDF Toolkit
+          </motion.h1>
+          <motion.p className="text-lg md:text-xl text-gray-600 mb-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}>
+            Merge, split, compress, convert, and edit your PDF files with ease.
+          </motion.p>
+        </div>
+      </section>
+      <section className="py-16 md:py-20 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {PDF_TOOLS.map((tool, index) => (
+              <motion.div key={tool.id} initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3, delay: index * 0.03 }}>
+                <AdToolCard {...tool} isPopular={false} />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
 }
