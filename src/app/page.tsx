@@ -29,84 +29,69 @@ export default function Home() {
 
   return (
     <>
-      <div className="bg-black text-gray-100 pt-0">
+      <div className="min-h-screen w-full glow-effect">
         {/* Hero Section */}
-        <section className="relative py-16 md:py-20 px-4 text-center overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent" />
+        <section className="relative py-24 md:py-32 px-4 text-center overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent" />
           <div className="relative max-w-6xl mx-auto">
             <motion.h1
-              className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-green-400 to-green-600 bg-clip-text text-transparent"
+              className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.7 }}
             >
               PDFPro.pro
             </motion.h1>
             <motion.p
-              className="text-lg md:text-xl lg:text-2xl text-gray-300 mb-6 md:mb-8 max-w-4xl mx-auto"
+              className="text-lg md:text-xl lg:text-2xl text-gray-300 mb-8 max-w-4xl mx-auto"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
+              transition={{ duration: 0.7, delay: 0.1 }}
             >
-              Professional PDF Tools Online. 27 powerful tools to merge, split, convert, edit, and secure your PDF files.
+              Your Complete PDF Toolkit. 27 powerful tools to merge, split, convert, edit, and secure your PDF files.
             </motion.p>
+
+            <div className="siri-wave mb-8">
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+            </div>
 
             {/* SmartLink Ad */}
             <motion.div
-              className="flex justify-center mb-6"
+              className="flex justify-center mb-8"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
             >
               <SmartLinkAd className="w-full max-w-md" />
-            </motion.div>
-
-            <motion.div
-              className="flex flex-wrap justify-center gap-3 md:gap-4"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            >
-              <div className="bg-green-500/20 border border-green-500/50 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-green-400 text-xs md:text-sm">
-                ✨ 100% Free
-              </div>
-              <div className="bg-green-500/20 border border-green-500/50 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-green-400 text-xs md:text-sm">
-                🔒 Secure & Private
-              </div>
-              <div className="bg-green-500/20 border border-green-500/50 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-green-400 text-xs md:text-sm">
-                ⚡ Fast Processing
-              </div>
-              <div className="bg-green-500/20 border border-green-500/50 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-green-400 text-xs md:text-sm">
-                📱 Mobile Friendly
-              </div>
-              <div className="bg-orange-500/20 border border-orange-500/50 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-orange-400 text-xs md:text-sm animate-pulse">
-                💰 Bonus Rewards
-              </div>
             </motion.div>
           </div>
         </section>
 
         {/* Main 728x90 Banner Ad - Above Tools */}
-        <div className="flex justify-center py-4 px-4 bg-gray-900/30">
+        <div className="flex justify-center py-6 px-4">
           <AdBanner728x90 placeholder={false} />
         </div>
 
         {/* Tools Section */}
-        <section className="py-12 md:py-16 px-4">
+        <section className="py-16 md:py-20 px-4">
           <div className="max-w-7xl mx-auto">
             {/* Category Filter */}
             <motion.div
-              className="flex flex-wrap justify-center gap-2 md:gap-3 mb-8 md:mb-12"
+              className="flex flex-wrap justify-center gap-3 md:gap-4 mb-10 md:mb-14"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.6 }}
             >
               <button
                 onClick={() => setSelectedCategory('all')}
-                className={`px-4 md:px-6 py-2 rounded-full font-medium transition-all text-sm md:text-base ${
+                className={`px-5 md:px-7 py-2.5 rounded-full font-medium transition-all text-sm md:text-base glass-card ${
                   selectedCategory === 'all'
-                    ? 'bg-green-500 text-black glow-green'
-                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-300 hover:bg-gray-800/50'
                 }`}
               >
                 All Tools ({PDF_TOOLS.length})
@@ -115,10 +100,10 @@ export default function Home() {
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`px-4 md:px-6 py-2 rounded-full font-medium transition-all text-sm md:text-base ${
+                  className={`px-5 md:px-7 py-2.5 rounded-full font-medium transition-all text-sm md:text-base glass-card ${
                     selectedCategory === category.id
-                      ? 'bg-green-500 text-black glow-green'
-                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-300 hover:bg-gray-800/50'
                   }`}
                 >
                   {category.title}
@@ -127,15 +112,15 @@ export default function Home() {
             </motion.div>
 
             {/* Advanced Ad + Tools Layout */}
-            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8">
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 lg:gap-10">
               {/* Left Sidebar - Desktop Ads */}
-              <div className="hidden xl:block xl:col-span-3 space-y-6">
-                <div className="sticky top-6">
+              <div className="hidden xl:block xl:col-span-3 space-y-8">
+                <div className="sticky top-8">
                   <AdBanner160x600 placeholder={false} />
-                  <div className="mt-6">
+                  <div className="mt-8">
                     <AdBanner160x300 placeholder={false} />
                   </div>
-                  <div className="mt-6">
+                  <div className="mt-8">
                     <AdBanner300x250 placeholder={false} />
                   </div>
                 </div>
@@ -144,26 +129,26 @@ export default function Home() {
               {/* Main Content Area */}
               <div className="xl:col-span-6">
                 {/* Native Banner Ad - Top of Tools */}
-                <div className="mb-6">
+                <div className="mb-8">
                   <NativeBannerAd />
                 </div>
 
                 {/* Tools Grid */}
                 <motion.div
-                  className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6"
+                  className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8"
                   layout
                 >
                   {filteredTools.map((tool, index) => (
                     <motion.div
                       key={tool.id}
                       layout
-                      initial={{ opacity: 0, scale: 0.9 }}
+                      initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
                       transition={{
-                        duration: 0.3,
-                        delay: index * 0.05,
-                        layout: { duration: 0.3 }
+                        duration: 0.4,
+                        delay: index * 0.07,
+                        layout: { duration: 0.4 }
                       }}
                     >
                       <AdToolCard
@@ -175,32 +160,32 @@ export default function Home() {
                 </motion.div>
 
                 {/* Mid-content 468x60 Banner */}
-                <div className="flex justify-center mt-8 mb-6">
+                <div className="flex justify-center mt-10 mb-8">
                   <AdBanner468x60 placeholder={false} />
                 </div>
 
                 {/* Mobile Ad - 320x50 */}
-                <div className="flex justify-center xl:hidden mt-6">
+                <div className="flex justify-center xl:hidden mt-8">
                   <AdBanner320x50 placeholder={false} />
                 </div>
               </div>
 
               {/* Right Sidebar - More Ads */}
-              <div className="hidden lg:block lg:col-span-3 xl:col-span-3 space-y-6">
-                <div className="sticky top-6">
+              <div className="hidden lg:block lg:col-span-3 xl:col-span-3 space-y-8">
+                <div className="sticky top-8">
                   <AdBanner300x250 placeholder={false} />
-                  <div className="mt-6">
+                  <div className="mt-8">
                     <AdBanner300x250 placeholder={false} />
                   </div>
-                  <div className="mt-6">
+                  <div className="mt-8">
                     <AdBanner160x300 placeholder={false} />
                   </div>
                 </div>
               </div>
 
               {/* Mobile Bottom Ad - Always Visible on Mobile */}
-              <div className="xl:hidden col-span-1 mt-6">
-                <div className="sticky bottom-4">
+              <div className="xl:hidden col-span-1 mt-8">
+                <div className="sticky bottom-6">
                   <AdBanner320x50 placeholder={false} />
                 </div>
               </div>
@@ -209,23 +194,23 @@ export default function Home() {
         </section>
 
         {/* Features Section with Ad Integration */}
-        <section className="py-16 md:py-20 px-4 bg-gray-900/50">
+        <section className="py-20 md:py-24 px-4 bg-black/50">
           <div className="max-w-6xl mx-auto">
             <motion.h2
-              className="text-3xl md:text-4xl font-bold text-center mb-12 md:mb-16 text-green-400"
+              className="text-4xl md:text-5xl font-bold text-center mb-14 md:mb-20 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              Why Choose PDFPro.pro?
+              Why PDFPro.pro?
             </motion.h2>
 
             {/* Featured Content Ad */}
-            <div className="flex justify-center mb-12">
+            <div className="flex justify-center mb-14">
               <NativeBannerAd />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
               {[
                 {
                   title: 'Advanced Technology',
@@ -260,21 +245,21 @@ export default function Home() {
               ].map((feature, index) => (
                 <motion.div
                   key={index}
-                  className="text-center p-6 rounded-xl bg-gray-800/50 border border-gray-700 hover:border-green-500/50 transition-all"
+                  className="text-center p-8 glass-card"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
                 >
-                  <div className="text-4xl mb-4">{feature.icon}</div>
-                  <h3 className="text-lg md:text-xl font-semibold mb-2 text-green-400">{feature.title}</h3>
+                  <div className="text-5xl mb-5">{feature.icon}</div>
+                  <h3 className="text-xl md:text-2xl font-semibold mb-3 text-blue-400">{feature.title}</h3>
                   <p className="text-gray-400 text-sm md:text-base">{feature.description}</p>
                 </motion.div>
               ))}
             </div>
 
             {/* Bottom Banner Section */}
-            <div className="mt-12 flex flex-col items-center space-y-4">
+            <div className="mt-14 flex flex-col items-center space-y-5">
               <AdBanner728x90 placeholder={false} />
               <div className="text-center">
                 <p className="text-gray-500 text-xs">
@@ -286,9 +271,9 @@ export default function Home() {
         </section>
 
         {/* Footer Ad Section */}
-        <div className="py-8 px-4 bg-gray-900">
+        <div className="py-10 px-4 bg-black">
           <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="flex justify-center md:justify-start">
                 <AdBanner300x250 placeholder={false} />
               </div>
