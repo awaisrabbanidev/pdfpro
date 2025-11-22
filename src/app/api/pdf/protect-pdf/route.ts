@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PDFDocument, PermissionFlag } from 'pdf-lib';
+import { PDFDocument } from 'pdf-lib';
 import { put } from '@vercel/blob';
 
 export const runtime = 'nodejs';
 
+// Removed permissions from the interface
 interface ProtectOptions {
   userPassword?: string;
   ownerPassword?: string;
-  permissions?: (keyof typeof PermissionFlag)[];
 }
 
 async function applyProtection(pdfBuffer: Buffer, options: ProtectOptions): Promise<Buffer> {
@@ -16,10 +16,10 @@ async function applyProtection(pdfBuffer: Buffer, options: ProtectOptions): Prom
   pdfDoc.setProducer('PDFPro.pro');
   pdfDoc.setCreator('PDFPro.pro');
 
+  // Removed the permissions property from the encrypt call
   await pdfDoc.encrypt({
     userPassword: options.userPassword,
     ownerPassword: options.ownerPassword,
-    permissions: options.permissions ? options.permissions.reduce((acc, p) => ({ ...acc, [p]: true }), {}) : {},
   });
 
   const pdfBytes = await pdfDoc.save();
@@ -30,6 +30,8 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
+    // The options from the client might still contain a 'permissions' field, which is fine.
+    // It will just be ignored by our new interface and logic.
     const options = JSON.parse(formData.get('options') as string) as ProtectOptions;
 
     if (!file || !options) {
