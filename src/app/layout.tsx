@@ -28,9 +28,10 @@ export const metadata: Metadata = {
     title: "PDFPro.pro - The All-in-One PDF Toolkit",
     description: "Merge, split, compress, convert, and edit your PDF files with ease.",
     images: ["/twitter-image.png"],
+    creator: "@pdfpro_pro",
   },
   alternates: { canonical: "https://www.pdfpro.pro" },
-  other: { "theme-color": "#e53e3e", "msapplication-TileColor": "#e53e3e" },
+  other: { "theme-color": "#e53e3e", "msapplication-TileColor": "#e53e3e", "Content-Language": "en-US", "geo.region": "US" },
 };
 
 const jsonLd = {
