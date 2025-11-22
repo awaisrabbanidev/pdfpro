@@ -1,10 +1,9 @@
-export const runtime = 'nodejs';
-import { ensureTempDirs, safeJsonParse } from '@/lib/api-helpers';
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, readFile, unlink } from 'fs/promises';
-import { join } from 'path';
-import { ensureDirectories, getDirectories } from '@/lib/api-config';
+import { PDFDocument, rgb } from 'pdf-lib';
 import { put } from '@vercel/blob';
+
+export const runtime = 'nodejs';
+
 interface PageNumberSettings {
   position: 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
   format: '1' | 'Page 1' | '1 of N' | 'Page 1 of N';
@@ -16,166 +15,64 @@ interface PageNumberSettings {
 
 export async function POST(request: NextRequest) {
   try {
-    ensureDirectories();
-    const dirs = getDirectories();
-
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    const settings = formData.get('settings') as string;
+    const settingsJSON = formData.get('settings') as string;
 
-    if (!file) {
-      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
+    if (!file || !settingsJSON) {
+      return NextResponse.json({ error: 'Missing file or page number settings' }, { status: 400 });
     }
 
-    if (!settings) {
-      return NextResponse.json({ error: 'No page number settings specified' }, { status: 400 });
-    }
+    const settings = JSON.parse(settingsJSON) as PageNumberSettings;
+    const pdfBuffer = Buffer.from(await file.arrayBuffer());
+    const pdfDoc = await PDFDocument.load(pdfBuffer);
+    const pageCount = pdfDoc.getPageCount();
+    const font = await pdfDoc.embedFont('Helvetica');
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    const timestamp = Date.now();
-    const inputPath = join(dirs.UPLOADS, `${timestamp}-${file.name}`);
-    const outputPath = join(dirs.OUTPUTS, `${timestamp}-with-page-numbers.pdf`);
-
-    await writeFile(inputPath, buffer);
-
-    try {
-      const { PDFDocument, rgb } = await import('pdf-lib');
-      const pdfDoc = await PDFDocument.load(buffer);
-
-      const pageNumberSettings: PageNumberSettings = safeJsonParse(settings, "settings");
-      const pageCount = pdfDoc.getPageCount();
-
-      // Define font
-      const font = await pdfDoc.embedFont('Helvetica');
-
-      // Helper function to get position coordinates
-      function getPosition(pageSize: { width: number; height: number }, textWidth: number) {
-        const { width, height } = pageSize;
-        const margin = pageNumberSettings.margin;
-
-        let x = margin;
-        let y = margin;
-
-        switch (pageNumberSettings.position) {
-          case 'top-left':
-            x = margin;
-            y = height - margin - pageNumberSettings.fontSize;
-            break;
-          case 'top-center':
-            x = (width - textWidth) / 2;
-            y = height - margin - pageNumberSettings.fontSize;
-            break;
-          case 'top-right':
-            x = width - margin - textWidth;
-            y = height - margin - pageNumberSettings.fontSize;
-            break;
-          case 'bottom-left':
-            x = margin;
-            y = margin + pageNumberSettings.fontSize;
-            break;
-          case 'bottom-center':
-            x = (width - textWidth) / 2;
-            y = margin + pageNumberSettings.fontSize;
-            break;
-          case 'bottom-right':
-            x = width - margin - textWidth;
-            y = margin + pageNumberSettings.fontSize;
-            break;
-        }
-
-        return { x, y };
-      }
-
-      // Parse color string (hex or rgb)
-      function parseColor(colorStr: string) {
-        if (colorStr.startsWith('#')) {
-          const hex = colorStr.slice(1);
-          return rgb(
-            parseInt(hex.substr(0, 2), 16) / 255,
-            parseInt(hex.substr(2, 2), 16) / 255,
-            parseInt(hex.substr(4, 2), 16) / 255
-          );
-        }
-        // Default to black
-        return rgb(0, 0, 0);
-      }
-
-      // Add page numbers to each page
-      for (let i = 0; i < pageCount; i++) {
+    for (let i = 0; i < pageCount; i++) {
         const page = pdfDoc.getPage(i);
         const { width, height } = page.getSize();
+        const pageNum = settings.startFrom + i;
 
-        // Calculate page number
-        const pageNum = pageNumberSettings.startFrom + i;
-
-        // Format the page number text
-        let pageText: string;
-        switch (pageNumberSettings.format) {
-          case '1':
-            pageText = pageNum.toString();
-            break;
-          case 'Page 1':
-            pageText = `Page ${pageNum}`;
-            break;
-          case '1 of N':
-            pageText = `${pageNum} of ${pageCount + pageNumberSettings.startFrom - 1}`;
-            break;
-          case 'Page 1 of N':
-            pageText = `Page ${pageNum} of ${pageCount + pageNumberSettings.startFrom - 1}`;
-            break;
-          default:
-            pageText = pageNum.toString();
+        let pageText = '';
+        switch (settings.format) {
+            case '1': pageText = `${pageNum}`; break;
+            case 'Page 1': pageText = `Page ${pageNum}`; break;
+            case '1 of N': pageText = `${pageNum} of ${pageCount}`; break;
+            case 'Page 1 of N': pageText = `Page ${pageNum} of ${pageCount}`; break;
         }
 
-        // Calculate text width
-        const textWidth = font.widthOfTextAtSize(pageText, pageNumberSettings.fontSize);
+        const textWidth = font.widthOfTextAtSize(pageText, settings.fontSize);
+        let x, y;
 
-        // Get position
-        const { x, y } = getPosition({ width, height }, textWidth);
+        switch (settings.position) {
+            case 'top-left': x = settings.margin; y = height - settings.margin; break;
+            case 'top-center': x = (width - textWidth) / 2; y = height - settings.margin; break;
+            case 'top-right': x = width - settings.margin - textWidth; y = height - settings.margin; break;
+            case 'bottom-left': x = settings.margin; y = settings.margin; break;
+            case 'bottom-center': x = (width - textWidth) / 2; y = settings.margin; break;
+            case 'bottom-right': x = width - settings.margin - textWidth; y = settings.margin; break;
+        }
 
-        // Draw page number
-        page.drawText(pageText, {
-          x,
-          y,
-          size: pageNumberSettings.fontSize,
-          font: font,
-          color: parseColor(pageNumberSettings.color),
-        });
-      }
+        const hex = settings.color.replace('#', '');
+        const color = rgb(
+            parseInt(hex.substring(0, 2), 16) / 255,
+            parseInt(hex.substring(2, 4), 16) / 255,
+            parseInt(hex.substring(4, 6), 16) / 255
+        );
 
-      const pdfBytes = await pdfDoc.save();
-      await writeFile(outputPath, pdfBytes);
-
-    } catch (conversionError) {
-      console.error('Page numbers error:', conversionError);
-      throw new Error('Failed to add page numbers');
-    } finally {
-      // Clean up input file
-      try {
-        await unlink(inputPath);
-      } catch (error) {
-        console.error('Failed to clean up input file:', error);
-      }
+        page.drawText(pageText, { x, y, size: settings.fontSize, font, color });
     }
 
-    // Read the output file for base64 encoding
-    const outputBuffer = await readFile(outputPath);
-    const base64 = outputBuffer.toString('base64');
+    const pdfBytes = await pdfDoc.save();
+    const filename = `page-numbered-${file.name}`;
+    const blob = await put(filename, Buffer.from(pdfBytes), { access: 'public', contentType: 'application/pdf' });
 
-    return NextResponse.json({
-      success: true,
-      filename: `${file.name.replace('.pdf', '-with-page-numbers.pdf')}`,
-      base64: base64,
-      message: 'Page numbers added successfully'
-    });
+    return NextResponse.json(blob);
 
   } catch (error) {
-    console.error('Page numbers addition error:', error);
-    return NextResponse.json(
-      { error: 'Failed to add page numbers' },
-      { status: 500 }
-    );
+    console.error('Page numbers error:', error);
+    const message = error instanceof Error ? error.message : 'Unknown error while adding page numbers';
+    return NextResponse.json({ error: `Failed to add page numbers: ${message}` }, { status: 500 });
   }
 }
