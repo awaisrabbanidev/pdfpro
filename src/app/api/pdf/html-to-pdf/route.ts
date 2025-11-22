@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-export const runtime = 'nodejs';
-=======
->>>>>>> compyle/pdfpro-runtime-config-deploy
 import { NextRequest, NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
