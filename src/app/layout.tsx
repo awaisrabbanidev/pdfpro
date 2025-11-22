@@ -19,9 +19,9 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://www.pdfpro.pro",
     title: "PDFPro.pro - The All-in-One PDF Toolkit",
-    description: "Merge, split, compress, convert, and edit your PDF files with ease. 27 powerful and free tools to manage your PDFs online.",
+    description: "Easily merge, split, compress, convert, edit, and sign your PDFs online for free. PDFPro.pro offers 27 powerful tools to manage your documents securely and efficiently.",
     siteName: "PDFPro.pro",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "PDFPro.pro" }],
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "PDFPro.pro - Free Online PDF Tools" }],
   },
   twitter: {
     card: "summary_large_image",
