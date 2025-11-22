@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     operations.filter(op => op.type === 'rotate').forEach(op => {
       if (op.page > 0 && op.page <= pageCount && op.degrees !== undefined) {
         const pageToRotate = sourcePdf.getPage(op.page - 1);
-        pageToRotate.rotate(degrees(op.degrees));
+        pageToRotate.setRotation(degrees(op.degrees));
       }
     });
 
