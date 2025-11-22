@@ -24,7 +24,7 @@ async function applyProtection(pdfBuffer: Buffer, options: ProtectOptions): Prom
     ownerPassword: options.ownerPassword,
     // Note: Permissions functionality removed to resolve build errors.
     // The 'pdf-lib' version in use does not seem to export PDFPermissions or PermissionFlags.
-  });
+  } as any);
 
   return Buffer.from(pdfBytes);
 }
