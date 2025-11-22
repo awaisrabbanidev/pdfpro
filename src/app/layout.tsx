@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: "PDFPro.pro - The All-in-One PDF Toolkit",
   description: "Merge, split, compress, convert, and edit your PDF files with ease. 27 powerful and free tools to manage your PDFs online. Secure, private, and fast.",
-  keywords: ["PDF", "PDF tools", "merge PDF", "split PDF", "compress PDF", "convert PDF", "PDF to Word", "PDF to JPG", "edit PDF", "online PDF editor", "free PDF tools", "PDF converter", "unlock PDF", "protect PDF", "rotate PDF", "add page numbers"],
+  keywords: ["PDF", "PDF tools", "online PDF tools", "free PDF editor", "merge PDF", "split PDF", "compress PDF", "convert PDF", "PDF to Word", "Word to PDF", "PDF to Excel", "Excel to PDF", "PDF to PowerPoint", "PowerPoint to PDF", "PDF to JPG", "JPG to PDF", "edit PDF", "sign PDF", "unlock PDF", "protect PDF", "rotate PDF", "add page numbers", "delete PDF pages", "organize PDF", "PDF reader", "PDF viewer"],
   authors: [{ name: "PDFPro.pro" }],
   creator: "PDFPro.pro",
   publisher: "PDFPro.pro",
