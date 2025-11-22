@@ -1,114 +1,82 @@
-export const runtime = 'nodejs';
-import { ensureTempDirs, safeJsonParse } from '@/lib/api-helpers';
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, readFile, unlink } from 'fs/promises';
-import { join } from 'path';
-import { ensureDirectories, getDirectories } from '@/lib/api-config';
+import { PDFDocument, degrees } from 'pdf-lib';
 import { put } from '@vercel/blob';
 
-interface PageOperation {
+export const runtime = 'nodejs';
+
+interface OrganizeOperation {
   type: 'move' | 'delete' | 'rotate';
-  from?: number;
-  to?: number;
-  page?: number;
-  degrees?: number;
+  page: number; // The original 1-based page number
+  to?: number; // For move: the new 1-based position
+  degrees?: number; // For rotate
 }
 
 export async function POST(request: NextRequest) {
   try {
-    ensureDirectories();
-    const dirs = getDirectories();
-
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    const operations = formData.get('operations') as string;
+    const operationsJSON = formData.get('operations') as string;
 
-    if (!file) {
-      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
+    if (!file || !operationsJSON) {
+      return NextResponse.json({ error: 'Missing file or operations data' }, { status: 400 });
     }
 
-    if (!operations) {
-      return NextResponse.json({ error: 'No operations specified' }, { status: 400 });
-    }
+    const operations = JSON.parse(operationsJSON) as OrganizeOperation[];
+    const pdfBuffer = Buffer.from(await file.arrayBuffer());
+    const sourcePdf = await PDFDocument.load(pdfBuffer);
+    const pageCount = sourcePdf.getPageCount();
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    const timestamp = Date.now();
-    const inputPath = join(dirs.UPLOADS, `${timestamp}-${file.name}`);
-    const outputPath = join(dirs.OUTPUTS, `${timestamp}-organized.pdf`);
-
-    await writeFile(inputPath, buffer);
-
-    try {
-      const { PDFDocument, degrees } = await import('pdf-lib');
-      const pdfDoc = await PDFDocument.load(buffer);
-
-      // Parse operations
-      const pageOps: PageOperation[] = safeJsonParse(operations, "settings");
-      const pageCount = pdfDoc.getPageCount();
-
-      // Apply page operations
-      for (const op of pageOps) {
-        switch (op.type) {
-          case 'rotate':
-            if (op.page !== undefined && op.degrees) {
-              const pageIndex = op.page - 1; // Convert to 0-based index
-              if (pageIndex >= 0 && pageIndex < pageCount) {
-                const page = pdfDoc.getPage(pageIndex);
-                page.setRotation(degrees(op.degrees));
-              }
-            }
-            break;
-
-          case 'delete':
-            if (op.page !== undefined) {
-              const pageIndex = op.page - 1; // Convert to 0-based index
-              if (pageIndex >= 0 && pageIndex < pdfDoc.getPageCount()) {
-                pdfDoc.removePage(pageIndex);
-              }
-            }
-            break;
-
-          case 'move':
-            // Move operation - this is complex with pdf-lib
-            // For now, we'll focus on rotate and delete
-            console.warn('Move operation not fully implemented yet');
-            break;
-        }
+    // 1. Apply rotations to the source document in-place
+    operations.filter(op => op.type === 'rotate').forEach(op => {
+      if (op.page > 0 && op.page <= pageCount && op.degrees !== undefined) {
+        const pageToRotate = sourcePdf.getPage(op.page - 1);
+        pageToRotate.rotate(degrees(op.degrees));
       }
-
-      const pdfBytes = await pdfDoc.save();
-      await writeFile(outputPath, pdfBytes);
-
-    } catch (conversionError) {
-      console.error('PDF organization error:', conversionError);
-      throw new Error('Failed to organize PDF');
-    } finally {
-      // Clean up input file
-      try {
-        await unlink(inputPath);
-      } catch (error) {
-        console.error('Failed to clean up input file:', error);
-      }
-    }
-
-    // Read the output file for base64 encoding
-    const outputBuffer = await readFile(outputPath);
-    const base64 = outputBuffer.toString('base64');
-
-    return NextResponse.json({
-      success: true,
-      filename: `${file.name.replace('.pdf', '-organized.pdf')}`,
-      base64: base64,
-      message: 'PDF organized successfully'
     });
+
+    // 2. Determine the final order and which pages to exclude
+    let finalPageOrder: number[] = Array.from({ length: pageCount }, (_, i) => i);
+    const pagesToDelete = new Set<number>();
+
+    operations.filter(op => op.type === 'delete').forEach(op => {
+        if (op.page > 0 && op.page <= pageCount) {
+            pagesToDelete.add(op.page - 1);
+        }
+    });
+
+    finalPageOrder = finalPageOrder.filter(index => !pagesToDelete.has(index));
+
+    operations.filter(op => op.type === 'move').forEach(op => {
+        if (op.page > 0 && op.to !== undefined && op.to > 0) {
+            const pageToMove = op.page - 1;
+            const fromIndex = finalPageOrder.indexOf(pageToMove);
+            if (fromIndex > -1) {
+                const [item] = finalPageOrder.splice(fromIndex, 1);
+                finalPageOrder.splice(op.to - 1, 0, item);
+            }
+        }
+    });
+
+    // 3. Create the new PDF with the pages in the correct order
+    const organizedPdf = await PDFDocument.create();
+    const copiedPages = await organizedPdf.copyPages(sourcePdf, finalPageOrder);
+    copiedPages.forEach(page => organizedPdf.addPage(page));
+
+    organizedPdf.setProducer('PDFPro.pro');
+    organizedPdf.setCreator('PDFPro.pro');
+
+    const pdfBytes = await organizedPdf.save();
+    const filename = `organized-${file.name}`;
+    const blob = await put(filename, Buffer.from(pdfBytes), {
+      access: 'public',
+      contentType: 'application/pdf',
+    });
+
+    return NextResponse.json(blob);
 
   } catch (error) {
     console.error('PDF organization error:', error);
-    return NextResponse.json(
-      { error: 'Failed to organize PDF' },
-      { status: 500 }
-    );
+    const message = error instanceof Error ? error.message : 'Unknown error during organization';
+    return NextResponse.json({ error: `Failed to organize PDF: ${message}` }, { status: 500 });
   }
 }
