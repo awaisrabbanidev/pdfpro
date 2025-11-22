@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PDFDocument, PDFPermissions } from 'pdf-lib';
+import { PDFDocument, PermissionFlag } from 'pdf-lib';
 import { put } from '@vercel/blob';
 
 export const runtime = 'nodejs';
@@ -7,20 +7,11 @@ export const runtime = 'nodejs';
 interface ProtectOptions {
   userPassword?: string;
   ownerPassword?: string;
-  permissions?: (keyof typeof PDFPermissions)[];
+  permissions?: (keyof typeof PermissionFlag)[];
 }
 
 async function applyProtection(pdfBuffer: Buffer, options: ProtectOptions): Promise<Buffer> {
   const pdfDoc = await PDFDocument.load(pdfBuffer);
-
-  const permissions: { [K in keyof typeof PDFPermissions]?: boolean } = {};
-  if (options.permissions) {
-    for (const p of options.permissions) {
-      if (p in PDFPermissions) {
-        permissions[p] = true;
-      }
-    }
-  }
 
   pdfDoc.setProducer('PDFPro.pro');
   pdfDoc.setCreator('PDFPro.pro');
@@ -28,7 +19,7 @@ async function applyProtection(pdfBuffer: Buffer, options: ProtectOptions): Prom
   await pdfDoc.encrypt({
     userPassword: options.userPassword,
     ownerPassword: options.ownerPassword,
-    permissions: permissions,
+    permissions: options.permissions ? options.permissions.reduce((acc, p) => ({ ...acc, [p]: true }), {}) : {},
   });
 
   const pdfBytes = await pdfDoc.save();
