@@ -4,10 +4,6 @@
       "source": "/(.*)",
       "headers": [
         {
-          "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' *.adsterra.com *.highperformanceformat.com *.effectivegatecpm.com *.realizationnewestfangs.com *.skinnycrawlinglax.com *.wayfarerorthodox.com; connect-src 'self' https://pdfpro.pro *.adsterra.com *.highperformanceformat.com *.effectivegatecpm.com protrafficinspector.com kettledroopingcontinuation.com *.sourshaped.com *.realizationnewestfangs.com *.skinnycrawlinglax.com *.wayfarerorthodox.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: *.adsterra.com *.highperformanceformat.com *.effectivegatecpm.com cdn.storageimagedisplay.com kettledroopingcontinuation.com *.realizationnewestfangs.com *.skinnycrawlinglax.com *.wayfarerorthodox.com; frame-src 'self' *.adsterra.com *.highperformanceformat.com *.effectivegatecpm.com kettledroopingcontinuation.com *.sourshaped.com *.realizationnewestfangs.com *.skinnycrawlinglax.com *.wayfarerorthodox.com; font-src 'self' data:; media-src 'self' *.adsterra.com *.highperformanceformat.com *.effectivegatecpm.com *.realizationnewestfangs.com *.skinnycrawlinglax.com *.wayfarerorthodox.com; object-src 'self'; child-src 'self' *.adsterra.com *.highperformanceformat.com *.effectivegatecpm.com kettledroopingcontinuation.com *.sourshaped.com *.realizationnewestfangs.com *.skinnycrawlinglax.com *.wayfarerorthodox.com;"
-        },
-        {
           "key": "Cache-Control",
           "value": "no-cache, no-store, must-revalidate"
         }
