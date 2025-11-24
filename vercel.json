@@ -4,6 +4,10 @@
       "source": "/(.*)",
       "headers": [
         {
+          "key": "Content-Security-Policy-Report-Only",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; connect-src 'self' https:; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; frame-src 'self' https:; font-src 'self' data: https:; media-src 'self' https:; object-src 'self'; child-src 'self' https:; report-uri /csp-violation-report-endpoint"
+        },
+        {
           "key": "Cache-Control",
           "value": "no-cache, no-store, must-revalidate"
         }
